@@ -515,6 +515,14 @@
       "originSha256": "68a1c3a93b4dd3cfa7ee7f0e1e216fe4a91cd8e164a54910b15392a2cf47dd04",
       "sha256": "05cc429d155d1cb31efa1a47d695e3c03509a3dc739fbadc2e274f89009faef5",
       "adaptation": "Include the SDK public header; extend the existing nine rate/clock isolation cases with maximum-size borrowed-buffer binding/replacement/retention and caller storage surviving destruction, paired PCM with observations on only one instance, rejected-state/PCM rollback, exact low-nibble-first output, FIFO overflow/underflow, one-byte repeat/predictor restart/end silence, slow-clock immediate Stop and staged clock-buffer rejection rollback. Retain the interleaved twelve-float PCM/state CLI and callback allocation/free audit."
+    },
+    {
+      "file": "native/tests/rf5c164_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_rf5c164_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "578708f4576700601310fc2cbdbc12dc367d9de43efe3e72c23a79f7624022ab",
+      "sha256": "6bf6dc300f0da50b2900ab4b1331031babd7bccf8f00ac29775b78dd23cd9a8d",
+      "adaptation": "Include the SDK dual-ABI public header and retain the 95-float extra-profile CLI. Extend the default self-test with primary/extra common-operation PCM across three output rates and six clock edits, all voices/pan, copied RAM lifetime, banked OR writes versus absolute crossing uploads, loop/double-marker behavior, reset/clear, empty/invalid-range/rejected-copy rollback, observations and explicit rate/clock/null contract differences. Distinguish ordinary low-clock mask holds from immediate additional cancellation/Stop; retain foreign-voice, clipping and held-history tests and callback allocation/free audits."
     }
   ]
 }

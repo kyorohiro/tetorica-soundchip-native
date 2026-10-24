@@ -26,7 +26,7 @@ The upstream references include files explicitly marked BSD-3-Clause. libvgm sup
 
 | Deliverable | Current status |
 | --- | --- |
-| Standalone native CMake targets | **YM2612, YM2151, YM2413, YM2203, YM2608 and YM2610/YM2610B using ymfm, plus Sega PSG, AY-3-8910 and OKIM6258**: ten chip IDs in nine static libraries, with offline test fixtures |
+| Standalone native CMake targets | **YM2612, YM2151, YM2413, YM2203, YM2608 and YM2610/YM2610B using ymfm, plus Sega PSG, AY-3-8910, OKIM6258 and RF5C164**: eleven chip IDs in ten static libraries, with offline test fixtures |
 | Other native adapters | Reference sources included; standalone targets are being added |
 | WASM build recipes | 27 artifacts; independent builds verified for YM2612 and DX7 |
 | Initial compiled WASM archive | YM2612, with its matching source archive embedded |
@@ -34,7 +34,7 @@ The upstream references include files explicitly marked BSD-3-Clause. libvgm sup
 
 Source availability does not imply that every adapter is ready to link unchanged. The [chip differences](docs/chip-differences.md) document records required combinations and known prerequisites, including the Game Boy native header adjustment. See the [machine-readable catalog](catalog/chips.json) and [verification record](docs/verification.md) for details.
 
-[Verify SDK](.github/workflows/verify-sdk.yml) runs on pushes, pull requests, and manual dispatch. Its Native matrix is configured for Windows x64, Linux x64/ARM64, and macOS Intel/Apple Silicon. Each job builds nine static libraries covering the ten Native chip IDs in Release mode from an independently extracted source ZIP, runs nine CTest fixtures, renders seven offline WAV examples, and checks the JavaScript references. A separate Ubuntu job compiles YM2612 WASM, verifies the matching source archive and synchronous ABI, and rebuilds from the extracted archive. See the [verification record](docs/verification.md) for completed runs; the earlier YM2612-only matrix does not establish coverage for subsequently added targets.
+[Verify SDK](.github/workflows/verify-sdk.yml) runs on pushes, pull requests, and manual dispatch. Its Native matrix is configured for Windows x64, Linux x64/ARM64, and macOS Intel/Apple Silicon. Each job builds ten static libraries covering the eleven Native chip IDs in Release mode from an independently extracted source ZIP, runs ten CTest fixtures, renders eight offline WAV examples, and checks the JavaScript references. A separate Ubuntu job compiles YM2612 WASM, verifies the matching source archive and synchronous ABI, and rebuilds from the extracted archive. See the [verification record](docs/verification.md) for completed runs; the earlier YM2612-only matrix does not establish coverage for subsequently added targets.
 
 ## Build the native libraries
 
@@ -59,9 +59,10 @@ target_link_libraries(your_application PRIVATE tetorica::ym2612)
 # For OPNA FM/SSG/rhythm/ADPCM-B, select tetorica::ym2608.
 # For OPNB FM/SSG/ADPCM-A/B, select tetorica::ym2610 or tetorica::ym2610b.
 # For a separate OKI ADPCM voice, select tetorica::okim6258.
+# For eight-channel Mega-CD PCM, select tetorica::rf5c164.
 ```
 
-The public headers are `<tetorica/ym2612.hpp>`, `<tetorica/ym2151.hpp>`, `<tetorica/ym2413.hpp>`, `<tetorica/ym2203.hpp>`, `<tetorica/ym2608.hpp>`, `<tetorica/ym2610.hpp>`, `<tetorica/ym2610b.hpp>`, `<tetorica/segapsg.hpp>`, `<tetorica/ay8910.hpp>` and `<tetorica/okim6258.hpp>`. They expose the existing chip C ABIs to C++ hosts; both OPNB headers retain `native_ym2610b_*`, Sega PSG retains `native_game_gear_*`, and OKIM6258 retains `native_extra_okim6258_*`. YM2413 supports nine melodic FM channels or six FM channels plus five rhythm voices sharing physical channels 6–8. YM2203 combines three FM channels and three SSG voices in one mono output, copied to both stereo channels. YM2608 supplies six FM channels, three SSG voices, six fixed-ROM rhythm voices and ADPCM-B RAM playback. YM2610/YM2610B supplies four/six FM channels, three SSG voices and separate ADPCM-A/B ROM banks; the immutable variant is selected when creating a handle. The host supplies encoded sample data. Sega PSG supplies three tone channels, noise and optional Game Gear stereo; AY supplies three tone/noise voices and a shared envelope with mono output on both channels. OKIM6258 provides one 4-bit ADPCM voice with a fixed 12-bit output model, borrowing the host's immutable encoded sample. These targets own their respective chips independently. See the [native guide](native/README.md) for integration examples and memory ownership.
+The public headers are `<tetorica/ym2612.hpp>`, `<tetorica/ym2151.hpp>`, `<tetorica/ym2413.hpp>`, `<tetorica/ym2203.hpp>`, `<tetorica/ym2608.hpp>`, `<tetorica/ym2610.hpp>`, `<tetorica/ym2610b.hpp>`, `<tetorica/segapsg.hpp>`, `<tetorica/ay8910.hpp>`, `<tetorica/okim6258.hpp>` and `<tetorica/rf5c164.hpp>`. They expose the existing chip C ABIs to C++ hosts; both OPNB headers retain `native_ym2610b_*`, Sega PSG retains `native_game_gear_*`, and OKIM6258 retains `native_extra_okim6258_*`. RF5C164 exposes both its primary and additional profiles through one library/header. YM2413 supports nine melodic FM channels or six FM channels plus five rhythm voices sharing physical channels 6–8. YM2203 combines three FM channels and three SSG voices in one mono output, copied to both stereo channels. YM2608 supplies six FM channels, three SSG voices, six fixed-ROM rhythm voices and ADPCM-B RAM playback. YM2610/YM2610B supplies four/six FM channels, three SSG voices and separate ADPCM-A/B ROM banks; the immutable variant is selected when creating a handle. The host supplies encoded sample data. Sega PSG supplies three tone channels, noise and optional Game Gear stereo; AY supplies three tone/noise voices and a shared envelope with mono output on both channels. OKIM6258 provides one 4-bit ADPCM voice with a fixed 12-bit output model, borrowing the host's immutable encoded sample. RF5C164 provides eight sign-magnitude PCM voices and 64 KiB of owned sample RAM. These targets own their respective chips independently. See the [native guide](native/README.md) for integration examples, validation differences and memory ownership.
 
 This YM2612 example configures a simple voice and generates a stereo buffer:
 
@@ -102,7 +103,7 @@ In a real-time application, create and configure the chip before the audio callb
 
 ## Render sound-chip WAV examples
 
-The default build produces seven offline examples using the actual SDK libraries. `tetorica_genesis_wav` combines a YM2612 melody with PSG tones and short noise percussion. `tetorica_master_system_wav` combines YM2413's built-in piano and rhythm voices with Sega PSG tones. `tetorica_msx_wav` combines AY tones, noise and a hardware envelope with an OPLL flute melody. `tetorica_pc98_ym2203_wav` uses all three FM channels and three SSG voices, including noise and envelope, within one YM2203. `tetorica_pc98_ym2608_wav` combines OPNA FM/SSG with original synthetic ADPCM-A percussion and an ADPCM-B pluck, uploading both ROM and RAM data. `tetorica_neogeo_wav` uses the four-FM YM2610 variant, three SSG voices and original synthetic ADPCM-A/B ROM samples. `tetorica_x68000_wav` combines YM2151 FM at 4 MHz with an OKIM6258 percussion sample at 8 MHz/divider 512. They demonstrate Genesis, FM-enabled Master System, MSX+MSX-MUSIC, two PC-98, NeoGeo and X68000 sound configurations. Each writes three seconds of 48 kHz stereo PCM16. No audio device, external ROM, asset or npm dependency is needed. The generated ADPCM data is not copied from hardware or game ROMs.
+The default build produces eight offline examples using the actual SDK libraries. `tetorica_genesis_wav` combines a YM2612 melody with PSG tones and short noise percussion. `tetorica_master_system_wav` combines YM2413's built-in piano and rhythm voices with Sega PSG tones. `tetorica_msx_wav` combines AY tones, noise and a hardware envelope with an OPLL flute melody. `tetorica_pc98_ym2203_wav` uses all three FM channels and three SSG voices, including noise and envelope, within one YM2203. `tetorica_pc98_ym2608_wav` combines OPNA FM/SSG with original synthetic ADPCM-A percussion and an ADPCM-B pluck, uploading both ROM and RAM data. `tetorica_neogeo_wav` uses the four-FM YM2610 variant, three SSG voices and original synthetic ADPCM-A/B ROM samples. `tetorica_x68000_wav` combines YM2151 FM at 4 MHz with an OKIM6258 percussion sample at 8 MHz/divider 512. `tetorica_megacd_wav` combines YM2612, Sega PSG and the primary RF5C164 with an original looping PCM waveform. They demonstrate Genesis, FM-enabled Master System, MSX+MSX-MUSIC, two PC-98, NeoGeo, X68000 and Mega-CD sound configurations. Each writes three seconds of 48 kHz stereo PCM16. No audio device, external ROM, asset or npm dependency is needed. The generated sample data is not copied from hardware or game ROMs.
 
 ```sh
 # After the root CMake build above, with a single-configuration generator:
@@ -113,6 +114,7 @@ The default build produces seven offline examples using the actual SDK libraries
 ./build/native/native/tetorica_pc98_ym2608_wav "pc98 ym2608 demo.wav"
 ./build/native/native/tetorica_neogeo_wav "neogeo demo.wav"
 ./build/native/native/tetorica_x68000_wav "x68000 demo.wav"
+./build/native/native/tetorica_megacd_wav "megacd demo.wav"
 # With Visual Studio on Windows:
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
 ./build/native/native/Release/tetorica_master_system_wav.exe "master system demo.wav"
@@ -121,6 +123,7 @@ The default build produces seven offline examples using the actual SDK libraries
 ./build/native/native/Release/tetorica_pc98_ym2608_wav.exe "pc98 ym2608 demo.wav"
 ./build/native/native/Release/tetorica_neogeo_wav.exe "neogeo demo.wav"
 ./build/native/native/Release/tetorica_x68000_wav.exe "x68000 demo.wav"
+./build/native/native/Release/tetorica_megacd_wav.exe "megacd demo.wav"
 ```
 
 Each executable's single required argument selects the output file; its parent directory must exist. All use fixed example gains and chip-clock pitch conversion. Sega PSG stereo `0xff` retains Genesis/Master System mono output on both channels; AY, OPLL and YM2203 output is also mono on both channels. These are sound configurations, not whole-console emulators or measurements of a motherboard's analog mix. Set `-DTETORICA_NATIVE_BUILD_EXAMPLES=OFF` to omit them when embedding the libraries.

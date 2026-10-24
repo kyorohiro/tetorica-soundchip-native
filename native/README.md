@@ -29,8 +29,8 @@ translation-unit constraints.
 ## Build support
 
 The independently buildable Native components are **ymfm YM2612, YM2151,
-YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910 and OKIM6258**.
-These ten chip IDs use nine static libraries; YM2610 and YM2610B share one
+YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258 and RF5C164**.
+These eleven chip IDs use ten static libraries; YM2610 and YM2610B share one
 library and select an immutable per-handle variant:
 
 ```sh
@@ -53,6 +53,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::ym2608` | `tetorica_native_ym2608` | `<tetorica/ym2608.hpp>` | `native_ym2608_*`, `NativeYm2608State`, `NativeYm2608ExtraState` |
 | `tetorica::ym2610`, `tetorica::ym2610b` | `tetorica_native_ym2610` | `<tetorica/ym2610.hpp>`, `<tetorica/ym2610b.hpp>` | `native_ym2610b_*`, `NativeYm2610BState`, `NativeYm2610BExtraState` |
 | `tetorica::okim6258` | `tetorica_native_okim6258` | `<tetorica/okim6258.hpp>` | `native_extra_okim6258_*`, `NativeExtraOkim6258State` |
+| `tetorica::rf5c164` | `tetorica_native_rf5c164` | `<tetorica/rf5c164.hpp>` | `native_rf5c164_*`, `native_extra_rf5c164_*`, `NativeExtraRf5c164State` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -87,7 +88,10 @@ profiles, FM/SSG/ADPCM-A/B, dense ROM boundaries/copies, sparse-page ownership,
 retained controls, Stop/reset, cancellation, timers/status/IRQ and observation.
 The OKIM6258 fixture covers sample borrowing/replacement, nibble/FIFO timing,
 clock/divider guards, pan, repeat, retained Stop/reset and observation.
-All nine fixtures run through CTest with assertions enabled in Release builds.
+The RF5C164 fixture covers both profiles, eight voices, sign-magnitude PCM,
+loop markers, RAM/bank access, clock conversion, reset retention and the
+additional profile's immediate source cancellation and observation.
+All ten fixtures run through CTest with assertions enabled in Release builds.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
@@ -406,6 +410,64 @@ The next `play()` resets wrapper feed counters. `get_state()` is observational;
 its progress fields are not a transferable WASM save state. Allocate/free
 outside the callback and keep all chip access serialized.
 
+## Embed RF5C164
+
+Link `tetorica::rf5c164` and include `<tetorica/rf5c164.hpp>`. One static library
+exposes both existing ABIs: `native_rf5c164_*` for the primary profile and
+`native_extra_rf5c164_*` for independent additional instances. Each handle owns
+one eight-voice PCM chip and **64 KiB of RAM**. Neither profile allocates FM or
+PSG siblings. Common-operation PCM is checked between the two profiles;
+direct Worklet/WASM comparisons exercise the additional API. Their
+implementation, validation and control APIs remain distinct.
+
+PCM bytes are sign-magnitude: bit 7 means positive, `0x80` is positive zero,
+and bit-clear values are negative magnitudes. **`0xff` is a loop marker**, so
+positive magnitude 127 cannot be ordinary sample data. A marker jumps to the
+voice's byte-addressed loop start; a second marker there produces silence for
+that tick. When large steps can skip bytes, pad the end with enough marker
+bytes to catch them. Voice start register `6` uses **256-byte units**, while
+loop registers `4/5` use byte units. Step registers `2/3` form a 16-bit value
+with 11 fractional bits. At the reference **12.5 MHz** clock, source ticks run
+at `clock/384`; for an N-sample waveform use approximately
+`step = round(frequency_hz * N * 384 * 2048 / clock)`. Marker-loop quantization
+and the chip's stepping still determine the actual period.
+
+Register `7` bit 7 globally enables output; with bit 6 set, bits 0–2 select a
+voice, otherwise bits 0–3 select a 4 KiB CPU RAM bank. Register `0` is envelope
+level 0–255, and register `1` has left/right pan levels in its low/high nibbles.
+Register `8` is an inverted gate mask: a set bit disables that voice and resets
+its address to the configured start. `write_memory(offset, value)` follows the
+original CPU window behavior **`bank | offset`**, not addition or an absolute
+upload. Use offsets 0–4095 for the selected bank window. In contrast,
+`load(chip, bytes, offset, size)` uses a bounded absolute RAM range and copies
+the caller's bytes synchronously; the input may be released after success.
+
+Both profiles preserve RAM on reset, while resetting voice/control/output
+history. `clear_memory()` zeros RAM separately, without implicitly gating
+voices or discarding a held output sample. Serialize memory edits with
+rendering and disable affected voices before replacing active waveforms.
+Creation/destruction and host synchronization remain outside the audio callback.
+
+The primary profile constructs the shared vendor `RF5C164` core at 12.5 MHz.
+Clock edits add outer averaging/hold of its canonical output. Its legacy
+constructor rejects only an output rate of zero, and its clock setter is
+**void and unbounded**; the host must validate suitable rates/clocks. Its
+`load()` checks numeric bounds but does not explicitly reject a nonempty null
+pointer: callers must provide valid source storage. Do not infer additional
+validation from the other profile. The primary API does not expose the extra
+profile's observational state/readback or immediate cancellation functions.
+
+The additional profile uses an independent per-voice implementation, retaining
+held contributions and outer resampling history to preserve reference PCM while
+supporting source cancellation. It accepts output rates 8–384 kHz and clock
+values 100 kHz–100 MHz, reports clock rejection, and rejects null pointers for
+nonempty uploads. Ordinary register-8 gate writes retain the reference held
+output until its normal update. `native_extra_rf5c164_key_off()` and `stop()`
+instead clear only the relevant cached contributions and remix immediately,
+without advancing foreign voices or sample addresses. Extra state and register
+reads are observational; extra `read_memory()` / `read_memory_range()` inspect
+absolute RAM, independent of the CPU bank. These views are not WASM save states.
+
 ## Offline WAV examples
 
 `examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in
@@ -434,11 +496,16 @@ clock and plays a locally encoded percussion sample through OKI at
 8 MHz/divider 512 (15,625 decoded samples/s). Its immutable sample vector
 outlives both core handles, including on errors. This is an offline sound
 configuration, without device drivers or a complete X68000 emulation.
+`examples/megacd_wav.cpp` links `tetorica::ym2612`, `tetorica::segapsg` and
+`tetorica::rf5c164` in `tetorica_megacd_wav`. It uses the primary RF profile,
+uploads an original sign-magnitude looping waveform and plays three PCM voices
+alongside FM/PSG. A marker-filled tail handles skipped bytes safely; positive
+sample magnitudes avoid the reserved `0xff` encoding.
 From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav
+cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
 ./build/native/native/tetorica_master_system_wav "master system demo.wav"
@@ -447,6 +514,7 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/tetorica_pc98_ym2608_wav "pc98 ym2608 demo.wav"
 ./build/native/native/tetorica_neogeo_wav "neogeo demo.wav"
 ./build/native/native/tetorica_x68000_wav "x68000 demo.wav"
+./build/native/native/tetorica_megacd_wav "megacd demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
 ./build/native/native/Release/tetorica_master_system_wav.exe "master system demo.wav"
@@ -455,6 +523,7 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/Release/tetorica_pc98_ym2608_wav.exe "pc98 ym2608 demo.wav"
 ./build/native/native/Release/tetorica_neogeo_wav.exe "neogeo demo.wav"
 ./build/native/native/Release/tetorica_x68000_wav.exe "x68000 demo.wav"
+./build/native/native/Release/tetorica_megacd_wav.exe "megacd demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
@@ -483,7 +552,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | YM2413 | `native_genesis_ym2413.cpp`, `native_genesis_opll.h` | Standalone OPLL target and fixture |
 | AY-3-8910 | `native_genesis_ay8910.cpp` | Standalone AY target and fixture; fixed Native type/flags |
 | YM3526 / YM3812 / Y8950 / YMF262 | `native_genesis_opl.cpp`, `native_genesis_extra_opl.cpp` | Not yet connected |
-| RF5C164 | `native_genesis_rf5c164.cpp`, `native_genesis_extra_rf5c164.cpp` | Not yet connected |
+| RF5C164 | `native_genesis_rf5c164.cpp`, `native_genesis_extra_rf5c164.cpp` | One standalone library and fixture; distinct primary/additional profiles |
 | OKIM6258 | `native_genesis_extra_okim6258.cpp` | Standalone ADPCM target and fixture; borrowed immutable sample |
 | Game Boy | `native_genesis_gameboy.cpp` | Not yet connected |
 | NES + optional FDS | `native_genesis_nes.cpp` | Not yet connected |

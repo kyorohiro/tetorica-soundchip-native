@@ -184,6 +184,25 @@ if(MSVC)
   target_compile_options(tetorica_native_okim6258 PRIVATE /EHsc)
 endif()
 
+add_library(tetorica_native_rf5c164 STATIC
+  reference/tauri/native_genesis_rf5c164.cpp
+  reference/tauri/native_genesis_extra_rf5c164.cpp
+  "${TETORICA_SDK_ROOT}/vendor/mame-rf5c164/rf5c164.cpp"
+)
+add_library(tetorica::rf5c164 ALIAS tetorica_native_rf5c164)
+target_compile_features(tetorica_native_rf5c164 PUBLIC cxx_std_14)
+target_include_directories(tetorica_native_rf5c164
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/mame-rf5c164"
+    "${TETORICA_SDK_ROOT}/vendor/ymfm"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_rf5c164 PRIVATE /EHsc)
+endif()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
   add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
   target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
@@ -204,6 +223,11 @@ if(TETORICA_NATIVE_BUILD_EXAMPLES)
   target_link_libraries(tetorica_pc98_ym2203_wav PRIVATE tetorica::ym2203)
   if(MSVC)
     target_compile_options(tetorica_pc98_ym2203_wav PRIVATE /EHsc)
+  endif()
+  add_executable(tetorica_megacd_wav examples/megacd_wav.cpp)
+  target_link_libraries(tetorica_megacd_wav PRIVATE tetorica::ym2612 tetorica::segapsg tetorica::rf5c164)
+  if(MSVC)
+    target_compile_options(tetorica_megacd_wav PRIVATE /EHsc)
   endif()
   add_executable(tetorica_x68000_wav examples/x68000_wav.cpp)
   target_link_libraries(tetorica_x68000_wav PRIVATE tetorica::ym2151 tetorica::okim6258)
@@ -312,4 +336,13 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.okim6258.self_test
     COMMAND tetorica_okim6258_fixture --self-test)
+  add_executable(tetorica_rf5c164_fixture tests/rf5c164_fixture.cpp)
+  target_link_libraries(tetorica_rf5c164_fixture PRIVATE tetorica::rf5c164)
+  if(MSVC)
+    target_compile_options(tetorica_rf5c164_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_rf5c164_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.rf5c164.self_test
+    COMMAND tetorica_rf5c164_fixture --self-test)
 endif()

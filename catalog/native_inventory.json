@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "notes": [
     "Reference C++/C ABI sources are collected for 22 public chips. source-only does not claim an independent SDK Native build.",
-    "Standalone CMake targets build YM2612/ymfm, YM2203/ymfm, YM2608/ymfm, YM2610/YM2610B through one ymfm library, YM2151/ymfm, YM2413/ymfm, Sega PSG, AY-3-8910 and OKIM6258. YM2612 Nuked sources remain reference-only.",
+    "Standalone CMake targets build YM2612/ymfm, YM2203/ymfm, YM2608/ymfm, YM2610/YM2610B through one ymfm library, YM2151/ymfm, YM2413/ymfm, Sega PSG, AY-3-8910, OKIM6258 and RF5C164. YM2612 Nuked sources remain reference-only.",
     "Vendor component origins and license files are recorded by the shared source inventory, rather than copied again here."
   ],
   "chips": [
@@ -150,14 +150,17 @@
         "native/reference/tauri/native_genesis_rf5c164.cpp",
         "native/reference/tauri/native_genesis_rf5c164.h",
         "native/reference/tauri/native_genesis_extra_rf5c164.cpp",
-        "native/reference/tauri/native_genesis_extra_rf5c164.h"
+        "native/reference/tauri/native_genesis_extra_rf5c164.h",
+        "native/include/tetorica/rf5c164.hpp"
       ],
-      "status": "source-only",
+      "status": "verified",
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/mame-rf5c164/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "declaredFileLicenses": {
         "native/reference/tauri/native_genesis_extra_rf5c164.cpp": "BSD-3-Clause"
@@ -165,7 +168,17 @@
       "defaultLicensedFiles": [
         "native/reference/tauri/native_genesis_rf5c164.cpp",
         "native/reference/tauri/native_genesis_rf5c164.h",
-        "native/reference/tauri/native_genesis_extra_rf5c164.h"
+        "native/reference/tauri/native_genesis_extra_rf5c164.h",
+        "native/include/tetorica/rf5c164.hpp"
+      ],
+      "target": "tetorica_native_rf5c164",
+      "verificationScope": "Independent primary and additional RF5C164 APIs with eight PCM voices, owned 64 KiB RAM, banked writes/absolute uploads, loop markers and clock resampling. Common-operation PCM comparison plus additional Worklet/WASM state/position/RAM parity and source-scoped cancellation; primary validation/read/Stop API differs. No audio device, scheduler or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.rf5c164.self_test"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {
