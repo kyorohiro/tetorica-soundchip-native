@@ -10,6 +10,8 @@
 
 Each ZIP contains `RELEASE-MANIFEST.json`, recording every payload file's path, SHA-256 and byte size. The WASM manifest also identifies the embedded source ZIP and its hash. Packaging avoids build timestamps and workstation-specific absolute paths; identical inputs produce identical archives.
 
+Source archives include `.gitattributes` and the CI workflow. Git checkout conversion is disabled so Windows preserves the exact upstream bytes recorded in the inventories, including original line endings.
+
 Previously imported WASM binaries have provenance records in `source_inventory.json`, such as `imported-reference-binary`. Import provenance alone does not establish that a binary was rebuilt from the SDK snapshot. The initial WASM release selects only YM2612, freshly compiled into `build/verified-wasm`.
 
 Original Tetorica code uses BSD-3-Clause. Retain the license files, notices and existing explicit component licenses when vendoring either archive; [LICENSES.md](../LICENSES.md) describes the exceptions.
@@ -40,6 +42,14 @@ Publishing a new SDK release does not update a consumer's pinned version. Normal
 5. Update the SDK version and release archives. Consumers can adopt the new release separately.
 
 Keep three verification states distinct: source is included, source works in its original application, and source has been built and tested independently through this SDK.
+
+## Continuous verification
+
+[Verify SDK](../.github/workflows/verify-sdk.yml) runs for every push, pull request, and manual dispatch. It has five Native jobs: Linux GCC on x64 and ARM64, Windows MSVC, and macOS Clang on Intel and Apple Silicon. Each packages a fresh source ZIP, extracts it under the runner's temporary directory, builds the Release configuration, runs CTest, and executes the JavaScript reference smoke. CMake File API and compiler-command checks enforce that project sources and explicit includes come from the extracted SDK. Build diagnostics are retained as per-platform artifacts.
+
+The Ubuntu WASM job installs the fixed Emscripten 6.0.6 toolchain, compiles YM2612, and packages its artifacts with the exact matching source ZIP. It verifies hashes and the synchronous Node ABI, then recompiles YM2612 from the independently extracted source archive and repeats the smoke. Verified archives and compiler/input/output records are uploaded as workflow artifacts; the workflow does not publish GitHub releases.
+
+Compilers, Python 3.12, and Node.js 22 are CI tool dependencies. Chip sources come from the SDK checkout/archive. Other Native targets and the remaining WASM recipes are outside this workflow's compilation scope.
 
 The MSM5205 and OKIM6295 entries under `javascriptReferences` are executable JavaScript snapshots, not Native or WASM artifacts. Include `reference/javascript/` and its component notices when selecting these sources. The packager includes them in the source ZIP; archive audits check both their presence and their explicit `not-ported` backend status.
 

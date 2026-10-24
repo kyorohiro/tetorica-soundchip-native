@@ -6,8 +6,9 @@ QuickJS, UI, or audio-device code. Existing applications still use their current
 sources. Collecting them here does not yet switch those consumers to this SDK.
 
 `reference/tauri/` preserves the existing exported functions and PCM behavior.
-Only the HuC6280 and Nuked include paths are relocated to the shared SDK source
-layout. `reference/SOURCES.json` records the original and packaged byte hashes.
+HuC6280 and Nuked include paths are relocated to the shared SDK source layout.
+The YM2612 adapter also carries the recorded template-ownership amendment below.
+`reference/SOURCES.json` records the original and packaged byte hashes.
 The vendor cores have one canonical copy in `../vendor/`; they are not copied
 again under `native/`.
 
@@ -30,8 +31,8 @@ The initial independently buildable Native component is **ymfm YM2612**:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
-ctest --test-dir build --output-on-failure
+cmake --build build --config Release --parallel
+ctest --test-dir build -C Release --output-on-failure
 ```
 
 The same component can be configured directly with `cmake -S native -B
@@ -46,6 +47,8 @@ reset, mute, and deferred audition edges. It checks zero C++ allocation/free
 during rendering and works in Release builds with assertions enabled. It opens
 no audio device. Building the target proves this component only; it does not
 claim that every collected Native wrapper already has an independent SDK build.
+
+`src/ymfm_opn_provider.cpp` includes the unchanged shared ymfm provider and explicitly instantiates the Native OPN engine/channel/operator templates. The adapter declares those templates `extern`; optimized providers must emit their callable definitions even when the provider's own calls are inlined. This incorporates the Tauri link fix without changing DSP behavior or the exported ABI. The provider's origin and include relocation are recorded in the source inventories.
 
 ## Collected component references
 

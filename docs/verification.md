@@ -2,6 +2,8 @@
 
 Verification was performed on macOS on 2026-10-24 using installed development tools. The results below cover the stated configurations. They do not establish Windows/Linux/ARM execution coverage or standalone Native targets for every chip.
 
+The new [Verify SDK workflow](../.github/workflows/verify-sdk.yml) configures Windows MSVC, Linux GCC x64/ARM64, and macOS Clang Intel/Apple Silicon source-archive builds, plus an Ubuntu YM2612 WASM build and archive rebuild. Those platform results remain pending until the workflow is pushed and executed; a configured job is not recorded as a successful remote run.
+
 ## Source and release audits
 
 `scripts/check_sdk.py` verifies 22 Playground chip IDs, 27 WASM recipes, two separate JavaScript reference engines, three pinned upstream ADPCM source snapshots, and their SHA-256 digests and source/license references. Captured cores and Native bridges retain their source bytes; include-path adaptations and documentation updates are recorded in the provenance inventory. Release-audit regression tests cover these checks.
@@ -23,6 +25,7 @@ These checks use installed compilers, Node.js, Python and CMake. They do not dow
 ## YM2612
 
 - Native Release builds and CTest passed both in the SDK checkout and in an independently extracted source archive.
+- The Native OPN provider now explicitly instantiates the adapter's extern templates, carrying the verified Tauri link fix. Vendor core bytes, WASM recipes, and the exported Native ABI are retained. The amended Native adapter and provider passed another 198-case comparison against the deployed WASM with zero PCM/status/IRQ/read differences.
 - The Native fixture covers independent instances, six FM channels, DAC, timers/status/IRQ, reads, observation, clock changes, Stop/reset, mute, audition and source cancellation. It observed zero C++ `new`/`delete` calls during rendering.
 - Integration against the existing application's real WASM reference produced zero PCM, status, IRQ or read differences across 198 cases and 1,216,512 stereo frames. This larger comparison used the checker in the original application repository.
 - Emscripten compiled the SDK sources using the included build recipe. The WASM release contains this newly generated artifact. `build-info.json` records compiler information and source/output hashes.

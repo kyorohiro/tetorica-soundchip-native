@@ -18,10 +18,11 @@ The original C/C++ and WASM import commit is `0fff93d46ab3e9227ecffcacdf96f3ca11
 | --- | --- |
 | Original shared cores, WASM wrappers and accompanying documents | All 170 files across the original 15 components match their `originPath` sources byte for byte. MSFA's actual source comes from the standalone package checkout |
 | JavaScript ADPCM references | Both engines and their license texts remain byte-identical to the imported Tetorica files. Component READMEs now describe independently collected upstream references and license omissions. These references are separate from the 22 Playground IDs and 27 WASM artifacts |
-| Native reference sources | 56 of 59 files match their Tauri sources byte for byte. The three files below only change includes for the SDK layout |
+| Native reference sources | Original and packaged hashes record include relocations and the YM2612 template-ownership amendment; the exported ABI and DSP behavior are preserved |
 | HuC6280 Native | `native_genesis_huc6280.cpp`: changes `../native-huc6280/snapshot/third_party/mame-huc6280/huc6280.{h,cpp}` to `huc6280.{h,cpp}` |
 | Nuked Native | `native_genesis_nuked.cpp`: changes `../native-nuked/snapshot/wasm/nuked_opn2_wasm.c` to `nuked_opn2_wasm.c` |
 | YM2612 fixture | `native/tests/ym2612_fixture.cpp`: includes the public forwarder `<tetorica/ym2612.hpp>` instead of the existing wrapper header directly |
+| YM2612 Native linkage | Incorporates Tauri commit `83bfba8cbbc272a02279aba250b13e4c0f6ca57b`: removes the adapter's redundant local helper instantiation and adds `native/src/ymfm_opn_provider.cpp` with explicit OPN template definitions. The provider's include points to the SDK's unchanged `vendor/ymfm/ymfm_opn.cpp` |
 | Build procedures | Relocates `src/`, `third_party/` and related references into the SDK's `vendor/` / `wasm/` layout; adds standalone build entry points and source / output hash records |
 
 An unchanged import can still contain earlier upstream adaptations. It also does not imply identical Native and WASM APIs or output settings.

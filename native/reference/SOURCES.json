@@ -357,8 +357,10 @@
       "file": "native/reference/tauri/native_genesis_ym2612.cpp",
       "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2612.cpp",
       "originSha256": "413e6a0132821246a034fb6295c91fd73e8d423965101e955f0476d9e161a0e4",
-      "sha256": "413e6a0132821246a034fb6295c91fd73e8d423965101e955f0476d9e161a0e4",
-      "adaptation": "unchanged reference copy"
+      "sha256": "ff9b7aef1078015e62d57c1e8eedbe37e02ca033f0e1bf26543893840db4eaaa",
+      "adaptation": "SDK template-ownership amendment: remove the redundant local keyonoff instantiation and use the explicit Native OPN provider. DSP and exported ABI are unchanged.",
+      "amendmentOriginCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "amendmentOriginSha256": "ff9b7aef1078015e62d57c1e8eedbe37e02ca033f0e1bf26543893840db4eaaa"
     },
     {
       "file": "native/reference/tauri/native_genesis_ym2612.h",
@@ -415,6 +417,14 @@
       "originSha256": "12d843cbdc259cc13c8ae12ec3075aa5e340c910b88a6bcb5db7fe7bb20552d3",
       "sha256": "12d843cbdc259cc13c8ae12ec3075aa5e340c910b88a6bcb5db7fe7bb20552d3",
       "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/src/ymfm_opn_provider.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ymfm_opn.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "0f280b572a77795edd87917c2c0cf91d91a547ef5467978c4ae3f5176363c058",
+      "sha256": "83f41e6966a136f019ab9be343b689446bf50f5990a1b2d18d6533f2aeefa637",
+      "adaptation": "SDK include-path relocation only: the unchanged ymfm provider is included from ../../vendor/ymfm/ymfm_opn.cpp"
     }
   ]
 }

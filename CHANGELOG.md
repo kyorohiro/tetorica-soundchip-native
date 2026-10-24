@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Import the Native YM2612 explicit OPN template-provider fix, retaining the original and amended provenance hashes and unchanged DSP/ABI.
+- Add source-archive Release build and CTest/JavaScript CI on Windows, Linux x64/ARM64, and both Mac architectures; add a pinned-toolchain YM2612 WASM archive build/rebuild/smoke job.
+- Audit CMake multi-configuration artifacts and Windows compiler paths; preserve exact source bytes across Git checkouts and include CI configuration in source releases.
+
 ## 0.1.0 — Initial SDK
 
 - Collect source cores and existing Native C++ bridges for all 22 chips supported by Playground's additional-instance API.

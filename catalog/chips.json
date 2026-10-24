@@ -1337,6 +1337,10 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {
           "native/reference/tauri/native_genesis_nuked.cpp": "LGPL-2.1-or-later",
           "native/reference/tauri/native_genesis_nuked_ym2612.inc": "LGPL-2.1-or-later"
@@ -1344,12 +1348,14 @@
         "defaultLicensedFiles": [
           "native/reference/tauri/native_genesis_ym2612.cpp",
           "native/reference/tauri/native_genesis_ym2612.h",
-          "native/include/tetorica/ym2612.hpp"
+          "native/include/tetorica/ym2612.hpp",
+          "native/src/ymfm_opn_provider.cpp"
         ],
         "id": "ym2612",
         "licenseFiles": [
           "LICENSE",
-          "vendor/nuked-opn2/LICENSE"
+          "vendor/nuked-opn2/LICENSE",
+          "vendor/ymfm/LICENSE"
         ],
         "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
         "licenseStatus": "declared",
@@ -1358,7 +1364,8 @@
           "native/reference/tauri/native_genesis_ym2612.h",
           "native/reference/tauri/native_genesis_nuked.cpp",
           "native/reference/tauri/native_genesis_nuked_ym2612.inc",
-          "native/include/tetorica/ym2612.hpp"
+          "native/include/tetorica/ym2612.hpp",
+          "native/src/ymfm_opn_provider.cpp"
         ],
         "status": "verified",
         "target": "tetorica_native_ym2612",
@@ -1366,7 +1373,7 @@
           "tetorica.ym2612.self_test"
         ],
         "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
-        "verificationScope": "ymfm only; Nuked reference sources are not built by this target"
+        "verificationScope": "ymfm only, with explicit Native OPN template definitions; Nuked reference sources are not built by this target"
       },
       "sourceFiles": [
         "native/include/tetorica/ym2612.hpp",
@@ -1374,6 +1381,7 @@
         "native/reference/tauri/native_genesis_nuked_ym2612.inc",
         "native/reference/tauri/native_genesis_ym2612.cpp",
         "native/reference/tauri/native_genesis_ym2612.h",
+        "native/src/ymfm_opn_provider.cpp",
         "vendor/nuked-opn2/ym3438.c",
         "vendor/nuked-opn2/ym3438.h",
         "vendor/ymfm/chip_state.h",

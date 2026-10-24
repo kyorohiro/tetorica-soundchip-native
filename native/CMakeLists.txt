@@ -9,11 +9,12 @@ endif()
 get_filename_component(TETORICA_SDK_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
 option(TETORICA_NATIVE_BUILD_TESTS "Build the standalone Native core tests" ON)
 
-# First independently buildable component. These are the same source bytes as
-# the Native Playground provider; no Rust, Tauri, CPAL, device, or fetch is used.
+# First independently buildable component. The Native-owned provider explicitly
+# instantiates adapter templates without changing the pinned ymfm source bytes.
+# No Rust, Tauri, CPAL, device, or fetch is used.
 add_library(tetorica_native_ym2612 STATIC
   reference/tauri/native_genesis_ym2612.cpp
-  "${TETORICA_SDK_ROOT}/vendor/ymfm/ymfm_opn.cpp"
+  src/ymfm_opn_provider.cpp
   "${TETORICA_SDK_ROOT}/vendor/ymfm/ymfm_ssg.cpp"
   "${TETORICA_SDK_ROOT}/vendor/ymfm/ymfm_adpcm.cpp"
 )

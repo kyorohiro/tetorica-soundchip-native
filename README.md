@@ -1,8 +1,12 @@
 # tetorica-soundchip-native
 
+**Sound-chip emulation library for commercial use, with GPL-only cores excluded.**
+
 Self-contained C/C++ sound-chip sources, native adapters, and WebAssembly build recipes for music players, synthesizers, games, and audio tools.
 
 The collection includes the required core sources, component licenses, local modifications, and verification tools. Source archives build from their own contents: no submodules, sibling checkouts, or sound-core downloads are required.
+
+Commercial projects can select cores under **BSD-3-Clause, MIT, and Apache-2.0**. The default YM2612 backend uses BSD-3-Clause **ymfm**. Optional **Nuked-OPN2 and SNES/SPC** components retain their **LGPL** terms, including the applicable distribution and relinking requirements. Select the components you need and follow their licenses; [LICENSES.md](LICENSES.md) maps the sources and terms.
 
 ## Supported sources and build status
 
@@ -29,6 +33,8 @@ The upstream references include files explicitly marked BSD-3-Clause. libvgm sup
 | JavaScript references | MSM5205 and OKIM6295; runnable ES modules, with no Native/WASM port yet |
 
 Source availability does not imply that every adapter is ready to link unchanged. The [chip differences](docs/chip-differences.md) document records required combinations and known prerequisites, including the Game Boy native header adjustment. See the [machine-readable catalog](catalog/chips.json) and [verification record](docs/verification.md) for details.
+
+[Verify SDK](.github/workflows/verify-sdk.yml) runs on pushes, pull requests, and manual dispatch. Its Native matrix covers Windows x64, Linux x64/ARM64, and macOS Intel/Apple Silicon. Each job builds YM2612 in Release mode from an independently extracted source ZIP, runs CTest, and checks the JavaScript references. A separate Ubuntu job compiles YM2612 WASM, verifies the matching source archive and synchronous ABI, and rebuilds from the extracted archive. CI results establish platform coverage; the local verification record identifies checks already run.
 
 ## Build the native YM2612 library
 

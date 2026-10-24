@@ -10,11 +10,13 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
+import check_standalone_release as checker
 from check_standalone_release import (AuditError, REQUIRED_ARTIFACTS, REQUIRED_CHIPS,
                                       REQUIRED_JAVASCRIPT_REFERENCES, REQUIRED_UPSTREAM_REFERENCES, audit_catalog,
-                                      audit_local_sources, audit_manifest,
+                                      audit_compile_commands, audit_local_sources, audit_manifest, audit_native_file_api,
                                       audit_wasm, relative_path, unpack)
 
 
@@ -414,6 +416,122 @@ class ReleaseAuditTests(unittest.TestCase):
         (wasm / "wasm/another_chip.wasm").write_bytes(b"not declared")
         with self.assertRaisesRegex(AuditError, "undeclared"):
             audit_wasm(wasm, manifest, self.root, archive, inventory)
+
+
+class NativeBuildPortabilityTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix="SDK audit test ")
+        self.addCleanup(self.temporary.cleanup)
+        self.work = Path(self.temporary.name)
+        self.root, self.build = self.work / "SDK source", self.work / "native build"
+        self.root.mkdir()
+        self.build.mkdir()
+
+    def file_api_fixture(self, executable="tetorica_ym2612_fixture.exe"):
+        reply = self.build / ".cmake/api/v1/reply"
+        reply.mkdir(parents=True, exist_ok=True)
+        model = {"paths": {"source": str(self.root), "build": str(self.build)}, "configurations": [
+            {"name": "Debug", "targets": [{"jsonFile": "fixture-debug.json"}]},
+            {"name": "Release", "targets": [{"jsonFile": "fixture-release.json"}]},
+        ]}
+        detail = {"name": "tetorica_ym2612_fixture", "nameOnDisk": executable, "type": "EXECUTABLE",
+                  "artifacts": [{"path": "native/Release/" + executable}],
+                  "sources": [{"path": "native/tests/ym2612_fixture.cpp"},
+                              {"path": "generated/source.cpp", "isGenerated": True}],
+                  "compileGroups": [{"includes": [{"path": str(self.root / "vendor/include files")},
+                                                    {"path": str(self.build / "generated")}]}]}
+        (reply / "index-test.json").write_text(json.dumps({"reply": {"codemodel-v2": {"jsonFile": "model.json"}}}))
+        (reply / "model.json").write_text(json.dumps(model))
+        (reply / "fixture-release.json").write_text(json.dumps(detail))
+        # No Debug detail is needed: only the requested Release configuration is built.
+        return reply, model, detail
+
+    def test_windows_compiler_quoting_preserves_spaces_quotes_and_backslashes(self):
+        arguments = [r"C:\Program Files\MSVC\cl.exe", r"/IC:\SDK source\vendor", "/IC:\\SDK\\",
+                     r"/external:IC:\SDK source\headers", r'C:\source files\a"b.cpp', "", "/c"]
+        self.assertEqual(checker.windows_command_arguments(subprocess.list2cmdline(arguments)), arguments)
+        text = r'"C:\Program Files\MSVC\cl.exe" /I"C:\SDK source\vendor" /c "C:\SDK source\core.cpp"'
+        self.assertEqual(checker.windows_command_arguments(text), [arguments[0], arguments[1], "/c", r"C:\SDK source\core.cpp"])
+
+    def test_compile_database_resolves_relative_sources_and_quoted_msvc_includes(self):
+        arguments = ["cl.exe", "/I" + str(self.root / "include files"),
+                     "/external:I" + str(self.build / "generated headers"), "/c", "native/core.cpp"]
+        audit_compile_commands(self.root, self.build, [{"directory": str(self.root), "file": "native/core.cpp",
+                                                       "command": subprocess.list2cmdline(arguments)}], windows=True)
+        audit_compile_commands(self.root, self.build, [{"directory": str(self.build), "file": "generated/core.cpp",
+                                                       "arguments": ["c++", "-I", str(self.root / "include files")]}])
+
+    def test_joined_and_separate_outside_include_options_are_rejected(self):
+        outside = str(self.work / "another checkout")
+        for arguments in (["cl", "/I" + outside], ["cl", "/external:I" + outside],
+                          ["c++", "-isystem" + outside], ["c++", "-iquote", outside]):
+            with self.subTest(arguments=arguments), self.assertRaisesRegex(AuditError, "outside include directory"):
+                audit_compile_commands(self.root, self.build, [{"directory": str(self.root), "file": "core.cpp",
+                                                               "arguments": arguments}])
+        with self.assertRaisesRegex(AuditError, "no include path"):
+            audit_compile_commands(self.root, self.build, [{"directory": str(self.root), "file": "core.cpp",
+                                                           "arguments": ["cl", "/I"]}])
+
+    def test_file_api_discovers_release_exe_without_assuming_a_posix_artifact_path(self):
+        self.file_api_fixture()
+        self.assertEqual(audit_native_file_api(self.root, self.build),
+                         self.build / "native/Release/tetorica_ym2612_fixture.exe")
+        self.file_api_fixture("tetorica_ym2612_fixture")
+        self.assertEqual(audit_native_file_api(self.root, self.build).name, "tetorica_ym2612_fixture")
+
+    def test_file_api_rejects_outside_sources_includes_and_artifacts(self):
+        for field in ("source", "include", "artifact"):
+            with self.subTest(field=field):
+                reply, _, detail = self.file_api_fixture()
+                if field == "source":
+                    detail["sources"][0]["path"] = str(self.work / "borrowed.cpp")
+                elif field == "include":
+                    detail["compileGroups"][0]["includes"][0]["path"] = str(self.work / "headers")
+                else:
+                    detail["artifacts"][0]["path"] = str(self.root / "tetorica_ym2612_fixture.exe")
+                (reply / "fixture-release.json").write_text(json.dumps(detail))
+                with self.assertRaisesRegex(AuditError, "outside|escapes"):
+                    audit_native_file_api(self.root, self.build)
+
+    def test_file_api_requires_the_requested_configuration_and_source_root(self):
+        reply, model, _ = self.file_api_fixture()
+        model["configurations"] = model["configurations"][:1]
+        (reply / "model.json").write_text(json.dumps(model))
+        with self.assertRaisesRegex(AuditError, "unique Release configuration"):
+            audit_native_file_api(self.root, self.build)
+        reply, model, _ = self.file_api_fixture()
+        model["paths"]["source"] = str(self.work / "another checkout")
+        (reply / "model.json").write_text(json.dumps(model))
+        with self.assertRaisesRegex(AuditError, "different source tree"):
+            audit_native_file_api(self.root, self.build)
+
+    def test_native_build_uses_release_for_build_and_ctest_with_space_containing_paths(self):
+        commands = []
+
+        def execute(arguments, cwd, environment):
+            commands.append(list(map(str, arguments)))
+            self.assertEqual(cwd, self.root.resolve())
+            if arguments[0:2] == ["cmake", "-S"]:
+                self.file_api_fixture()
+            elif arguments[0:2] == ["cmake", "--build"]:
+                fixture = self.build / "native/Release/tetorica_ym2612_fixture.exe"
+                fixture.parent.mkdir(parents=True)
+                fixture.write_bytes(b"fixture executable")
+
+        with patch.object(checker, "command", side_effect=execute):
+            checker.build_native(self.root, self.build, {})
+        self.assertEqual(commands[1], ["cmake", "--build", str(self.build.resolve()), "--config", "Release", "--parallel", "2"])
+        self.assertEqual(commands[2], ["ctest", "--test-dir", str(self.build.resolve()), "-C", "Release", "--output-on-failure", "--no-tests=error"])
+
+    def test_relative_work_directory_is_resolved_before_changing_command_cwd(self):
+        previous = Path.cwd()
+        self.addCleanup(checker.os.chdir, previous)
+        checker.os.chdir(self.work)
+        arguments = ["checker", "--source-zip", "sources.zip", "--work-dir", "relative output", "--audit-only"]
+        with patch.object(sys, "argv", arguments), patch.object(checker, "unpack", side_effect=RuntimeError("stop before audit")) as extract:
+            with self.assertRaisesRegex(RuntimeError, "stop before audit"):
+                checker.main()
+        self.assertEqual(extract.call_args.args[1], self.work.resolve() / "relative output/source")
 
 
 if __name__ == "__main__":

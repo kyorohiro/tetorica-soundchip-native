@@ -328,49 +328,141 @@ def audit_wasm(root, manifest, source_root, source_archive, inventory):
 
 
 def command(args, cwd, environment):
-    print("+ " + shlex.join(map(str, args)), flush=True)
-    subprocess.run(list(map(str, args)), cwd=cwd, env=environment, check=True)
+    arguments = list(map(str, args))
+    display = subprocess.list2cmdline(arguments) if os.name == "nt" else shlex.join(arguments)
+    print("+ " + display, flush=True)
+    subprocess.run(arguments, cwd=cwd, env=environment, check=True)
 
 
-def build_native(root, build, environment):
-    query = build / ".cmake/api/v1/query"
-    query.mkdir(parents=True)
-    (query / "codemodel-v2").touch()
-    command(["cmake", "-S", root, "-B", build, "-DCMAKE_BUILD_TYPE=Release",
-             "-DBUILD_TESTING=ON", "-DTETORICA_NATIVE_BUILD_TESTS=ON",
-             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DFETCHCONTENT_FULLY_DISCONNECTED=ON",
-             "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF", "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"], root, environment)
+def windows_command_arguments(text):
+    """Split the MS C runtime quoting emitted by CMake/subprocess.list2cmdline.
+
+    shlex's non-POSIX mode splits /I"directory with spaces" incorrectly and
+    retains quotes around paths. This parser also preserves Windows backslashes.
+    """
+    result, index = [], 0
+    while index < len(text):
+        while index < len(text) and text[index] in " \t":
+            index += 1
+        if index == len(text):
+            break
+        value, quoted = [], False
+        while index < len(text):
+            if text[index] in " \t" and not quoted:
+                break
+            slashes = 0
+            while index < len(text) and text[index] == "\\":
+                slashes += 1
+                index += 1
+            if index < len(text) and text[index] == '"':
+                value.extend("\\" * (slashes // 2))
+                if slashes % 2:
+                    value.append('"')
+                elif quoted and index + 1 < len(text) and text[index + 1] == '"':
+                    value.append('"')
+                    index += 1
+                else:
+                    quoted = not quoted
+                index += 1
+            else:
+                value.extend("\\" * slashes)
+                if index < len(text):
+                    if text[index] in " \t" and not quoted:
+                        break
+                    value.append(text[index])
+                    index += 1
+        result.append("".join(value))
+    return result
+
+
+def build_path(value, directory):
+    path = Path(value)
+    return path if path.is_absolute() else directory / path
+
+
+def audit_compile_commands(root, build, entries, *, windows=None):
+    windows = os.name == "nt" if windows is None else windows
+    for entry in entries:
+        directory = build_path(entry["directory"], build)
+        source = build_path(entry["file"], directory)
+        require(within(source, root) or within(source, build),
+                f"Native compilation borrows an outside source: {source}")
+        arguments = entry.get("arguments")
+        if arguments is None:
+            arguments = windows_command_arguments(entry["command"]) if windows else shlex.split(entry["command"])
+        require(isinstance(arguments, list) and all(isinstance(value, str) for value in arguments),
+                "Invalid native compiler argument inventory")
+        index = 0
+        prefixes = ("-isystem", "-iquote", "/external:I", "-I", "/I")
+        while index < len(arguments):
+            argument, value = arguments[index], None
+            for prefix in prefixes:
+                if argument == prefix:
+                    index += 1
+                    require(index < len(arguments), f"Native compiler option has no include path: {argument}")
+                    value = arguments[index]
+                    break
+                if argument.startswith(prefix) and len(argument) > len(prefix):
+                    value = argument[len(prefix):]
+                    break
+            if value is not None:
+                include = build_path(value.strip('"'), directory)
+                require(within(include, root) or within(include, build),
+                        f"Native build borrows an outside include directory: {include}")
+            index += 1
+
+
+def audit_native_file_api(root, build, configuration="Release"):
     reply = build / ".cmake/api/v1/reply"
     indices = sorted(reply.glob("index-*.json"))
     require(indices, "Native CMake build has no File API source inventory")
     index = read_json(indices[-1])
     model = read_json(reply / index["reply"]["codemodel-v2"]["jsonFile"])
-    targets = [target for configuration in model["configurations"] for target in configuration["targets"]]
+    require(Path(model["paths"]["source"]).resolve() == root.resolve(),
+            "Native CMake model uses a different source tree")
+    require(Path(model["paths"]["build"]).resolve() == build.resolve(),
+            "Native CMake model uses a different build tree")
+    configurations = [entry for entry in model["configurations"] if entry.get("name") == configuration]
+    require(len(configurations) == 1, f"Native CMake build has no unique {configuration} configuration")
+    targets = configurations[0]["targets"]
     require(targets, "Native CMake build has no targets")
+    fixtures = []
     for target in targets:
         detail = read_json(reply / target["jsonFile"])
         for source in detail.get("sources", []):
-            path = Path(source["path"])
-            if not path.is_absolute():
-                path = (build if source.get("isGenerated") else root) / path
+            path = build_path(source["path"], build if source.get("isGenerated") else root)
             require(within(path, root) or within(path, build), f"Native target borrows an outside source: {path}")
         for group in detail.get("compileGroups", []):
             for include in group.get("includes", []):
-                path = Path(include["path"])
+                path = build_path(include["path"], root)
                 require(within(path, root) or within(path, build), f"Native target borrows an outside include directory: {path}")
+        if detail.get("name") == "tetorica_ym2612_fixture":
+            require(detail.get("type") == "EXECUTABLE", "Native fixture target is not executable")
+            for artifact in detail.get("artifacts", []):
+                path = build_path(artifact["path"], build)
+                require(within(path, build), f"Native fixture executable escapes the build tree: {path}")
+                if path.name == detail.get("nameOnDisk"):
+                    fixtures.append(path)
+    require(len(fixtures) == 1, "Native CMake build has no unique fixture executable artifact")
+    return fixtures[0]
+
+
+def build_native(root, build, environment):
+    root, build = root.resolve(), build.resolve()
+    configuration = "Release"
+    query = build / ".cmake/api/v1/query"
+    query.mkdir(parents=True)
+    (query / "codemodel-v2").touch()
+    command(["cmake", "-S", root, "-B", build, f"-DCMAKE_BUILD_TYPE={configuration}",
+             "-DBUILD_TESTING=ON", "-DTETORICA_NATIVE_BUILD_TESTS=ON",
+             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DFETCHCONTENT_FULLY_DISCONNECTED=ON",
+             "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF", "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"], root, environment)
+    fixture = audit_native_file_api(root, build, configuration)
     entries = read_json(build / "compile_commands.json") if (build / "compile_commands.json").is_file() else []
-    for entry in entries:
-        require(within(Path(entry["file"]), root), f"Native compilation borrows an outside source: {entry['file']}")
-        arguments = entry.get("arguments") or shlex.split(entry["command"], posix=os.name != "nt")
-        for index, argument in enumerate(arguments):
-            value = arguments[index + 1] if argument in ("-I", "-isystem", "/I") else argument[2:] if argument.startswith("-I") else None
-            if value:
-                include = Path(value.strip('"'))
-                if not include.is_absolute():
-                    include = Path(entry["directory"]) / include
-                require(within(include, root) or within(include, build), f"Native build borrows an outside include directory: {include}")
-    command(["cmake", "--build", build, "--config", "Release", "--parallel", "2"], root, environment)
-    command(["ctest", "--test-dir", build, "-C", "Release", "--output-on-failure", "--no-tests=error"], root, environment)
+    audit_compile_commands(root, build, entries)
+    command(["cmake", "--build", build, "--config", configuration, "--parallel", "2"], root, environment)
+    require(fixture.is_file(), f"Native fixture executable was not built: {fixture}")
+    command(["ctest", "--test-dir", build, "-C", configuration, "--output-on-failure", "--no-tests=error"], root, environment)
 
 
 def main():
@@ -383,7 +475,7 @@ def main():
     parser.add_argument("--javascript-smoke", action="store_true", help="Run the two JavaScript reference smokes with Node.js 22+, even with --audit-only")
     parser.add_argument("--build-wasm", metavar="ARTIFACT", help="Also rebuild one WASM artifact using installed Emscripten")
     args = parser.parse_args()
-    work = args.work_dir or Path(tempfile.mkdtemp(prefix="tetorica SDK standalone "))
+    work = (args.work_dir or Path(tempfile.mkdtemp(prefix="tetorica SDK standalone "))).resolve()
     work.mkdir(parents=True, exist_ok=True)
     require(not any(work.iterdir()), f"Standalone work directory must be empty: {work}")
     root = unpack(args.source_zip.resolve(), work / "source")

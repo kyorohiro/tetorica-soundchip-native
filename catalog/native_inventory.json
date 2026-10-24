@@ -13,11 +13,12 @@
         "native/reference/tauri/native_genesis_ym2612.h",
         "native/reference/tauri/native_genesis_nuked.cpp",
         "native/reference/tauri/native_genesis_nuked_ym2612.inc",
-        "native/include/tetorica/ym2612.hpp"
+        "native/include/tetorica/ym2612.hpp",
+        "native/src/ymfm_opn_provider.cpp"
       ],
       "status": "verified",
       "target": "tetorica_native_ym2612",
-      "verificationScope": "ymfm only; Nuked reference sources are not built by this target",
+      "verificationScope": "ymfm only, with explicit Native OPN template definitions; Nuked reference sources are not built by this target",
       "tests": [
         "tetorica.ym2612.self_test"
       ],
@@ -26,7 +27,8 @@
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
         "LICENSE",
-        "vendor/nuked-opn2/LICENSE"
+        "vendor/nuked-opn2/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "declaredFileLicenses": {
         "native/reference/tauri/native_genesis_nuked.cpp": "LGPL-2.1-or-later",
@@ -35,7 +37,12 @@
       "defaultLicensedFiles": [
         "native/reference/tauri/native_genesis_ym2612.cpp",
         "native/reference/tauri/native_genesis_ym2612.h",
-        "native/include/tetorica/ym2612.hpp"
+        "native/include/tetorica/ym2612.hpp",
+        "native/src/ymfm_opn_provider.cpp"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {
