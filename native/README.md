@@ -7,8 +7,8 @@ sources. Collecting them here does not yet switch those consumers to this SDK.
 
 `reference/tauri/` preserves the existing exported functions and PCM behavior.
 HuC6280 and Nuked include paths are relocated to the shared SDK source layout.
-The YM2612 and YM2151 adapters also carry the recorded template-ownership
-amendments below.
+The YM2612, YM2151, YM2413 and YM2203 adapters also carry the recorded
+template-ownership amendments below.
 `reference/SOURCES.json` records the original and packaged byte hashes.
 The vendor cores have one canonical copy in `../vendor/`; they are not copied
 again under `native/`.
@@ -28,8 +28,8 @@ translation-unit constraints.
 
 ## Build support
 
-The independently buildable Native components are **ymfm YM2612, YM2151 and
-YM2413, plus Sega PSG and AY-3-8910**:
+The independently buildable Native components are **ymfm YM2612, YM2151,
+YM2413 and YM2203, plus Sega PSG and AY-3-8910**:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -47,6 +47,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::ym2413` | `tetorica_native_ym2413` | `<tetorica/ym2413.hpp>` | `native_ym2413_*`, `NativeYm2413State` |
 | `tetorica::segapsg` | `tetorica_native_segapsg` | `<tetorica/segapsg.hpp>` | `native_game_gear_*`, `NativeGameGearState` |
 | `tetorica::ay8910` | `tetorica_native_ay8910` | `<tetorica/ay8910.hpp>` | `native_ay8910_*`, `NativeAy8910State` |
+| `tetorica::ym2203` | `tetorica_native_ym2203` | `<tetorica/ym2203.hpp>` | `native_ym2203_*`, `NativeYm2203State` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -71,13 +72,19 @@ observation and deferred audition. Its five rhythm voices share physical FM
 channels 6–8 rather than adding five independent melodic channels.
 The AY fixture covers three independent tone/noise voices, the shared hardware
 envelope, readback/observation, clock conversion, retained levels, Stop/reset
-and audition. All five fixtures run through CTest with assertions enabled in
-Release builds.
+and audition. The YM2203 fixture exercises three FM plus three SSG voices,
+prescalers, timers/status/IRQ, separate FM/CSM cancellation, retained Stop,
+observation and primary/additional reset profiles. All six fixtures run through
+CTest with assertions enabled in Release builds.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
 
 `src/ymfm_opn_provider.cpp` includes the unchanged shared ymfm provider and explicitly instantiates the Native OPN engine/channel/operator templates. The adapter declares those templates `extern`; optimized providers must emit their callable definitions even when the provider's own calls are inlined. This incorporates the Tauri link fix without changing DSP behavior or the exported ABI. The provider's origin and include relocation are recorded in the source inventories.
+
+The YM2203 target reuses this OPN provider and unchanged SSG/ADPCM link
+dependencies, constructing only one YM2203. The linkage does not add a YM2608
+target or rhythm/sample-ROM resources.
 
 `src/ymfm_opm_provider.cpp` does the same for the OPM templates used by YM2151.
 Both linkage changes come from Tauri commit
@@ -207,6 +214,33 @@ Stop/forced release clear the held output, while ordinary all-notes-off and
 preview release retain their existing resampler timing. Create/destroy outside
 the audio callback and serialize access with `native_ay8910_sample()`.
 
+## Embed YM2203 / OPN
+
+Link `tetorica::ym2203` and include `<tetorica/ym2203.hpp>` for the existing
+`native_ym2203_*` ABI. One handle owns three FM channels and three SSG voices,
+with shared SSG noise/envelope and a combined mono signal on both output
+channels. The default master clock is 4,000,000 Hz. At the standard prescaler,
+FM pitch is `clock * FNUM * 2^(BLOCK-1) / (72 * 2^20)`; write the high-frequency
+register immediately before its low register because the OPN latch is shared.
+The effective SSG clock is **master/2**, so its tone period is
+`round(master_clock / (32 * frequency_hz))`, within 1–4095. YM2608 uses a
+different SSG divider. Raw prescaler changes also change these pitch relations.
+
+`native_ym2203_create(output_rate)` retains the primary adapter's reset
+boundary: chip/register state resets, while output-rate remainder and held PCM
+remain. `native_ym2203_create_extra(output_rate)` selects the additional-instance
+profile, whose reset also clears that output history. These constructors are
+intentional profiles of the same chip. Stop silences output while retaining
+authored controls; ordinary register key-off preserves the FM release envelope.
+Forced voice release, FM/CSM cancellation, retained SSG levels and deferred
+audition keep their existing Native behavior. Voice IDs 0–2 are FM and 3–5 are
+SSG. `read`, status/IRQ and `get_state` observe without advancing rendering;
+the state structure is not a transferable WASM save state.
+
+Create/destroy outside the audio callback, serialize writes and sampling, and
+schedule events in the host. The PC-98 example below supplies register-level
+notes without YM2608 rhythm or ADPCM data; it does not emulate a PC-98 machine.
+
 ## Offline WAV examples
 
 `examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in
@@ -216,27 +250,32 @@ the audio callback and serialize access with `native_ay8910_sample()`.
 `tetorica_msx_wav`. The Master System FM example uses OPLL's built-in piano,
 light rhythm and PSG tones; the MSX-style example uses AY tones/noise, a roughly
 200 ms plucked envelope and an OPLL flute melody.
+`examples/pc98_ym2203_wav.cpp` links only `tetorica::ym2203` in
+`tetorica_pc98_ym2203_wav`, rendering all three FM and three SSG voices with
+noise and a roughly 200 ms shared envelope at the standard prescaler.
 From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav
+cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
 ./build/native/native/tetorica_master_system_wav "master system demo.wav"
 ./build/native/native/tetorica_msx_wav "msx demo.wav"
+./build/native/native/tetorica_pc98_ym2203_wav "pc98 ym2203 demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
 ./build/native/native/Release/tetorica_master_system_wav.exe "master system demo.wav"
 ./build/native/native/Release/tetorica_msx_wav.exe "msx demo.wav"
+./build/native/native/Release/tetorica_pc98_ym2203_wav.exe "pc98 ym2203 demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
 exist. Each example generates exactly 144,000 frames of stereo PCM16 at 48 kHz
 from synthetic notes/percussion, with no audio device or external assets.
 They use their chips' respective hardware pitch equations, fixed mix headroom
-and short output fades. Sega PSG stereo remains `0xff`; AY and OPLL output is
-mono on both channels. Their fixed example gains are not motherboard mix
+and short output fades. Sega PSG stereo remains `0xff`; AY, OPLL and YM2203
+output is mono on both channels. Their fixed example gains are not motherboard mix
 ratios or SDK-wide defaults. Rendering and file writing happen offline,
 rather than inside an audio callback.
 
@@ -250,7 +289,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | --- | --- | --- |
 | Sega PSG | `native_genesis_psg.h`, independent `native_genesis_game_gear.cpp` wrapper | Standalone PSG target and fixture; no OPLL core |
 | YM2612 | `native_genesis_ym2612.cpp`; Nuked alternative in `native_genesis_nuked.cpp` and `.inc` | ymfm built and tested; Nuked reference only |
-| YM2203 | `native_genesis_ym2203.cpp` | Not yet connected |
+| YM2203 | `native_genesis_ym2203.cpp` | Standalone OPN+SSG target and fixture; both constructor profiles |
 | YM2608 | `native_genesis_ym2608.cpp` | Not yet connected |
 | YM2610 / YM2610B | `native_genesis_ym2610b.cpp`, selected immutable variant | Not yet connected |
 | YM2151 | `native_genesis_ym2151.cpp` | Standalone OPM target and fixture; X68000 OKI remains reference-only |

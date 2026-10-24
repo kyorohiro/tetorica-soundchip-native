@@ -1031,27 +1031,43 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {},
         "defaultLicensedFiles": [
           "native/reference/tauri/native_genesis_ym2203.cpp",
-          "native/reference/tauri/native_genesis_ym2203.h"
+          "native/reference/tauri/native_genesis_ym2203.h",
+          "native/include/tetorica/ym2203.hpp",
+          "native/src/ymfm_opn_provider.cpp"
         ],
         "id": "ym2203",
         "licenseFiles": [
-          "LICENSE"
+          "LICENSE",
+          "vendor/ymfm/LICENSE"
         ],
         "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_ym2203.cpp",
-          "native/reference/tauri/native_genesis_ym2203.h"
+          "native/reference/tauri/native_genesis_ym2203.h",
+          "native/include/tetorica/ym2203.hpp",
+          "native/src/ymfm_opn_provider.cpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_ym2203",
+        "tests": [
+          "tetorica.ym2203.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Independent ymfm YM2203 FM/SSG renderer, primary and additional constructor profiles. Three FM and three SSG voices, prescalers, timers/CSM and mono output on both channels; no YM2608 rhythm, ADPCM memory or host audio device is provided by this target."
       },
       "sourceFiles": [
+        "native/include/tetorica/ym2203.hpp",
         "native/reference/tauri/native_genesis_ym2203.cpp",
         "native/reference/tauri/native_genesis_ym2203.h",
+        "native/src/ymfm_opn_provider.cpp",
         "vendor/ymfm/chip_state.h",
         "vendor/ymfm/segapsg.cpp",
         "vendor/ymfm/segapsg.h",

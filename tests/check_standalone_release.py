@@ -30,9 +30,10 @@ REQUIRED_CHIPS = frozenset("ym2612 ym2203 ym2610 ym2610b rf5c164 ym2608 gameboy 
 REQUIRED_ARTIFACTS = frozenset("ay8910 gameboy_apu huc6280 k051649 nesapu nuked_opn2 okim6258 pwm32x rf5c164 segapcm segapsg spc y8950 ym2151 ym2203 ym2413 ym2608 ym2610b ym2612 ym3438 ym3526 ym3812 ymf262 ymf276 ymf278b ymf288 dx7".split())
 REQUIRED_JAVASCRIPT_REFERENCES = frozenset(("msm5205", "okim6295"))
 REQUIRED_NATIVE_FIXTURES = frozenset(("tetorica_ym2612_fixture", "tetorica_ym2151_fixture",
-                                      "tetorica_segapsg_fixture", "tetorica_ym2413_fixture", "tetorica_ay8910_fixture"))
+                                      "tetorica_segapsg_fixture", "tetorica_ym2413_fixture", "tetorica_ay8910_fixture",
+                                      "tetorica_ym2203_fixture"))
 REQUIRED_NATIVE_EXAMPLES = {"tetorica_genesis_wav": "Genesis", "tetorica_master_system_wav": "Master System",
-                            "tetorica_msx_wav": "MSX"}
+                            "tetorica_msx_wav": "MSX", "tetorica_pc98_ym2203_wav": "PC-98 YM2203"}
 REQUIRED_NATIVE_EXECUTABLES = REQUIRED_NATIVE_FIXTURES | frozenset(REQUIRED_NATIVE_EXAMPLES)
 REQUIRED_UPSTREAM_REFERENCES = frozenset((
     "libvgm-msm5205-upstream", "libvgm-okim6295-upstream", "mame-okim6295-upstream",

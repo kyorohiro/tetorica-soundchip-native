@@ -303,8 +303,10 @@
       "file": "native/reference/tauri/native_genesis_ym2203.cpp",
       "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2203.cpp",
       "originSha256": "dea31da2fce185b2307fcee12c927be258d73908300dd587337a4fc0188fb187",
-      "sha256": "dea31da2fce185b2307fcee12c927be258d73908300dd587337a4fc0188fb187",
-      "adaptation": "unchanged reference copy"
+      "sha256": "3d3a914a316f8d04afba25d73ec14e25bd58085ec2a6e7bdda5673bf0996658c",
+      "adaptation": "SDK template-ownership amendment: remove the redundant local keyonoff instantiation and update its ownership comment to use the existing explicit Native OPN provider. DSP and exported ABI are unchanged.",
+      "amendmentOriginCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "amendmentOriginSha256": "3d3a914a316f8d04afba25d73ec14e25bd58085ec2a6e7bdda5673bf0996658c"
     },
     {
       "file": "native/reference/tauri/native_genesis_ym2203.h",
@@ -477,6 +479,14 @@
       "originSha256": "45b288a61ab5aabed274368756ae783026a1ab63449c64593de9b5553f9d17a2",
       "sha256": "cdbc9aa2e2d4d3d4c3e7dabf78f8a8072ce1c22502a88778a1d58d9c6aec5127",
       "adaptation": "Extract the AY-only branch without OPLL dependencies; include the SDK public header and extend coverage for three channels and all tone/noise mixer routes, all sixteen envelope settings, non-advancing reads/observations, independent instances, retained levels including zero and envelope selection, clock bounds, and immediate Stop versus public release held history. The optional leading ay8910 CLI argument and 22-plane observation layout are retained."
+    },
+    {
+      "file": "native/tests/ym2203_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2203_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "efac503f1b76bd3e198868d72bb69fe25a375676557b9d9cf32381dfd71a3417",
+      "sha256": "dd29f6e044eb4bdef86a36278741acc5d1d7f53b36d20058086c148f699a3570",
+      "adaptation": "Include the SDK public header; run both primary and additional constructor profiles from the default self-test, including their distinct output-rate reset boundaries. Extend isolated SSG channel/noise/all-sixteen-envelope coverage and upper clock-bound tests while retaining the original FM, CSM, prescaler, cancellation and independent-instance tests. The optional --extra PCM CLI and eight-plane observation layout are retained."
     }
   ]
 }
