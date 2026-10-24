@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "notes": [
     "Reference C++/C ABI sources are collected for 22 public chips. source-only does not claim an independent SDK Native build.",
-    "The initial YM2612 CMake target builds the ymfm variant only; its Nuked sources remain reference-only.",
+    "The standalone YM2612 and YM2151 CMake targets build ymfm. YM2612 Nuked sources remain reference-only.",
     "Vendor component origins and license files are recorded by the shared source inventory, rather than copied again here."
   ],
   "chips": [
@@ -192,19 +192,33 @@
       "id": "ym2151",
       "sourceFiles": [
         "native/reference/tauri/native_genesis_ym2151.cpp",
-        "native/reference/tauri/native_genesis_ym2151.h"
+        "native/reference/tauri/native_genesis_ym2151.h",
+        "native/include/tetorica/ym2151.hpp",
+        "native/src/ymfm_opm_provider.cpp"
       ],
-      "status": "source-only",
+      "status": "verified",
+      "target": "tetorica_native_ym2151",
+      "verificationScope": "ymfm OPM only, with explicit Native OPM template definitions; X68000 OKIM6258 and host audio are outside this target",
+      "tests": [
+        "tetorica.ym2151.self_test"
+      ],
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "declaredFileLicenses": {},
       "defaultLicensedFiles": [
         "native/reference/tauri/native_genesis_ym2151.cpp",
-        "native/reference/tauri/native_genesis_ym2151.h"
+        "native/reference/tauri/native_genesis_ym2151.h",
+        "native/include/tetorica/ym2151.hpp",
+        "native/src/ymfm_opm_provider.cpp"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {

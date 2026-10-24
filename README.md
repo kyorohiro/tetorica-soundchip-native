@@ -26,7 +26,7 @@ The upstream references include files explicitly marked BSD-3-Clause. libvgm sup
 
 | Deliverable | Current status |
 | --- | --- |
-| Standalone native CMake target | **YM2612 using ymfm**, built and tested |
+| Standalone native CMake targets | **YM2612 and YM2151 using ymfm**, with offline test fixtures |
 | Other native adapters | Reference sources included; standalone targets are being added |
 | WASM build recipes | 27 artifacts; independent builds verified for YM2612 and DX7 |
 | Initial compiled WASM archive | YM2612, with its matching source archive embedded |
@@ -34,9 +34,9 @@ The upstream references include files explicitly marked BSD-3-Clause. libvgm sup
 
 Source availability does not imply that every adapter is ready to link unchanged. The [chip differences](docs/chip-differences.md) document records required combinations and known prerequisites, including the Game Boy native header adjustment. See the [machine-readable catalog](catalog/chips.json) and [verification record](docs/verification.md) for details.
 
-[Verify SDK](.github/workflows/verify-sdk.yml) runs on pushes, pull requests, and manual dispatch. Its Native matrix covers Windows x64, Linux x64/ARM64, and macOS Intel/Apple Silicon. Each job builds YM2612 in Release mode from an independently extracted source ZIP, runs CTest, and checks the JavaScript references. A separate Ubuntu job compiles YM2612 WASM, verifies the matching source archive and synchronous ABI, and rebuilds from the extracted archive. CI results establish platform coverage; the local verification record identifies checks already run.
+[Verify SDK](.github/workflows/verify-sdk.yml) runs on pushes, pull requests, and manual dispatch. Its Native matrix is configured for Windows x64, Linux x64/ARM64, and macOS Intel/Apple Silicon. Each job builds both YM2612 and YM2151 in Release mode from an independently extracted source ZIP, runs CTest, and checks the JavaScript references. A separate Ubuntu job compiles YM2612 WASM, verifies the matching source archive and synchronous ABI, and rebuilds from the extracted archive. See the [verification record](docs/verification.md) for completed runs; the earlier YM2612-only matrix does not establish YM2151 platform coverage.
 
-## Build the native YM2612 library
+## Build the native libraries
 
 Requirements: CMake 3.20 or newer and a C++14 compiler.
 
@@ -51,9 +51,12 @@ To embed a source distribution in your project:
 ```cmake
 add_subdirectory(vendor/tetorica-soundchip-native)
 target_link_libraries(your_application PRIVATE tetorica::ym2612)
+# For the eight-channel OPM chip, select tetorica::ym2151 instead.
 ```
 
-Include `<tetorica/ym2612.hpp>` to access the current C ABI. This example configures a simple voice and generates a stereo buffer:
+The public headers are `<tetorica/ym2612.hpp>` and `<tetorica/ym2151.hpp>`, exposing the existing `native_ym2612_*` and `native_ym2151_*` C ABIs to C++ hosts. YM2151 covers the OPM chip itself; X68000's OKIM6258 integration remains reference-only. The [native guide](native/README.md) includes a YM2151 integration example.
+
+This YM2612 example configures a simple voice and generates a stereo buffer:
 
 ```cpp
 #include <tetorica/ym2612.hpp>

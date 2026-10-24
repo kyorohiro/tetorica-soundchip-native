@@ -32,6 +32,24 @@ if(MSVC)
   target_compile_options(tetorica_native_ym2612 PRIVATE /EHsc)
 endif()
 
+add_library(tetorica_native_ym2151 STATIC
+  reference/tauri/native_genesis_ym2151.cpp
+  src/ymfm_opm_provider.cpp
+)
+add_library(tetorica::ym2151 ALIAS tetorica_native_ym2151)
+target_compile_features(tetorica_native_ym2151 PUBLIC cxx_std_14)
+target_include_directories(tetorica_native_ym2151
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/ymfm"
+    "${TETORICA_SDK_ROOT}/wasm"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_ym2151 PRIVATE /EHsc)
+endif()
+
 if(TETORICA_NATIVE_BUILD_TESTS)
   # A Release configuration must execute the fixture's assertions as well.
   enable_testing()
@@ -44,4 +62,14 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.ym2612.self_test
     COMMAND tetorica_ym2612_fixture --self-test)
+
+  add_executable(tetorica_ym2151_fixture tests/ym2151_fixture.cpp)
+  target_link_libraries(tetorica_ym2151_fixture PRIVATE tetorica::ym2151)
+  if(MSVC)
+    target_compile_options(tetorica_ym2151_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_ym2151_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.ym2151.self_test
+    COMMAND tetorica_ym2151_fixture --self-test)
 endif()

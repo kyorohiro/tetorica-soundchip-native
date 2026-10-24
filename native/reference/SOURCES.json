@@ -287,8 +287,10 @@
       "file": "native/reference/tauri/native_genesis_ym2151.cpp",
       "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2151.cpp",
       "originSha256": "cf167dbd8bfac8ea355dfac318c921b89789dbfc11c0a7fd037e6c6ee82f5730",
-      "sha256": "cf167dbd8bfac8ea355dfac318c921b89789dbfc11c0a7fd037e6c6ee82f5730",
-      "adaptation": "unchanged reference copy"
+      "sha256": "ca931e1e2e635ff403c97cdff8d880b434ddacf797cd83b92f65bd69bb9ec975",
+      "adaptation": "SDK template-ownership amendment: remove the redundant local keyonoff instantiation and use the explicit Native OPM provider. DSP and exported ABI are unchanged.",
+      "amendmentOriginCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "amendmentOriginSha256": "ca931e1e2e635ff403c97cdff8d880b434ddacf797cd83b92f65bd69bb9ec975"
     },
     {
       "file": "native/reference/tauri/native_genesis_ym2151.h",
@@ -425,6 +427,22 @@
       "originSha256": "0f280b572a77795edd87917c2c0cf91d91a547ef5467978c4ae3f5176363c058",
       "sha256": "83f41e6966a136f019ab9be343b689446bf50f5990a1b2d18d6533f2aeefa637",
       "adaptation": "SDK include-path relocation only: the unchanged ymfm provider is included from ../../vendor/ymfm/ymfm_opn.cpp"
+    },
+    {
+      "file": "native/src/ymfm_opm_provider.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ymfm_opm.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "e592cb8101f1f9887b360c12061702a7ac01c6c638c46a8c31583cad11f874e6",
+      "sha256": "9b6d50381d95198438109647d7931f7ec2d90b127679be205dfc8d4dacf89db2",
+      "adaptation": "SDK include-path relocation only: the unchanged ymfm provider is included from ../../vendor/ymfm/ymfm_opm.cpp"
+    },
+    {
+      "file": "native/tests/ym2151_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2151_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "7a5fb21790966a29fb6d52809a47b68a04a9e93548a2762bdbf014ea23da49ce",
+      "sha256": "b022e92517afd872f6440e41f445a3063b4c3cbe42da509cc161055d932edb0a",
+      "adaptation": "SDK public-header include relocation; extend self-test coverage for all eight channels and stereo pan, non-advancing reads/observations, per-instance Stop isolation, and timer-B IRQ/status. Event CLI and observation layout are retained."
     }
   ]
 }

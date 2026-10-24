@@ -27,6 +27,7 @@ class AuditError(RuntimeError):
 REQUIRED_CHIPS = frozenset("ym2612 ym2203 ym2610 ym2610b rf5c164 ym2608 gameboy segapsg ym2151 pwm nes dx7 snes spc huc6280 okim6258 ym3526 ym3812 y8950 ymf262 ym2413 ay8910".split())
 REQUIRED_ARTIFACTS = frozenset("ay8910 gameboy_apu huc6280 k051649 nesapu nuked_opn2 okim6258 pwm32x rf5c164 segapcm segapsg spc y8950 ym2151 ym2203 ym2413 ym2608 ym2610b ym2612 ym3438 ym3526 ym3812 ymf262 ymf276 ymf278b ymf288 dx7".split())
 REQUIRED_JAVASCRIPT_REFERENCES = frozenset(("msm5205", "okim6295"))
+REQUIRED_NATIVE_FIXTURES = frozenset(("tetorica_ym2612_fixture", "tetorica_ym2151_fixture"))
 REQUIRED_UPSTREAM_REFERENCES = frozenset((
     "libvgm-msm5205-upstream", "libvgm-okim6295-upstream", "mame-okim6295-upstream",
 ))
@@ -426,7 +427,7 @@ def audit_native_file_api(root, build, configuration="Release"):
     require(len(configurations) == 1, f"Native CMake build has no unique {configuration} configuration")
     targets = configurations[0]["targets"]
     require(targets, "Native CMake build has no targets")
-    fixtures = []
+    fixtures = {}
     for target in targets:
         detail = read_json(reply / target["jsonFile"])
         for source in detail.get("sources", []):
@@ -436,15 +437,23 @@ def audit_native_file_api(root, build, configuration="Release"):
             for include in group.get("includes", []):
                 path = build_path(include["path"], root)
                 require(within(path, root) or within(path, build), f"Native target borrows an outside include directory: {path}")
-        if detail.get("name") == "tetorica_ym2612_fixture":
-            require(detail.get("type") == "EXECUTABLE", "Native fixture target is not executable")
+        name = detail.get("name")
+        if name in REQUIRED_NATIVE_FIXTURES:
+            require(name not in fixtures, f"Duplicate Native fixture target: {name}")
+            require(detail.get("type") == "EXECUTABLE", f"Native fixture target is not executable: {name}")
+            artifacts = []
             for artifact in detail.get("artifacts", []):
                 path = build_path(artifact["path"], build)
                 require(within(path, build), f"Native fixture executable escapes the build tree: {path}")
                 if path.name == detail.get("nameOnDisk"):
-                    fixtures.append(path)
-    require(len(fixtures) == 1, "Native CMake build has no unique fixture executable artifact")
-    return fixtures[0]
+                    artifacts.append(path)
+            require(len(artifacts) == 1, f"Native CMake build has no unique fixture executable artifact: {name}")
+            fixtures[name] = artifacts[0]
+    require(set(fixtures) == REQUIRED_NATIVE_FIXTURES,
+            f"Native CMake build is missing required fixture targets: {sorted(REQUIRED_NATIVE_FIXTURES-set(fixtures))}")
+    require(len({path.resolve() for path in fixtures.values()}) == len(fixtures),
+            "Native fixture targets share an executable artifact")
+    return fixtures
 
 
 def build_native(root, build, environment):
@@ -457,11 +466,12 @@ def build_native(root, build, environment):
              "-DBUILD_TESTING=ON", "-DTETORICA_NATIVE_BUILD_TESTS=ON",
              "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DFETCHCONTENT_FULLY_DISCONNECTED=ON",
              "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF", "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"], root, environment)
-    fixture = audit_native_file_api(root, build, configuration)
+    fixtures = audit_native_file_api(root, build, configuration)
     entries = read_json(build / "compile_commands.json") if (build / "compile_commands.json").is_file() else []
     audit_compile_commands(root, build, entries)
     command(["cmake", "--build", build, "--config", configuration, "--parallel", "2"], root, environment)
-    require(fixture.is_file(), f"Native fixture executable was not built: {fixture}")
+    for name, fixture in fixtures.items():
+        require(fixture.is_file(), f"Native fixture executable was not built ({name}): {fixture}")
     command(["ctest", "--test-dir", build, "-C", configuration, "--output-on-failure", "--no-tests=error"], root, environment)
 
 

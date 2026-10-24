@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add the standalone YM2151 OPM static target `tetorica::ym2151`, public `<tetorica/ym2151.hpp>` forwarder and existing C ABI, with an offline eight-channel PCM/pan, timers/status/IRQ, Stop/reset/cancellation and observation fixture. X68000's OKIM6258 integration remains reference-only.
+- Import the Native OPM explicit-template provider fix from the same Tauri revision as the OPN fix, preserving the shared ymfm vendor bytes and WASM recipes.
+- Extend source-archive Native verification to require and run both YM2612 and YM2151 fixtures; the five-platform CI configuration includes both, while the compiled WASM job remains YM2612 only.
 - Import the Native YM2612 explicit OPN template-provider fix, retaining the original and amended provenance hashes and unchanged DSP/ABI.
 - Add source-archive Release build and CTest/JavaScript CI on Windows, Linux x64/ARM64, and both Mac architectures; add a pinned-toolchain YM2612 WASM archive build/rebuild/smoke job.
 - Audit CMake multi-configuration artifacts and Windows compiler paths; preserve exact source bytes across Git checkouts and include CI configuration in source releases.

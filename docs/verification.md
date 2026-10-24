@@ -1,8 +1,8 @@
 # Verification record
 
-Verification was performed on macOS on 2026-10-24 using installed development tools. The results below cover the stated configurations. They do not establish Windows/Linux/ARM execution coverage or standalone Native targets for every chip.
+Local verification was performed on macOS on 2026-10-24 using installed development tools. The results below cover the stated configurations; standalone Native builds are not yet provided for every collected chip.
 
-The new [Verify SDK workflow](../.github/workflows/verify-sdk.yml) configures Windows MSVC, Linux GCC x64/ARM64, and macOS Clang Intel/Apple Silicon source-archive builds, plus an Ubuntu YM2612 WASM build and archive rebuild. Those platform results remain pending until the workflow is pushed and executed; a configured job is not recorded as a successful remote run.
+The [Verify SDK workflow](../.github/workflows/verify-sdk.yml) passed all six jobs in [run 40079785622](https://github.com/kyorohiro/tetorica-soundchip-native/actions/runs/40079785622) at commit `175d20e1e2ca7397a267f3c8e3cd403669b9c989`: Windows MSVC, Linux GCC x64/ARM64, macOS Clang Intel/Apple Silicon source-archive builds, and Ubuntu YM2612 WASM build/archive rebuild. That run covers the existing YM2612 target. The newly added YM2151 target has local results recorded below; its remote platform validation awaits the next push.
 
 ## Source and release audits
 
@@ -34,6 +34,18 @@ These checks use installed compilers, Node.js, Python and CMake. They do not dow
 The initial archives were checked again using the tests included in their source payload, including the Node ABI smoke. Repackaging identical inputs also produced matching archive hashes.
 
 Emscripten optimization emits two existing array-bounds warnings in ymfm templates. This extraction retains that source snapshot unchanged.
+
+## YM2151
+
+- The standalone `tetorica::ym2151` target and public `<tetorica/ym2151.hpp>` header build in Release mode. Both YM2151 and YM2612 CTest self-tests passed.
+- The OPM adapter uses a Native-owned explicit template provider, matching the Tauri link fix at `83bfba8cbbc272a02279aba250b13e4c0f6ca57b`. The only adapter amendment removes its redundant local `keyonoff` instantiation; ymfm vendor files, WASM recipes and exported Native ABI remain unchanged.
+- The fixture exercises all eight channels with left/right/stereo routing, finite audible output, independent instances, non-advancing reads and snapshots, both timers/status/IRQ, clock limits, retained Stop/reset, CSM cancellation and deferred audition. It observed zero C++ `new`/`delete` calls during rendering and controls.
+- Comparison against the deployed YM2151 Worklet/WASM passed 252 cases at 44,100, 48,000 and 96,000 Hz: 1,548,288 stereo frames with zero PCM/status/IRQ/read differences. This additional offline comparison used `scripts/check_native_extra_ym2151.mjs` in the original application repository with the SDK-built fixture; it is not a source-package build dependency.
+- A C++14 consumer included both public headers and linked both static libraries together, producing finite audible output without duplicate symbols.
+- Fresh source and WASM ZIPs passed manifest/provenance audits. From an independently extracted source ZIP, both Native libraries built in Release mode and both CTest fixtures passed; the ten JavaScript reference checks and the existing YM2612 WASM ABI smoke also passed. No sibling checkout or chip-source download was used by the archive checker.
+- All 46 Python audit regression tests passed, including missing, duplicate, shared, escaped and unbuilt YM2151 fixture artifacts under single- and multi-configuration CMake layouts. Source validation checked 254 snapshot records across the existing 22 chip IDs and 27 WASM recipes.
+
+This target implements OPM only. It does not include X68000 OKIM6258, sample banks, an audio device or playback-deadline guarantees. The existing WASM release and WASM CI job still select YM2612 only. This Native-only addition reused the previously built YM2612 WASM artifact; its recipe and recorded build inputs did not change.
 
 ## MSM5205 and OKIM6295 JavaScript references
 

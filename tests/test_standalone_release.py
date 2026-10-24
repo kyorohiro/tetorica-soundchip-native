@@ -427,22 +427,32 @@ class NativeBuildPortabilityTests(unittest.TestCase):
         self.root.mkdir()
         self.build.mkdir()
 
-    def file_api_fixture(self, executable="tetorica_ym2612_fixture.exe"):
+    def file_api_fixture(self, executable="tetorica_ym2612_fixture.exe", multi_config=True):
         reply = self.build / ".cmake/api/v1/reply"
         reply.mkdir(parents=True, exist_ok=True)
+        targets = [{"jsonFile": "fixture-release.json"}, {"jsonFile": "fixture-ym2151-release.json"}]
         model = {"paths": {"source": str(self.root), "build": str(self.build)}, "configurations": [
             {"name": "Debug", "targets": [{"jsonFile": "fixture-debug.json"}]},
-            {"name": "Release", "targets": [{"jsonFile": "fixture-release.json"}]},
+            {"name": "Release", "targets": targets},
         ]}
+        if not multi_config:
+            model["configurations"] = model["configurations"][1:]
+        artifact_directory = "native/Release/" if multi_config else "native/"
         detail = {"name": "tetorica_ym2612_fixture", "nameOnDisk": executable, "type": "EXECUTABLE",
-                  "artifacts": [{"path": "native/Release/" + executable}],
+                  "artifacts": [{"path": artifact_directory + executable}],
                   "sources": [{"path": "native/tests/ym2612_fixture.cpp"},
                               {"path": "generated/source.cpp", "isGenerated": True}],
                   "compileGroups": [{"includes": [{"path": str(self.root / "vendor/include files")},
                                                     {"path": str(self.build / "generated")}]}]}
+        opm = copy.deepcopy(detail)
+        opm["name"] = "tetorica_ym2151_fixture"
+        opm["nameOnDisk"] = executable.replace("ym2612", "ym2151")
+        opm["artifacts"] = [{"path": artifact_directory + opm["nameOnDisk"]}]
+        opm["sources"][0]["path"] = "native/tests/ym2151_fixture.cpp"
         (reply / "index-test.json").write_text(json.dumps({"reply": {"codemodel-v2": {"jsonFile": "model.json"}}}))
         (reply / "model.json").write_text(json.dumps(model))
         (reply / "fixture-release.json").write_text(json.dumps(detail))
+        (reply / "fixture-ym2151-release.json").write_text(json.dumps(opm))
         # No Debug detail is needed: only the requested Release configuration is built.
         return reply, model, detail
 
@@ -473,11 +483,49 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                                                            "arguments": ["cl", "/I"]}])
 
     def test_file_api_discovers_release_exe_without_assuming_a_posix_artifact_path(self):
-        self.file_api_fixture()
-        self.assertEqual(audit_native_file_api(self.root, self.build),
-                         self.build / "native/Release/tetorica_ym2612_fixture.exe")
-        self.file_api_fixture("tetorica_ym2612_fixture")
-        self.assertEqual(audit_native_file_api(self.root, self.build).name, "tetorica_ym2612_fixture")
+        for multi_config in (False, True):
+            for extension in ("", ".exe"):
+                with self.subTest(multi_config=multi_config, extension=extension):
+                    self.file_api_fixture("tetorica_ym2612_fixture" + extension, multi_config)
+                    directory = "native/Release" if multi_config else "native"
+                    self.assertEqual(audit_native_file_api(self.root, self.build), {
+                        name: self.build / directory / (name + extension) for name in checker.REQUIRED_NATIVE_FIXTURES
+                    })
+
+    def test_file_api_requires_ym2151_even_when_ym2612_remains_complete(self):
+        reply, model, _ = self.file_api_fixture()
+        model["configurations"][1]["targets"] = [{"jsonFile": "fixture-release.json"}]
+        (reply / "model.json").write_text(json.dumps(model))
+        with self.assertRaisesRegex(AuditError, "missing required fixture targets.*tetorica_ym2151_fixture"):
+            audit_native_file_api(self.root, self.build)
+
+    def test_ym2151_requires_a_unique_executable_artifact_and_target(self):
+        for error in ("missing artifact", "duplicate artifact", "duplicate target", "outside artifact"):
+            with self.subTest(error=error):
+                reply, model, _ = self.file_api_fixture()
+                path = reply / "fixture-ym2151-release.json"
+                detail = json.loads(path.read_text())
+                if error == "missing artifact":
+                    detail["artifacts"] = []
+                elif error == "duplicate artifact":
+                    detail["artifacts"] *= 2
+                elif error == "duplicate target":
+                    model["configurations"][1]["targets"].append({"jsonFile": path.name})
+                else:
+                    detail["artifacts"][0]["path"] = str(self.work / "tetorica_ym2151_fixture.exe")
+                path.write_text(json.dumps(detail))
+                (reply / "model.json").write_text(json.dumps(model))
+                with self.assertRaisesRegex(AuditError, "tetorica_ym2151_fixture"):
+                    audit_native_file_api(self.root, self.build)
+
+    def test_fixture_targets_cannot_alias_one_executable(self):
+        reply, _, detail = self.file_api_fixture()
+        path = reply / "fixture-ym2151-release.json"
+        opm = json.loads(path.read_text())
+        opm["nameOnDisk"], opm["artifacts"] = detail["nameOnDisk"], detail["artifacts"]
+        path.write_text(json.dumps(opm))
+        with self.assertRaisesRegex(AuditError, "share an executable artifact"):
+            audit_native_file_api(self.root, self.build)
 
     def test_file_api_rejects_outside_sources_includes_and_artifacts(self):
         for field in ("source", "include", "artifact"):
@@ -514,14 +562,32 @@ class NativeBuildPortabilityTests(unittest.TestCase):
             if arguments[0:2] == ["cmake", "-S"]:
                 self.file_api_fixture()
             elif arguments[0:2] == ["cmake", "--build"]:
-                fixture = self.build / "native/Release/tetorica_ym2612_fixture.exe"
-                fixture.parent.mkdir(parents=True)
-                fixture.write_bytes(b"fixture executable")
+                for name in checker.REQUIRED_NATIVE_FIXTURES:
+                    fixture = self.build / "native/Release" / (name + ".exe")
+                    fixture.parent.mkdir(parents=True, exist_ok=True)
+                    fixture.write_bytes(b"fixture executable")
 
         with patch.object(checker, "command", side_effect=execute):
             checker.build_native(self.root, self.build, {})
         self.assertEqual(commands[1], ["cmake", "--build", str(self.build.resolve()), "--config", "Release", "--parallel", "2"])
         self.assertEqual(commands[2], ["ctest", "--test-dir", str(self.build.resolve()), "-C", "Release", "--output-on-failure", "--no-tests=error"])
+
+    def test_native_build_rejects_an_unbuilt_ym2151_fixture_before_running_ctest(self):
+        commands = []
+
+        def execute(arguments, cwd, environment):
+            commands.append(list(map(str, arguments)))
+            if arguments[0:2] == ["cmake", "-S"]:
+                self.file_api_fixture()
+            elif arguments[0:2] == ["cmake", "--build"]:
+                fixture = self.build / "native/Release/tetorica_ym2612_fixture.exe"
+                fixture.parent.mkdir(parents=True)
+                fixture.write_bytes(b"fixture executable")
+
+        with patch.object(checker, "command", side_effect=execute):
+            with self.assertRaisesRegex(AuditError, "not built.*tetorica_ym2151_fixture"):
+                checker.build_native(self.root, self.build, {})
+        self.assertEqual(len(commands), 2)
 
     def test_relative_work_directory_is_resolved_before_changing_command_cwd(self):
         previous = Path.cwd()

@@ -1480,7 +1480,8 @@
     {
       "id": "tetorica-native-ymfm-provider",
       "sourceFiles": [
-        "native/src/ymfm_opn_provider.cpp"
+        "native/src/ymfm_opn_provider.cpp",
+        "native/src/ymfm_opm_provider.cpp"
       ],
       "licenseFiles": [
         "LICENSE"
@@ -1489,7 +1490,7 @@
         "https://github.com/kyorohiro/tetorica-fm2612-playground-tauri"
       ],
       "sourceVersion": [
-        "Tauri Native OPN template-provider fix 83bfba8cbbc272a02279aba250b13e4c0f6ca57b; exact imported and packaged bytes identified below",
+        "Tauri Native OPN/OPM template-provider fix 83bfba8cbbc272a02279aba250b13e4c0f6ca57b; exact imported and packaged bytes identified below",
         "Native-only include shim; vendor ymfm files, WASM recipes, and WASM binaries are unchanged."
       ],
       "files": [
@@ -1499,6 +1500,14 @@
           "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
           "originSha256": "0f280b572a77795edd87917c2c0cf91d91a547ef5467978c4ae3f5176363c058",
           "sha256": "83f41e6966a136f019ab9be343b689446bf50f5990a1b2d18d6533f2aeefa637",
+          "adaptation": "SDK include-path relocation only"
+        },
+        {
+          "path": "native/src/ymfm_opm_provider.cpp",
+          "originPath": "src-tauri/src/native_genesis_ymfm_opm.cpp",
+          "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+          "originSha256": "e592cb8101f1f9887b360c12061702a7ac01c6c638c46a8c31583cad11f874e6",
+          "sha256": "9b6d50381d95198438109647d7931f7ec2d90b127679be205dfc8d4dacf89db2",
           "adaptation": "SDK include-path relocation only"
         }
       ]

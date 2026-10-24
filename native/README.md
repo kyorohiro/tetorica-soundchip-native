@@ -7,7 +7,8 @@ sources. Collecting them here does not yet switch those consumers to this SDK.
 
 `reference/tauri/` preserves the existing exported functions and PCM behavior.
 HuC6280 and Nuked include paths are relocated to the shared SDK source layout.
-The YM2612 adapter also carries the recorded template-ownership amendment below.
+The YM2612 and YM2151 adapters also carry the recorded template-ownership
+amendments below.
 `reference/SOURCES.json` records the original and packaged byte hashes.
 The vendor cores have one canonical copy in `../vendor/`; they are not copied
 again under `native/`.
@@ -27,7 +28,7 @@ translation-unit constraints.
 
 ## Build support
 
-The initial independently buildable Native component is **ymfm YM2612**:
+The independently buildable Native components are **ymfm YM2612 and YM2151**:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -35,20 +36,89 @@ cmake --build build --config Release --parallel
 ctest --test-dir build -C Release --output-on-failure
 ```
 
-The same component can be configured directly with `cmake -S native -B
-build/native`. Neither build downloads dependencies. Target `tetorica::ym2612`
-links the static library; `<tetorica/ym2612.hpp>` exposes the existing reference
-C ABI from C++. The `native_ym2612_*` names and `NativeYm2612State` layout remain
-unchanged. This is not yet a new versioned, portable C-only SDK header.
+The same targets can be configured directly with `cmake -S native -B
+build/native`. Neither build downloads dependencies.
 
-The test exercises two independent instances, all six FM channels, DAC, timers,
+| CMake target | Static library target | Public C++ header | Existing C ABI |
+| --- | --- | --- | --- |
+| `tetorica::ym2612` | `tetorica_native_ym2612` | `<tetorica/ym2612.hpp>` | `native_ym2612_*`, `NativeYm2612State` |
+| `tetorica::ym2151` | `tetorica_native_ym2151` | `<tetorica/ym2151.hpp>` | `native_ym2151_*`, `NativeYm2151State` |
+
+The exported names and observational state layouts remain unchanged. These
+headers expose the current reference C ABI to C++ hosts; they are not yet a new
+versioned, portable C-only SDK header.
+
+The YM2612 fixture exercises two independent instances, all six FM channels, DAC, timers,
 status/IRQ, clock changes, observational snapshots, cancellation, retained Stop,
 reset, mute, and deferred audition edges. It checks zero C++ allocation/free
 during rendering and works in Release builds with assertions enabled. It opens
-no audio device. Building the target proves this component only; it does not
-claim that every collected Native wrapper already has an independent SDK build.
+no audio device.
+
+The YM2151 fixture covers eight FM channels, left/right pan, independent
+instances, timers/status/IRQ, clock changes, non-advancing observations, separate
+FM/CSM cancellation, audition, retained Stop and reset. Its rendering checks also
+reject C++ allocation/free in the tested paths. Both fixtures run through CTest
+with assertions enabled in Release builds. See the [verification record](../docs/verification.md)
+for completed checks and platform results. Other collected wrappers still need
+their own standalone targets and verification.
 
 `src/ymfm_opn_provider.cpp` includes the unchanged shared ymfm provider and explicitly instantiates the Native OPN engine/channel/operator templates. The adapter declares those templates `extern`; optimized providers must emit their callable definitions even when the provider's own calls are inlined. This incorporates the Tauri link fix without changing DSP behavior or the exported ABI. The provider's origin and include relocation are recorded in the source inventories.
+
+`src/ymfm_opm_provider.cpp` does the same for the OPM templates used by YM2151.
+Both linkage changes come from Tauri commit
+`83bfba8cbbc272a02279aba250b13e4c0f6ca57b`. The shared ymfm vendor files and WASM
+recipes are unchanged. The YM2151 target is an independent OPM implementation;
+it does not allocate an OKIM6258 core or provide a complete X68000 sound system.
+
+## Embed YM2151
+
+Link the selected chip target from your application's CMake configuration:
+
+```cmake
+add_subdirectory(vendor/tetorica-soundchip-native)
+target_link_libraries(your_application PRIVATE tetorica::ym2151)
+```
+
+This example configures a centered FM voice on channel 0 and renders 512 stereo
+frames at the requested output rate:
+
+```cpp
+#include <tetorica/ym2151.hpp>
+
+int main() {
+    void* chip = native_ym2151_create(48000);
+    if (!chip) return 1;
+    const auto write = [chip](unsigned reg, unsigned value) {
+        native_ym2151_write(chip, reg, value);
+    };
+    for (unsigned op = 0; op < 4; ++op) {
+        const unsigned offset = op * 8; // Channel 0 in each operator group.
+        write(0x40 + offset, 1);
+        write(0x60 + offset, op == 0 ? 24 : 127);
+        write(0x80 + offset, 31);
+        write(0xa0 + offset, 0);
+        write(0xc0 + offset, 0);
+        write(0xe0 + offset, 15);
+    }
+    write(0x20, 0xc7); // Left + right, algorithm 7.
+    write(0x28, 0x4a); // Key code.
+    write(0x30, 0);    // Key fraction.
+    write(0x08, 0x78); // All four operators on channel 0.
+
+    float left[512], right[512];
+    for (unsigned i = 0; i < 512; ++i) {
+        native_ym2151_sample(chip, &left[i], &right[i]);
+    }
+    // Send these buffers to your audio output or file renderer.
+    native_ym2151_stop(chip);
+    native_ym2151_destroy(chip);
+}
+```
+
+Keep the chip alive between audio callbacks. Create/destroy it outside the
+callback, serialize register writes with rendering, and schedule events in the
+host. `native_ym2151_get_state()` observes authored registers, key gates and
+status without advancing audio; it is not a transferable WASM save state.
 
 ## Collected component references
 
@@ -59,7 +129,7 @@ claim that every collected Native wrapper already has an independent SDK build.
 | YM2203 | `native_genesis_ym2203.cpp` | Not yet connected |
 | YM2608 | `native_genesis_ym2608.cpp` | Not yet connected |
 | YM2610 / YM2610B | `native_genesis_ym2610b.cpp`, selected immutable variant | Not yet connected |
-| YM2151 | `native_genesis_ym2151.cpp` | Not yet connected |
+| YM2151 | `native_genesis_ym2151.cpp` | Standalone OPM target and fixture; X68000 OKI remains reference-only |
 | YM2413 | `native_genesis_ym2413.cpp`, `native_genesis_opll.h` | Not yet connected |
 | AY-3-8910 | `native_genesis_ay8910.cpp` | Not yet connected |
 | YM3526 / YM3812 / Y8950 / YMF262 | `native_genesis_opl.cpp`, `native_genesis_extra_opl.cpp` | Not yet connected |
