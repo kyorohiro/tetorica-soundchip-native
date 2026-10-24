@@ -469,6 +469,14 @@
       "originSha256": "45b288a61ab5aabed274368756ae783026a1ab63449c64593de9b5553f9d17a2",
       "sha256": "48237874404d5aadaaed436ca8873a6aac4efe945198880d5525c9445277cd7f",
       "adaptation": "Extract the YM2413-only branch and shared-rhythm cancellation tests without AY dependencies; include the SDK public header and extend coverage for all nine melodic channels, all sixteen instrument choices, rhythm gates/retained levels, independent instances and non-advancing observations. The optional leading ym2413 CLI argument and 71-plane observation layout are retained."
+    },
+    {
+      "file": "native/tests/ay8910_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_msx_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "45b288a61ab5aabed274368756ae783026a1ab63449c64593de9b5553f9d17a2",
+      "sha256": "cdbc9aa2e2d4d3d4c3e7dabf78f8a8072ce1c22502a88778a1d58d9c6aec5127",
+      "adaptation": "Extract the AY-only branch without OPLL dependencies; include the SDK public header and extend coverage for three channels and all tone/noise mixer routes, all sixteen envelope settings, non-advancing reads/observations, independent instances, retained levels including zero and envelope selection, clock bounds, and immediate Stop versus public release held history. The optional leading ay8910 CLI argument and 22-plane observation layout are retained."
     }
   ]
 }

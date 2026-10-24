@@ -1,8 +1,8 @@
 # Verification record
 
-Local verification was performed on macOS on 2026-10-24 using installed development tools. The results below cover the stated configurations; standalone Native builds are not yet provided for every collected chip.
+Local verification was performed on macOS on 2026-10-24 and 2026-10-25 using installed development tools. The results below cover the stated configurations; standalone Native builds are not yet provided for every collected chip.
 
-The [Verify SDK workflow](../.github/workflows/verify-sdk.yml) passed all six jobs in [run 40079785622](https://github.com/kyorohiro/tetorica-soundchip-native/actions/runs/40079785622) at commit `175d20e1e2ca7397a267f3c8e3cd403669b9c989`: Windows MSVC, Linux GCC x64/ARM64, macOS Clang Intel/Apple Silicon source-archive builds, and Ubuntu YM2612 WASM build/archive rebuild. That linked run covers YM2612 only. The YM2151, Sega PSG and YM2413 sections below record local results; they do not establish remote platform coverage for those later additions.
+The [Verify SDK workflow](../.github/workflows/verify-sdk.yml) passed all six jobs in [run 40079785622](https://github.com/kyorohiro/tetorica-soundchip-native/actions/runs/40079785622) at commit `175d20e1e2ca7397a267f3c8e3cd403669b9c989`: Windows MSVC, Linux GCC x64/ARM64, macOS Clang Intel/Apple Silicon source-archive builds, and Ubuntu YM2612 WASM build/archive rebuild. That linked run covers YM2612 only. The YM2151, Sega PSG, YM2413 and AY-3-8910 sections below record local results; they do not establish remote platform coverage for those later additions.
 
 ## Source and release audits
 
@@ -70,6 +70,18 @@ Sega PSG alone does not provide Genesis FM or the Master System's optional YM241
 - All 51 Python regression tests passed, including missing/unbuilt YM2413 and Master System example artifacts and rejection of a silent second example. Source validation checked 258 snapshot records. The final source/WASM archives retained matching manifests, provenance and the exact embedded companion source ZIP.
 
 YM2413 provides nine melodic channels, or six melodic channels plus five rhythm voices sharing physical channels 6–8. It is mono and is sent to both output channels. The Master System-style example keeps PSG stereo at `0xff`; it is not a console emulator. This Native addition retains the existing YM2612-only compiled WASM release and does not rebuild unchanged WASM inputs.
+
+## AY-3-8910 and the MSX WAV example
+
+- The standalone `tetorica::ay8910` static target and public `<tetorica/ay8910.hpp>` header expose the existing `native_ay8910_*` C ABI. The imported wrapper and pinned MAME-adaptation core remain byte-identical. The AY-only fixture is derived from the original combined OPLL/AY test without an OPLL dependency; provenance records its origin and added coverage.
+- Release CMake builds and CTest passed 5/5. The fixture covers three tone channels and their tone/noise mixer combinations, all sixteen envelope settings, reads and observational snapshots, independent instances, retained zero and envelope levels, clock bounds, reset, cancellation and the distinct immediate Stop/public release behavior at low clocks. Rendering and controls observed zero C++ `new`/`delete` calls.
+- Comparison against the shipped AY Worklet/WASM passed 114 cases at 44,100, 48,000 and 96,000 Hz: 466,944 stereo frames with zero PCM, authored-register, clock or retained-level differences. This additional check uses the original application's `scripts/check_native_extra_ay8910.mjs` with the SDK-built fixture; that checkout is not a source-package build dependency.
+- Temporary C++ consumers included all five public headers and linked all five static libraries in both archive orders. Both produced identical finite, nonzero output without missing or duplicate symbols.
+- `tetorica_msx_wav` combines the actual AY and YM2413 libraries in a three-second, 48 kHz stereo PCM16 example: three AY tones, a short noise attack, a descending hardware envelope and an OPLL flute melody. It uses explicit chip clocks, hardware pitch equations and fixed demo mix gains, with no external samples, device or application runtime.
+- An independently extracted source ZIP built all five libraries, five fixtures and three examples in Release mode. CTest passed 5/5, and every example produced 144,000 stereo frames without clipping. The MSX example's channel peaks were approximately 0.070. The ten JavaScript reference checks and existing YM2612 WASM ABI smoke also passed against the extracted releases.
+- All 51 Python regression tests passed, with extended subtests for missing/unbuilt AY and MSX artifacts and a silent third example. Source validation checked 259 snapshot records. Source/WASM release audits retained matching manifests, provenance and the exact embedded companion source ZIP.
+
+The Native ABI selects AY type 0 with legacy-normalization flag 1 and averages the three channels to mono on both outputs. It does not expose the WASM API's YM2149/type/flag selection or model an MSX motherboard's mixing circuit. Public release retains the preceding resampler-held output until the next source interval; immediate Stop clears it while preserving retained levels. The existing WASM recipes and YM2612-only compiled WASM release remain unchanged by this Native addition.
 
 ## MSM5205 and OKIM6295 JavaScript references
 

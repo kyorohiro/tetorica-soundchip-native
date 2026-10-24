@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "notes": [
     "Reference C++/C ABI sources are collected for 22 public chips. source-only does not claim an independent SDK Native build.",
-    "Standalone CMake targets build YM2612/ymfm, YM2151/ymfm, YM2413/ymfm and Sega PSG. YM2612 Nuked sources remain reference-only.",
+    "Standalone CMake targets build YM2612/ymfm, YM2151/ymfm, YM2413/ymfm, Sega PSG and AY-3-8910. YM2612 Nuked sources remain reference-only.",
     "Vendor component origins and license files are recorded by the shared source inventory, rather than copied again here."
   ],
   "chips": [
@@ -528,19 +528,31 @@
       "id": "ay8910",
       "sourceFiles": [
         "native/reference/tauri/native_genesis_ay8910.cpp",
-        "native/reference/tauri/native_genesis_ay8910.h"
+        "native/reference/tauri/native_genesis_ay8910.h",
+        "native/include/tetorica/ay8910.hpp"
       ],
-      "status": "source-only",
+      "status": "verified",
+      "target": "tetorica_native_ay8910",
+      "verificationScope": "Independent AY-3-8910 renderer using the pinned MAME adaptation, type 0 and legacy-normalization flag 1. Three tones, shared noise/envelope and mono output on both channels; no YM2149 type/flag selection, OPLL or machine-level mixer is provided by this target.",
+      "tests": [
+        "tetorica.ay8910.self_test"
+      ],
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/mame-ay8910/LICENSE"
       ],
       "declaredFileLicenses": {},
       "defaultLicensedFiles": [
         "native/reference/tauri/native_genesis_ay8910.cpp",
-        "native/reference/tauri/native_genesis_ay8910.h"
+        "native/reference/tauri/native_genesis_ay8910.h",
+        "native/include/tetorica/ay8910.hpp"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     }
   ],

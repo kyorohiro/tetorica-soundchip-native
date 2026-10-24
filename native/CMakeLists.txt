@@ -88,6 +88,23 @@ if(MSVC)
   target_compile_options(tetorica_native_ym2413 PRIVATE /EHsc)
 endif()
 
+add_library(tetorica_native_ay8910 STATIC
+  reference/tauri/native_genesis_ay8910.cpp
+  "${TETORICA_SDK_ROOT}/vendor/mame-ay8910/ay8910.cpp"
+)
+add_library(tetorica::ay8910 ALIAS tetorica_native_ay8910)
+target_compile_features(tetorica_native_ay8910 PUBLIC cxx_std_14)
+target_include_directories(tetorica_native_ay8910
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/mame-ay8910"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_ay8910 PRIVATE /EHsc)
+endif()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
   add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
   target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
@@ -98,6 +115,11 @@ if(TETORICA_NATIVE_BUILD_EXAMPLES)
   target_link_libraries(tetorica_master_system_wav PRIVATE tetorica::ym2413 tetorica::segapsg)
   if(MSVC)
     target_compile_options(tetorica_master_system_wav PRIVATE /EHsc)
+  endif()
+  add_executable(tetorica_msx_wav examples/msx_wav.cpp)
+  target_link_libraries(tetorica_msx_wav PRIVATE tetorica::ay8910 tetorica::ym2413)
+  if(MSVC)
+    target_compile_options(tetorica_msx_wav PRIVATE /EHsc)
   endif()
 endif()
 
@@ -143,4 +165,14 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.ym2413.self_test
     COMMAND tetorica_ym2413_fixture --self-test)
+
+  add_executable(tetorica_ay8910_fixture tests/ay8910_fixture.cpp)
+  target_link_libraries(tetorica_ay8910_fixture PRIVATE tetorica::ay8910)
+  if(MSVC)
+    target_compile_options(tetorica_ay8910_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_ay8910_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.ay8910.self_test
+    COMMAND tetorica_ay8910_fixture --self-test)
 endif()

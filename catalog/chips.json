@@ -218,25 +218,38 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {},
         "defaultLicensedFiles": [
           "native/reference/tauri/native_genesis_ay8910.cpp",
-          "native/reference/tauri/native_genesis_ay8910.h"
+          "native/reference/tauri/native_genesis_ay8910.h",
+          "native/include/tetorica/ay8910.hpp"
         ],
         "id": "ay8910",
         "licenseFiles": [
-          "LICENSE"
+          "LICENSE",
+          "vendor/mame-ay8910/LICENSE"
         ],
         "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_ay8910.cpp",
-          "native/reference/tauri/native_genesis_ay8910.h"
+          "native/reference/tauri/native_genesis_ay8910.h",
+          "native/include/tetorica/ay8910.hpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_ay8910",
+        "tests": [
+          "tetorica.ay8910.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Independent AY-3-8910 renderer using the pinned MAME adaptation, type 0 and legacy-normalization flag 1. Three tones, shared noise/envelope and mono output on both channels; no YM2149 type/flag selection, OPLL or machine-level mixer is provided by this target."
       },
       "sourceFiles": [
+        "native/include/tetorica/ay8910.hpp",
         "native/reference/tauri/native_genesis_ay8910.cpp",
         "native/reference/tauri/native_genesis_ay8910.h",
         "vendor/mame-ay8910/ay8910.cpp",
