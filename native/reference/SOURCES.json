@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 1,
+  "status": "bootstrap reference sources; existing applications are not switched to this repository",
+  "originRepository": "tetorica-fm2612-playground-tauri",
+  "entries": [
+    {
+      "file": "native/reference/tauri/native_genesis_ay8910.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ay8910.cpp",
+      "originSha256": "a142cc1ccd2014db3081d461e6fa120351c77d8575257eb12cb5798f3df3b50d",
+      "sha256": "a142cc1ccd2014db3081d461e6fa120351c77d8575257eb12cb5798f3df3b50d",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ay8910.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ay8910.h",
+      "originSha256": "5c2ae126b9a7a6d516e50011e44ccb3e8acb6362fd2c2ef693ddced9fc3f94c9",
+      "sha256": "5c2ae126b9a7a6d516e50011e44ccb3e8acb6362fd2c2ef693ddced9fc3f94c9",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_core.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_core.cpp",
+      "originSha256": "7ca82b7864071e6e17901787e3ce7dc49c8fded9e312b1afc99dcb093b2d8a67",
+      "sha256": "7ca82b7864071e6e17901787e3ce7dc49c8fded9e312b1afc99dcb093b2d8a67",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_dx7.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_dx7.cpp",
+      "originSha256": "4f7d31227f513b05762da639e3ca8569d07268df10fccc7a367d6db335666aab",
+      "sha256": "4f7d31227f513b05762da639e3ca8569d07268df10fccc7a367d6db335666aab",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_dx7.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_dx7.h",
+      "originSha256": "184821429fed49163c068326c88bd9faae40efc6628a4c5df73bc132e87917c3",
+      "sha256": "184821429fed49163c068326c88bd9faae40efc6628a4c5df73bc132e87917c3",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_extra_okim6258.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_okim6258.cpp",
+      "originSha256": "9f6d3f3a0d685c3b9444c5ba7ae9aa37fd4848256a710797a7cab9b44131d100",
+      "sha256": "9f6d3f3a0d685c3b9444c5ba7ae9aa37fd4848256a710797a7cab9b44131d100",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_extra_okim6258.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_okim6258.h",
+      "originSha256": "e58ad3626bffc70f4b677a659535d3bf84ce1348a1041d145535fa04e3f0da03",
+      "sha256": "e58ad3626bffc70f4b677a659535d3bf84ce1348a1041d145535fa04e3f0da03",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_extra_opl.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_opl.cpp",
+      "originSha256": "41c4591e031b5a80837a53d308e0e4ed30a0f4c00d8b9d3254f16cc56be8d6de",
+      "sha256": "41c4591e031b5a80837a53d308e0e4ed30a0f4c00d8b9d3254f16cc56be8d6de",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_extra_opl.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_opl.h",
+      "originSha256": "c1923eb15bacb4a77fd05a6246b44febbaa60d7baf3e54529a5eca3e99102ed4",
+      "sha256": "c1923eb15bacb4a77fd05a6246b44febbaa60d7baf3e54529a5eca3e99102ed4",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_extra_rf5c164.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_rf5c164.cpp",
+      "originSha256": "219bac35abf31fc12329b28869a57957d18ad5777423637a8f29aa0fae23e189",
+      "sha256": "219bac35abf31fc12329b28869a57957d18ad5777423637a8f29aa0fae23e189",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_extra_rf5c164.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_rf5c164.h",
+      "originSha256": "5877e8b7175469acd1e53ccb2440ae2654ced65c1bc5ccd78a9d73f590b8e61a",
+      "sha256": "5877e8b7175469acd1e53ccb2440ae2654ced65c1bc5ccd78a9d73f590b8e61a",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_game_gear.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_game_gear.cpp",
+      "originSha256": "e109e06ecb1d991aba9def4b6df370f730ac1d1049ca17c7c7b79ec25cc0cb1a",
+      "sha256": "e109e06ecb1d991aba9def4b6df370f730ac1d1049ca17c7c7b79ec25cc0cb1a",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_game_gear.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_game_gear.h",
+      "originSha256": "2f837f85e46f3be99c38df026da4c0f844347b3a894f6998507c5ff814a85f8b",
+      "sha256": "2f837f85e46f3be99c38df026da4c0f844347b3a894f6998507c5ff814a85f8b",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_gameboy.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_gameboy.cpp",
+      "originSha256": "ee2a7149cd6ffb85c82a0c1b9e6239061345c6fab82817957de7eea1a7a91c20",
+      "sha256": "ee2a7149cd6ffb85c82a0c1b9e6239061345c6fab82817957de7eea1a7a91c20",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_gameboy.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_gameboy.h",
+      "originSha256": "fe82894660613ea50f332171e86fb9e6367d94632fccdd4b5841e44dc5eed401",
+      "sha256": "fe82894660613ea50f332171e86fb9e6367d94632fccdd4b5841e44dc5eed401",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_huc6280.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_huc6280.cpp",
+      "originSha256": "fa783c7d92c15a21d4c00ede1d3e1ba0c28fce93a8318656ce42cdeafc372d14",
+      "sha256": "4f7712568f390a0150793d759de9c0542c604d16e8e00a1ffa85aa932c8e7286",
+      "adaptation": "SDK include-path relocation only"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_huc6280.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_huc6280.h",
+      "originSha256": "ebc76a91f0dbbc419d3bfbaf4426514a6ee7092aab11a4a89bfd80a3a468e9af",
+      "sha256": "ebc76a91f0dbbc419d3bfbaf4426514a6ee7092aab11a4a89bfd80a3a468e9af",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_master_system.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_master_system.cpp",
+      "originSha256": "9b4319bb79efff5e9083024edcf66e4b18becef3dc423ca0c04eba0fbbaa9ce1",
+      "sha256": "9b4319bb79efff5e9083024edcf66e4b18becef3dc423ca0c04eba0fbbaa9ce1",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_master_system.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_master_system.h",
+      "originSha256": "5b630196a0418789f7fdda4c709e8061597096044980e501a6fdfd878b30965e",
+      "sha256": "5b630196a0418789f7fdda4c709e8061597096044980e501a6fdfd878b30965e",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_msx.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_msx.cpp",
+      "originSha256": "ae98c72d80d16dee040a1070b1faa7d45e578bd4e023db58216daa052060ebe7",
+      "sha256": "ae98c72d80d16dee040a1070b1faa7d45e578bd4e023db58216daa052060ebe7",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_msx.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_msx.h",
+      "originSha256": "fee5a1e39aeeda557f7f6da9aefc4f083b711f2b720d4f45501b903da57d03ac",
+      "sha256": "fee5a1e39aeeda557f7f6da9aefc4f083b711f2b720d4f45501b903da57d03ac",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_nes.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_nes.cpp",
+      "originSha256": "ff04f01c5b6fde9e139921fb2300d7d907ec8bd56c072453daa81f6c60b1db52",
+      "sha256": "ff04f01c5b6fde9e139921fb2300d7d907ec8bd56c072453daa81f6c60b1db52",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_nes.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_nes.h",
+      "originSha256": "7834ca83834271574d58ba754061ca8eea619776a7acea6f702cfe3b811b3b31",
+      "sha256": "7834ca83834271574d58ba754061ca8eea619776a7acea6f702cfe3b811b3b31",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_nuked.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_nuked.cpp",
+      "originSha256": "0b51f6ddae89e13534715b8e1b5a60d37d229e30d7eac3c87c96875a768d3271",
+      "sha256": "f062bc48b6a8c7898306f7652896d897d5ffbe02ae96e729afc39421d5667d35",
+      "adaptation": "SDK include-path relocation only"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_nuked_ym2612.inc",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_nuked_ym2612.inc",
+      "originSha256": "3ee181fcfaf2c055e4f6ad3129758150abd1fd60d5ce2ba28fd60973482fa45a",
+      "sha256": "3ee181fcfaf2c055e4f6ad3129758150abd1fd60d5ce2ba28fd60973482fa45a",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_opl.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_opl.cpp",
+      "originSha256": "b192315473e6b7e6efca999b131ef310e209c5be9bb01a13317f1dc04e24d1f3",
+      "sha256": "b192315473e6b7e6efca999b131ef310e209c5be9bb01a13317f1dc04e24d1f3",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_opl.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_opl.h",
+      "originSha256": "fbf447d67743e9115220e34b268e32745b36aea9812bd82d6cff5871947a54af",
+      "sha256": "fbf447d67743e9115220e34b268e32745b36aea9812bd82d6cff5871947a54af",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_opll.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_opll.h",
+      "originSha256": "68b5e451cbd3f80f19652a388b18764b9e81977645b993c7c382ed24ad667e3a",
+      "sha256": "68b5e451cbd3f80f19652a388b18764b9e81977645b993c7c382ed24ad667e3a",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_psg.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_psg.h",
+      "originSha256": "dc3cf1da9594b281ff9433c7d4b4968a51448e0152e205c40467f436a887d5cb",
+      "sha256": "dc3cf1da9594b281ff9433c7d4b4968a51448e0152e205c40467f436a887d5cb",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_pwm.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_pwm.cpp",
+      "originSha256": "c435befeefdc450299ce9d0bc0817134a2f2c00f547a2aa414703546f7904c09",
+      "sha256": "c435befeefdc450299ce9d0bc0817134a2f2c00f547a2aa414703546f7904c09",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_pwm.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_pwm.h",
+      "originSha256": "45055365c299e153877cdebbefa0d6cc357326158bc5c82d493489865ffa6fab",
+      "sha256": "45055365c299e153877cdebbefa0d6cc357326158bc5c82d493489865ffa6fab",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_rf5c164.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_rf5c164.cpp",
+      "originSha256": "ee6ccbef991bca4ebe68bc38c90e9e99409e6e49d1850a85cc498bc1d55ca254",
+      "sha256": "ee6ccbef991bca4ebe68bc38c90e9e99409e6e49d1850a85cc498bc1d55ca254",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_rf5c164.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_rf5c164.h",
+      "originSha256": "70f6251a32bf2327236ba849889340e8a488c45fbae042583d9d4a8c54e571dc",
+      "sha256": "70f6251a32bf2327236ba849889340e8a488c45fbae042583d9d4a8c54e571dc",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_snes.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_snes.cpp",
+      "originSha256": "736c581fae2c7ac439f0815776aa044ab980d44ac3cbfeffd29306aac8e58921",
+      "sha256": "736c581fae2c7ac439f0815776aa044ab980d44ac3cbfeffd29306aac8e58921",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_snes.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_snes.h",
+      "originSha256": "cb56f2fa0b5c915cf3b9dfe8d3125aed354f71f60b766a60d6a8035cfd842526",
+      "sha256": "cb56f2fa0b5c915cf3b9dfe8d3125aed354f71f60b766a60d6a8035cfd842526",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_spc.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_spc.cpp",
+      "originSha256": "628a59f9d01ca3d19296dab87fc7f654b4adb444930241e30b7f19d466f77693",
+      "sha256": "628a59f9d01ca3d19296dab87fc7f654b4adb444930241e30b7f19d466f77693",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_spc.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_spc.h",
+      "originSha256": "ae6e729b76db5c8b7f51a5fab3fea84a3c7d63fcae470a6d0b7a0ec525819663",
+      "sha256": "ae6e729b76db5c8b7f51a5fab3fea84a3c7d63fcae470a6d0b7a0ec525819663",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_x68000.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_x68000.cpp",
+      "originSha256": "2cd45a01a5794109256094180a85c3813b7e5dc70e403d99ab0118224a73459b",
+      "sha256": "2cd45a01a5794109256094180a85c3813b7e5dc70e403d99ab0118224a73459b",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_x68000.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_x68000.h",
+      "originSha256": "e78a5dfc925bc063339978565185aa0b980c1426c65bdbce170ed5e48a12e0b1",
+      "sha256": "e78a5dfc925bc063339978565185aa0b980c1426c65bdbce170ed5e48a12e0b1",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_y8950_memory.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_y8950_memory.h",
+      "originSha256": "605bdff99028c18a651647f804f054dc4b2dd35af0e6018abd46efc19604394c",
+      "sha256": "605bdff99028c18a651647f804f054dc4b2dd35af0e6018abd46efc19604394c",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2151.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2151.cpp",
+      "originSha256": "cf167dbd8bfac8ea355dfac318c921b89789dbfc11c0a7fd037e6c6ee82f5730",
+      "sha256": "cf167dbd8bfac8ea355dfac318c921b89789dbfc11c0a7fd037e6c6ee82f5730",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2151.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2151.h",
+      "originSha256": "cd35cdaea881ba855452afabc62dade6a5739a4effd9cd4788b484742f9c50e7",
+      "sha256": "cd35cdaea881ba855452afabc62dade6a5739a4effd9cd4788b484742f9c50e7",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2203.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2203.cpp",
+      "originSha256": "dea31da2fce185b2307fcee12c927be258d73908300dd587337a4fc0188fb187",
+      "sha256": "dea31da2fce185b2307fcee12c927be258d73908300dd587337a4fc0188fb187",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2203.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2203.h",
+      "originSha256": "a73f5f3c02723006c9579287f2886b84607ee76ded655db7f1b0dd155f9fdd4d",
+      "sha256": "a73f5f3c02723006c9579287f2886b84607ee76ded655db7f1b0dd155f9fdd4d",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2413.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2413.cpp",
+      "originSha256": "60ca7ead16c51c36111e80dd02fa27dac9dc1d52e4c39326c0287490a093ed95",
+      "sha256": "60ca7ead16c51c36111e80dd02fa27dac9dc1d52e4c39326c0287490a093ed95",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2413.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2413.h",
+      "originSha256": "aef87e4a2beeb0009584215b1a2befaf423f5a3e347bab4317fce45aab11d263",
+      "sha256": "aef87e4a2beeb0009584215b1a2befaf423f5a3e347bab4317fce45aab11d263",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2608.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2608.cpp",
+      "originSha256": "bcd8c2576449ba245812dc7ff3b22fac90c29087673f7d622214f9c329c65e6a",
+      "sha256": "bcd8c2576449ba245812dc7ff3b22fac90c29087673f7d622214f9c329c65e6a",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2608.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2608.h",
+      "originSha256": "cb83bd1c23830146440b264eb6705c9c43fb6dd57526802e325cbc134f59f331",
+      "sha256": "cb83bd1c23830146440b264eb6705c9c43fb6dd57526802e325cbc134f59f331",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2610b.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2610b.cpp",
+      "originSha256": "3de7e7c8c5fe6291c8466abcbbaa719bc8b8563d5a73bf36a317ee62fb353e5d",
+      "sha256": "3de7e7c8c5fe6291c8466abcbbaa719bc8b8563d5a73bf36a317ee62fb353e5d",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2610b.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2610b.h",
+      "originSha256": "a33e251c565b727d7bad195a6c2448c5b3f878fcff623f78efd590559bf299e7",
+      "sha256": "a33e251c565b727d7bad195a6c2448c5b3f878fcff623f78efd590559bf299e7",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2612.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2612.cpp",
+      "originSha256": "413e6a0132821246a034fb6295c91fd73e8d423965101e955f0476d9e161a0e4",
+      "sha256": "413e6a0132821246a034fb6295c91fd73e8d423965101e955f0476d9e161a0e4",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/tauri/native_genesis_ym2612.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2612.h",
+      "originSha256": "cf987f67c1b9376f89fd867e05160a0580ff310ed1adfb34fcb33e945b70ce75",
+      "sha256": "cf987f67c1b9376f89fd867e05160a0580ff310ed1adfb34fcb33e945b70ce75",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/tests/ym2612_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2612_fixture.cpp",
+      "originSha256": "97a2f109a265bf64bf57e022c86ad8526ee793a3237b419af884b1c4c5d54ca0",
+      "sha256": "c88c3cb9ce9b82cd8c1328db7bd0355cb6901028fc2ae0e720582785d8517fc7",
+      "adaptation": "SDK include-path relocation only"
+    },
+    {
+      "file": "native/reference/overrides/msfa/dx7note.cc",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/native-dx7/dx7note.cc",
+      "originSha256": "f4e6d96ebce3e2435d6f43b1311a3d9aca2cb96b5f5c52b001700df9e94a98ed",
+      "sha256": "f4e6d96ebce3e2435d6f43b1311a3d9aca2cb96b5f5c52b001700df9e94a98ed",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/overrides/msfa/env.cc",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/native-dx7/env.cc",
+      "originSha256": "e6af8b46212080eb2730ca3f3f5163e1b59b3ba491f42a33cdd360094382cf24",
+      "sha256": "e6af8b46212080eb2730ca3f3f5163e1b59b3ba491f42a33cdd360094382cf24",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/overrides/msfa/ringbuffer.cc",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/native-dx7/ringbuffer.cc",
+      "originSha256": "bf95cb2f7fc05d3db6f7ef26cd1c02e963f07969451b2f0cd56aff43c74ea91f",
+      "sha256": "bf95cb2f7fc05d3db6f7ef26cd1c02e963f07969451b2f0cd56aff43c74ea91f",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/overrides/msfa/synth.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/native-dx7/synth.h",
+      "originSha256": "0ce627f8248b119b6d7b466b047b4f44f179971f080c7552706535795e4949ea",
+      "sha256": "0ce627f8248b119b6d7b466b047b4f44f179971f080c7552706535795e4949ea",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/overrides/msfa/synth_unit.cc",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/native-dx7/synth_unit.cc",
+      "originSha256": "8bea408d471ddcfda02dac7d004337b82e69bec08cafc9c47fd4e9e7c71ec5bf",
+      "sha256": "8bea408d471ddcfda02dac7d004337b82e69bec08cafc9c47fd4e9e7c71ec5bf",
+      "adaptation": "unchanged reference copy"
+    },
+    {
+      "file": "native/reference/overrides/msfa/synth_unit.h",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/native-dx7/synth_unit.h",
+      "originSha256": "12d843cbdc259cc13c8ae12ec3075aa5e340c910b88a6bcb5db7fe7bb20552d3",
+      "sha256": "12d843cbdc259cc13c8ae12ec3075aa5e340c910b88a6bcb5db7fe7bb20552d3",
+      "adaptation": "unchanged reference copy"
+    }
+  ]
+}

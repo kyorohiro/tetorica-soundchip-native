@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "notes": [
+    "Reference C++/C ABI sources are collected for 22 public chips. source-only does not claim an independent SDK Native build.",
+    "The initial YM2612 CMake target builds the ymfm variant only; its Nuked sources remain reference-only.",
+    "Vendor component origins and license files are recorded by the shared source inventory, rather than copied again here."
+  ],
+  "chips": [
+    {
+      "id": "ym2612",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2612.cpp",
+        "native/reference/tauri/native_genesis_ym2612.h",
+        "native/reference/tauri/native_genesis_nuked.cpp",
+        "native/reference/tauri/native_genesis_nuked_ym2612.inc",
+        "native/include/tetorica/ym2612.hpp"
+      ],
+      "status": "verified",
+      "target": "tetorica_native_ym2612",
+      "verificationScope": "ymfm only; Nuked reference sources are not built by this target",
+      "tests": [
+        "tetorica.ym2612.self_test"
+      ],
+      "licenseStatus": "partially-declared",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_nuked.cpp, native/reference/tauri/native_genesis_nuked_ym2612.inc. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2612.cpp, native/reference/tauri/native_genesis_ym2612.h. The new SDK forwarding header is covered by LICENSE.tools, which does not apply to imported reference code. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "ym2203",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2203.cpp",
+        "native/reference/tauri/native_genesis_ym2203.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2203.cpp, native/reference/tauri/native_genesis_ym2203.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "ym2610",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2610b.cpp",
+        "native/reference/tauri/native_genesis_ym2610b.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2610b.cpp, native/reference/tauri/native_genesis_ym2610b.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "ym2610b",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2610b.cpp",
+        "native/reference/tauri/native_genesis_ym2610b.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2610b.cpp, native/reference/tauri/native_genesis_ym2610b.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "rf5c164",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_rf5c164.cpp",
+        "native/reference/tauri/native_genesis_rf5c164.h",
+        "native/reference/tauri/native_genesis_extra_rf5c164.cpp",
+        "native/reference/tauri/native_genesis_extra_rf5c164.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "partially-declared",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_extra_rf5c164.cpp. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_rf5c164.cpp, native/reference/tauri/native_genesis_rf5c164.h, native/reference/tauri/native_genesis_extra_rf5c164.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "ym2608",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2608.cpp",
+        "native/reference/tauri/native_genesis_ym2608.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2608.cpp, native/reference/tauri/native_genesis_ym2608.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "gameboy",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_gameboy.cpp",
+        "native/reference/tauri/native_genesis_gameboy.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "partially-declared",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_gameboy.cpp, native/reference/tauri/native_genesis_gameboy.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "segapsg",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_psg.h",
+        "native/reference/tauri/native_genesis_game_gear.cpp",
+        "native/reference/tauri/native_genesis_game_gear.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_psg.h, native/reference/tauri/native_genesis_game_gear.cpp, native/reference/tauri/native_genesis_game_gear.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "ym2151",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2151.cpp",
+        "native/reference/tauri/native_genesis_ym2151.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2151.cpp, native/reference/tauri/native_genesis_ym2151.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "pwm",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_pwm.cpp",
+        "native/reference/tauri/native_genesis_pwm.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "partially-declared",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_pwm.cpp, native/reference/tauri/native_genesis_pwm.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "nes",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_nes.cpp",
+        "native/reference/tauri/native_genesis_nes.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "partially-declared",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_nes.cpp. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_nes.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "dx7",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_dx7.cpp",
+        "native/reference/tauri/native_genesis_dx7.h",
+        "native/reference/overrides/msfa/dx7note.cc",
+        "native/reference/overrides/msfa/env.cc",
+        "native/reference/overrides/msfa/ringbuffer.cc",
+        "native/reference/overrides/msfa/synth.h",
+        "native/reference/overrides/msfa/synth_unit.cc",
+        "native/reference/overrides/msfa/synth_unit.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "partially-declared",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_dx7.cpp. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_dx7.h, native/reference/overrides/msfa/dx7note.cc, native/reference/overrides/msfa/env.cc, native/reference/overrides/msfa/ringbuffer.cc, native/reference/overrides/msfa/synth.h, native/reference/overrides/msfa/synth_unit.cc, native/reference/overrides/msfa/synth_unit.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "snes",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_snes.cpp",
+        "native/reference/tauri/native_genesis_snes.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "partially-declared",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_snes.cpp, native/reference/tauri/native_genesis_snes.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "spc",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_spc.cpp",
+        "native/reference/tauri/native_genesis_spc.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "partially-declared",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_spc.cpp, native/reference/tauri/native_genesis_spc.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "huc6280",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_huc6280.cpp",
+        "native/reference/tauri/native_genesis_huc6280.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "partially-declared",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_huc6280.cpp, native/reference/tauri/native_genesis_huc6280.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "okim6258",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_extra_okim6258.cpp",
+        "native/reference/tauri/native_genesis_extra_okim6258.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_extra_okim6258.cpp, native/reference/tauri/native_genesis_extra_okim6258.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "ym3526",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "ym3812",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "y8950",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "ymf262",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "ym2413",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2413.cpp",
+        "native/reference/tauri/native_genesis_ym2413.h",
+        "native/reference/tauri/native_genesis_opll.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2413.cpp, native/reference/tauri/native_genesis_ym2413.h, native/reference/tauri/native_genesis_opll.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    },
+    {
+      "id": "ay8910",
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ay8910.cpp",
+        "native/reference/tauri/native_genesis_ay8910.h"
+      ],
+      "status": "source-only",
+      "licenseStatus": "unresolved",
+      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ay8910.cpp, native/reference/tauri/native_genesis_ay8910.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+    }
+  ]
+}

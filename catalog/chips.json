@@ -1,0 +1,1396 @@
+{
+  "additionalArtifacts": [
+    {
+      "buildScript": "scripts/build_k051649_wasm.sh",
+      "chipIds": [
+        "k051649"
+      ],
+      "format": "emscripten-es-module",
+      "id": "k051649",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE",
+        "vendor/mame-k051649/LICENSE"
+      ],
+      "sourceFiles": [
+        "wasm/k051649_wasm.cpp",
+        "vendor/mame-k051649/k051649.cpp",
+        "vendor/mame-k051649/k051649.h",
+        "vendor/mame-k051649/upstream/k051649.cpp",
+        "vendor/mame-k051649/upstream/k051649.h"
+      ]
+    },
+    {
+      "buildScript": "scripts/build_segapcm_wasm.sh",
+      "chipIds": [
+        "segapcm"
+      ],
+      "format": "emscripten-es-module",
+      "id": "segapcm",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE",
+        "vendor/mame-segapcm/LICENSE"
+      ],
+      "sourceFiles": [
+        "wasm/segapcm_wasm.cpp",
+        "vendor/mame-segapcm/segapcm.cpp",
+        "vendor/mame-segapcm/segapcm.h",
+        "vendor/mame-segapcm/upstream/segapcm.cpp",
+        "vendor/mame-segapcm/upstream/segapcm.h"
+      ]
+    },
+    {
+      "buildScript": "scripts/build_ym3438_wasm.sh",
+      "chipIds": [
+        "ym3438"
+      ],
+      "format": "emscripten-es-module",
+      "id": "ym3438",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "sourceFiles": [
+        "wasm/opn_variant_wasm.cpp",
+        "wasm/opn_state.h",
+        "wasm/ymfm_wasm_interface.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h"
+      ]
+    },
+    {
+      "buildScript": "scripts/build_ymf276_wasm.sh",
+      "chipIds": [
+        "ymf276"
+      ],
+      "format": "emscripten-es-module",
+      "id": "ymf276",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "sourceFiles": [
+        "wasm/opn_variant_wasm.cpp",
+        "wasm/opn_state.h",
+        "wasm/ymfm_wasm_interface.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h"
+      ]
+    },
+    {
+      "buildScript": "scripts/build_ymf278b_wasm.sh",
+      "chipIds": [
+        "ymf278b"
+      ],
+      "format": "emscripten-es-module",
+      "id": "ymf278b",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "sourceFiles": [
+        "wasm/ymf278b_wasm.cpp",
+        "wasm/opn_state.h",
+        "wasm/ymfm_wasm_interface.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h"
+      ]
+    },
+    {
+      "buildScript": "scripts/build_ymf288_wasm.sh",
+      "chipIds": [
+        "ymf288"
+      ],
+      "format": "emscripten-es-module",
+      "id": "ymf288",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "sourceFiles": [
+        "wasm/opn_variant_wasm.cpp",
+        "wasm/opn_state.h",
+        "wasm/ymfm_wasm_interface.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h"
+      ]
+    }
+  ],
+  "chips": [
+    {
+      "id": "ay8910",
+      "licenseFiles": [
+        "vendor/mame-ay8910/LICENSE",
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ay8910",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ay8910.cpp, native/reference/tauri/native_genesis_ay8910.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_ay8910.cpp",
+          "native/reference/tauri/native_genesis_ay8910.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ay8910.cpp",
+        "native/reference/tauri/native_genesis_ay8910.h",
+        "vendor/mame-ay8910/ay8910.cpp",
+        "vendor/mame-ay8910/ay8910.h",
+        "vendor/mame-ay8910/upstream/ay8910.cpp",
+        "vendor/mame-ay8910/upstream/ay8910.h",
+        "wasm/ay8910_wasm.cpp"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_ay8910_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ay8910"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "dx7",
+      "licenseFiles": [
+        "vendor/msfa/COPYING",
+        "vendor/msfa/LICENSE",
+        "vendor/msfa/THIRD_PARTY_NOTICES.md",
+        "vendor/msfa/UPSTREAM.md"
+      ],
+      "native": {
+        "id": "dx7",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_dx7.cpp. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_dx7.h, native/reference/overrides/msfa/dx7note.cc, native/reference/overrides/msfa/env.cc, native/reference/overrides/msfa/ringbuffer.cc, native/reference/overrides/msfa/synth.h, native/reference/overrides/msfa/synth_unit.cc, native/reference/overrides/msfa/synth_unit.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "partially-declared",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_dx7.cpp",
+          "native/reference/tauri/native_genesis_dx7.h",
+          "native/reference/overrides/msfa/dx7note.cc",
+          "native/reference/overrides/msfa/env.cc",
+          "native/reference/overrides/msfa/ringbuffer.cc",
+          "native/reference/overrides/msfa/synth.h",
+          "native/reference/overrides/msfa/synth_unit.cc",
+          "native/reference/overrides/msfa/synth_unit.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/overrides/msfa/dx7note.cc",
+        "native/reference/overrides/msfa/env.cc",
+        "native/reference/overrides/msfa/ringbuffer.cc",
+        "native/reference/overrides/msfa/synth.h",
+        "native/reference/overrides/msfa/synth_unit.cc",
+        "native/reference/overrides/msfa/synth_unit.h",
+        "native/reference/tauri/native_genesis_dx7.cpp",
+        "native/reference/tauri/native_genesis_dx7.h",
+        "vendor/msfa/aligned_buf.h",
+        "vendor/msfa/controllers.h",
+        "vendor/msfa/dx7note.cc",
+        "vendor/msfa/dx7note.h",
+        "vendor/msfa/env.cc",
+        "vendor/msfa/env.h",
+        "vendor/msfa/exp2.cc",
+        "vendor/msfa/exp2.h",
+        "vendor/msfa/fm_core.cc",
+        "vendor/msfa/fm_core.h",
+        "vendor/msfa/fm_op_kernel.cc",
+        "vendor/msfa/fm_op_kernel.h",
+        "vendor/msfa/freqlut.cc",
+        "vendor/msfa/freqlut.h",
+        "vendor/msfa/lfo.cc",
+        "vendor/msfa/lfo.h",
+        "vendor/msfa/module.h",
+        "vendor/msfa/patch.cc",
+        "vendor/msfa/patch.h",
+        "vendor/msfa/pitchenv.cc",
+        "vendor/msfa/pitchenv.h",
+        "vendor/msfa/resofilter.cc",
+        "vendor/msfa/resofilter.h",
+        "vendor/msfa/ringbuffer.cc",
+        "vendor/msfa/ringbuffer.h",
+        "vendor/msfa/sin.cc",
+        "vendor/msfa/sin.h",
+        "vendor/msfa/synth.h",
+        "vendor/msfa/synth_unit.cc",
+        "vendor/msfa/synth_unit.h",
+        "wasm/dx7/dx7.cc",
+        "wasm/dx7/dx7.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_dx7_wasm.sh",
+            "format": "standalone-wasm",
+            "id": "dx7"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "gameboy",
+      "licenseFiles": [
+        "vendor/mame-gameboy/LICENSE",
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "gameboy",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_gameboy.cpp, native/reference/tauri/native_genesis_gameboy.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "partially-declared",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_gameboy.cpp",
+          "native/reference/tauri/native_genesis_gameboy.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_gameboy.cpp",
+        "native/reference/tauri/native_genesis_gameboy.h",
+        "vendor/mame-gameboy/gameboy_apu.cpp",
+        "vendor/mame-gameboy/gameboy_apu.h",
+        "vendor/mame-gameboy/upstream/gb.cpp",
+        "vendor/mame-gameboy/upstream/gb.h",
+        "wasm/gameboy_apu_wasm.cpp"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_gameboy_apu_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "gameboy_apu"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "huc6280",
+      "licenseFiles": [
+        "vendor/mame-huc6280/LICENSE",
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "huc6280",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_huc6280.cpp, native/reference/tauri/native_genesis_huc6280.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "partially-declared",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_huc6280.cpp",
+          "native/reference/tauri/native_genesis_huc6280.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_huc6280.cpp",
+        "native/reference/tauri/native_genesis_huc6280.h",
+        "vendor/mame-huc6280/huc6280.cpp",
+        "vendor/mame-huc6280/huc6280.h",
+        "vendor/mame-huc6280/upstream/c6280.cpp",
+        "vendor/mame-huc6280/upstream/c6280.h",
+        "wasm/huc6280_wasm.cpp"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_huc6280_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "huc6280"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "nes",
+      "licenseFiles": [
+        "vendor/tetorica-nes/AUTHORS-JSNES.md",
+        "vendor/tetorica-nes/LICENSE-FDS",
+        "vendor/tetorica-nes/LICENSE-JSNES",
+        "vendor/tetorica-nes/UPSTREAM-FDS.md",
+        "vendor/tetorica-nes/UPSTREAM-JSNES.md",
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "nes",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_nes.cpp. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_nes.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "partially-declared",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_nes.cpp",
+          "native/reference/tauri/native_genesis_nes.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_nes.cpp",
+        "native/reference/tauri/native_genesis_nes.h",
+        "vendor/tetorica-nes/nes_core.cpp",
+        "vendor/tetorica-nes/nes_core.h",
+        "wasm/nesapu_wasm.cpp"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_nesapu_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "nesapu"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "okim6258",
+      "licenseFiles": [
+        "vendor/mame-okim6258/LICENSE",
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "okim6258",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_extra_okim6258.cpp, native/reference/tauri/native_genesis_extra_okim6258.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_extra_okim6258.cpp",
+          "native/reference/tauri/native_genesis_extra_okim6258.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_extra_okim6258.cpp",
+        "native/reference/tauri/native_genesis_extra_okim6258.h",
+        "vendor/mame-okim6258/okim6258.cpp",
+        "vendor/mame-okim6258/okim6258.h",
+        "vendor/mame-okim6258/upstream/okim6258.cpp",
+        "vendor/mame-okim6258/upstream/okim6258.h",
+        "wasm/okim6258_wasm.cpp"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_okim6258_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "okim6258"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "pwm",
+      "licenseFiles": [
+        "vendor/mame-32x-pwm/LICENSE",
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "pwm",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_pwm.cpp, native/reference/tauri/native_genesis_pwm.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "partially-declared",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_pwm.cpp",
+          "native/reference/tauri/native_genesis_pwm.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_pwm.cpp",
+        "native/reference/tauri/native_genesis_pwm.h",
+        "vendor/mame-32x-pwm/upstream/mega32x.cpp",
+        "vendor/mame-32x-pwm/upstream/mega32x.h",
+        "wasm/pwm32x_core.h",
+        "wasm/pwm32x_wasm.cpp"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_pwm32x_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "pwm32x"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "rf5c164",
+      "licenseFiles": [
+        "vendor/mame-rf5c164/LICENSE",
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "rf5c164",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_extra_rf5c164.cpp. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_rf5c164.cpp, native/reference/tauri/native_genesis_rf5c164.h, native/reference/tauri/native_genesis_extra_rf5c164.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "partially-declared",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_rf5c164.cpp",
+          "native/reference/tauri/native_genesis_rf5c164.h",
+          "native/reference/tauri/native_genesis_extra_rf5c164.cpp",
+          "native/reference/tauri/native_genesis_extra_rf5c164.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_extra_rf5c164.cpp",
+        "native/reference/tauri/native_genesis_extra_rf5c164.h",
+        "native/reference/tauri/native_genesis_rf5c164.cpp",
+        "native/reference/tauri/native_genesis_rf5c164.h",
+        "vendor/mame-rf5c164/rf5c164.cpp",
+        "vendor/mame-rf5c164/rf5c164.h",
+        "vendor/mame-rf5c164/upstream/rf5c68.cpp",
+        "wasm/rf5c164_wasm.cpp"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_rf5c164_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "rf5c164"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "segapsg",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "segapsg",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_psg.h, native/reference/tauri/native_genesis_game_gear.cpp, native/reference/tauri/native_genesis_game_gear.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_psg.h",
+          "native/reference/tauri/native_genesis_game_gear.cpp",
+          "native/reference/tauri/native_genesis_game_gear.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_game_gear.cpp",
+        "native/reference/tauri/native_genesis_game_gear.h",
+        "native/reference/tauri/native_genesis_psg.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/segapsg_wasm.cpp"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_segapsg_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "segapsg"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "snes",
+      "licenseFiles": [
+        "vendor/snes-spc/LICENSE",
+        "vendor/snes-spc/README.upstream.md",
+        "vendor/snes-spc/license.txt",
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "snes",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_snes.cpp, native/reference/tauri/native_genesis_snes.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "partially-declared",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_snes.cpp",
+          "native/reference/tauri/native_genesis_snes.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_snes.cpp",
+        "native/reference/tauri/native_genesis_snes.h",
+        "vendor/snes-spc/snes_spc/SNES_SPC.cpp",
+        "vendor/snes-spc/snes_spc/SNES_SPC.h",
+        "vendor/snes-spc/snes_spc/SNES_SPC_misc.cpp",
+        "vendor/snes-spc/snes_spc/SNES_SPC_state.cpp",
+        "vendor/snes-spc/snes_spc/SPC_CPU.h",
+        "vendor/snes-spc/snes_spc/SPC_DSP.cpp",
+        "vendor/snes-spc/snes_spc/SPC_DSP.h",
+        "vendor/snes-spc/snes_spc/SPC_Filter.cpp",
+        "vendor/snes-spc/snes_spc/SPC_Filter.h",
+        "vendor/snes-spc/snes_spc/blargg_common.h",
+        "vendor/snes-spc/snes_spc/blargg_config.h",
+        "vendor/snes-spc/snes_spc/blargg_endian.h",
+        "vendor/snes-spc/snes_spc/blargg_source.h",
+        "vendor/snes-spc/snes_spc/dsp.cpp",
+        "vendor/snes-spc/snes_spc/dsp.h",
+        "vendor/snes-spc/snes_spc/spc.cpp",
+        "vendor/snes-spc/snes_spc/spc.h",
+        "wasm/spc_wasm.cpp"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_spc_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "spc"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "spc",
+      "licenseFiles": [
+        "vendor/snes-spc/LICENSE",
+        "vendor/snes-spc/README.upstream.md",
+        "vendor/snes-spc/license.txt",
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "spc",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_spc.cpp, native/reference/tauri/native_genesis_spc.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "partially-declared",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_spc.cpp",
+          "native/reference/tauri/native_genesis_spc.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_spc.cpp",
+        "native/reference/tauri/native_genesis_spc.h",
+        "vendor/snes-spc/snes_spc/SNES_SPC.cpp",
+        "vendor/snes-spc/snes_spc/SNES_SPC.h",
+        "vendor/snes-spc/snes_spc/SNES_SPC_misc.cpp",
+        "vendor/snes-spc/snes_spc/SNES_SPC_state.cpp",
+        "vendor/snes-spc/snes_spc/SPC_CPU.h",
+        "vendor/snes-spc/snes_spc/SPC_DSP.cpp",
+        "vendor/snes-spc/snes_spc/SPC_DSP.h",
+        "vendor/snes-spc/snes_spc/SPC_Filter.cpp",
+        "vendor/snes-spc/snes_spc/SPC_Filter.h",
+        "vendor/snes-spc/snes_spc/blargg_common.h",
+        "vendor/snes-spc/snes_spc/blargg_config.h",
+        "vendor/snes-spc/snes_spc/blargg_endian.h",
+        "vendor/snes-spc/snes_spc/blargg_source.h",
+        "vendor/snes-spc/snes_spc/dsp.cpp",
+        "vendor/snes-spc/snes_spc/dsp.h",
+        "vendor/snes-spc/snes_spc/spc.cpp",
+        "vendor/snes-spc/snes_spc/spc.h",
+        "wasm/spc_wasm.cpp"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_spc_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "spc"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "y8950",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "y8950",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_opl.cpp",
+          "native/reference/tauri/native_genesis_opl.h",
+          "native/reference/tauri/native_genesis_extra_opl.cpp",
+          "native/reference/tauri/native_genesis_extra_opl.h",
+          "native/reference/tauri/native_genesis_y8950_memory.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/opn_state.h",
+        "wasm/y8950_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_y8950_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "y8950"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "ym2151",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ym2151",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2151.cpp, native/reference/tauri/native_genesis_ym2151.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_ym2151.cpp",
+          "native/reference/tauri/native_genesis_ym2151.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2151.cpp",
+        "native/reference/tauri/native_genesis_ym2151.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/opn_state.h",
+        "wasm/ym2151_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_ym2151_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ym2151"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "ym2203",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ym2203",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2203.cpp, native/reference/tauri/native_genesis_ym2203.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_ym2203.cpp",
+          "native/reference/tauri/native_genesis_ym2203.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2203.cpp",
+        "native/reference/tauri/native_genesis_ym2203.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/opn_state.h",
+        "wasm/ym2203_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_ym2203_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ym2203"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "ym2413",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ym2413",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2413.cpp, native/reference/tauri/native_genesis_ym2413.h, native/reference/tauri/native_genesis_opll.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_ym2413.cpp",
+          "native/reference/tauri/native_genesis_ym2413.h",
+          "native/reference/tauri/native_genesis_opll.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_opll.h",
+        "native/reference/tauri/native_genesis_ym2413.cpp",
+        "native/reference/tauri/native_genesis_ym2413.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/opn_state.h",
+        "wasm/ym2413_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_ym2413_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ym2413"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "ym2608",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ym2608",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2608.cpp, native/reference/tauri/native_genesis_ym2608.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_ym2608.cpp",
+          "native/reference/tauri/native_genesis_ym2608.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2608.cpp",
+        "native/reference/tauri/native_genesis_ym2608.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/opn_state.h",
+        "wasm/ym2608_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_ym2608_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ym2608"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "ym2610",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ym2610",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2610b.cpp, native/reference/tauri/native_genesis_ym2610b.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_ym2610b.cpp",
+          "native/reference/tauri/native_genesis_ym2610b.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2610b.cpp",
+        "native/reference/tauri/native_genesis_ym2610b.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/opn_state.h",
+        "wasm/ym2610b_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_ym2610b_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ym2610b"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "ym2610b",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ym2610b",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2610b.cpp, native/reference/tauri/native_genesis_ym2610b.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_ym2610b.cpp",
+          "native/reference/tauri/native_genesis_ym2610b.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_ym2610b.cpp",
+        "native/reference/tauri/native_genesis_ym2610b.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/opn_state.h",
+        "wasm/ym2610b_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_ym2610b_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ym2610b"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "engines": [
+        "ymfm",
+        "nuked-opn2"
+      ],
+      "id": "ym2612",
+      "licenseFiles": [
+        "vendor/nuked-opn2/LICENSE",
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ym2612",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_nuked.cpp, native/reference/tauri/native_genesis_nuked_ym2612.inc. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2612.cpp, native/reference/tauri/native_genesis_ym2612.h. The new SDK forwarding header is covered by LICENSE.tools, which does not apply to imported reference code. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "partially-declared",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_ym2612.cpp",
+          "native/reference/tauri/native_genesis_ym2612.h",
+          "native/reference/tauri/native_genesis_nuked.cpp",
+          "native/reference/tauri/native_genesis_nuked_ym2612.inc",
+          "native/include/tetorica/ym2612.hpp"
+        ],
+        "status": "verified",
+        "target": "tetorica_native_ym2612",
+        "tests": [
+          "tetorica.ym2612.self_test"
+        ],
+        "verificationScope": "ymfm only; Nuked reference sources are not built by this target"
+      },
+      "sourceFiles": [
+        "native/include/tetorica/ym2612.hpp",
+        "native/reference/tauri/native_genesis_nuked.cpp",
+        "native/reference/tauri/native_genesis_nuked_ym2612.inc",
+        "native/reference/tauri/native_genesis_ym2612.cpp",
+        "native/reference/tauri/native_genesis_ym2612.h",
+        "vendor/nuked-opn2/ym3438.c",
+        "vendor/nuked-opn2/ym3438.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/nuked_opn2_wasm.c",
+        "wasm/opn_state.h",
+        "wasm/ym2612_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_nuked_opn2_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "nuked_opn2"
+          },
+          {
+            "buildScript": "scripts/build_ym2612_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ym2612"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "ym3526",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ym3526",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_opl.cpp",
+          "native/reference/tauri/native_genesis_opl.h",
+          "native/reference/tauri/native_genesis_extra_opl.cpp",
+          "native/reference/tauri/native_genesis_extra_opl.h",
+          "native/reference/tauri/native_genesis_y8950_memory.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/opn_state.h",
+        "wasm/ym3526_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_ym3526_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ym3526"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "ym3812",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ym3812",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_opl.cpp",
+          "native/reference/tauri/native_genesis_opl.h",
+          "native/reference/tauri/native_genesis_extra_opl.cpp",
+          "native/reference/tauri/native_genesis_extra_opl.h",
+          "native/reference/tauri/native_genesis_y8950_memory.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/opn_state.h",
+        "wasm/ym3812_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_ym3812_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ym3812"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "ymf262",
+      "licenseFiles": [
+        "vendor/ymfm/LICENSE"
+      ],
+      "native": {
+        "id": "ymf262",
+        "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here.",
+        "licenseStatus": "unresolved",
+        "sourceFiles": [
+          "native/reference/tauri/native_genesis_opl.cpp",
+          "native/reference/tauri/native_genesis_opl.h",
+          "native/reference/tauri/native_genesis_extra_opl.cpp",
+          "native/reference/tauri/native_genesis_extra_opl.h",
+          "native/reference/tauri/native_genesis_y8950_memory.h"
+        ],
+        "status": "source-only"
+      },
+      "sourceFiles": [
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "vendor/ymfm/chip_state.h",
+        "vendor/ymfm/segapsg.cpp",
+        "vendor/ymfm/segapsg.h",
+        "vendor/ymfm/ymfm.h",
+        "vendor/ymfm/ymfm_adpcm.cpp",
+        "vendor/ymfm/ymfm_adpcm.h",
+        "vendor/ymfm/ymfm_fm.h",
+        "vendor/ymfm/ymfm_fm.ipp",
+        "vendor/ymfm/ymfm_misc.cpp",
+        "vendor/ymfm/ymfm_misc.h",
+        "vendor/ymfm/ymfm_opl.cpp",
+        "vendor/ymfm/ymfm_opl.h",
+        "vendor/ymfm/ymfm_opm.cpp",
+        "vendor/ymfm/ymfm_opm.h",
+        "vendor/ymfm/ymfm_opn.cpp",
+        "vendor/ymfm/ymfm_opn.h",
+        "vendor/ymfm/ymfm_opq.cpp",
+        "vendor/ymfm/ymfm_opq.h",
+        "vendor/ymfm/ymfm_opx.h",
+        "vendor/ymfm/ymfm_opz.cpp",
+        "vendor/ymfm/ymfm_opz.h",
+        "vendor/ymfm/ymfm_pcm.cpp",
+        "vendor/ymfm/ymfm_pcm.h",
+        "vendor/ymfm/ymfm_ssg.cpp",
+        "vendor/ymfm/ymfm_ssg.h",
+        "wasm/opn_state.h",
+        "wasm/ymf262_wasm.cpp",
+        "wasm/ymfm_wasm_interface.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_ymf262_wasm.sh",
+            "format": "emscripten-es-module",
+            "id": "ymf262"
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    }
+  ],
+  "notes": [
+    "Source collection is complete for these 22 Playground IDs; independent Native targets are being migrated one by one.",
+    "A WASM recipe is not a claim of runtime verification; release build-info and tests report the verified scope.",
+    "snes (DSP/RAM access) and spc (SPC CPU/file player) share the SNES-SPC sources but remain separate APIs."
+  ],
+  "schemaVersion": 1,
+  "stage": "bootstrap"
+}

@@ -1,0 +1,11 @@
+This repository is a collection of separately licensed components.
+
+There is no single license that replaces the licenses of the collected sound
+cores, imported wrappers, or their adaptations. Retain the copyright notices,
+license texts, source provenance, and applicable terms of each component.
+
+See LICENSES.md and catalog/chips.json for the component-to-source/license map.
+Original license texts are included under vendor/ and native/reference/.
+
+New collection tooling and documentation are covered by LICENSE.tools only.
+That license does not relicense imported sources or generated sound cores.
