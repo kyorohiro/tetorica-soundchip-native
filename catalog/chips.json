@@ -1086,30 +1086,46 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {},
         "defaultLicensedFiles": [
           "native/reference/tauri/native_genesis_ym2413.cpp",
           "native/reference/tauri/native_genesis_ym2413.h",
-          "native/reference/tauri/native_genesis_opll.h"
+          "native/reference/tauri/native_genesis_opll.h",
+          "native/include/tetorica/ym2413.hpp",
+          "native/src/ymfm_opl_provider.cpp"
         ],
         "id": "ym2413",
         "licenseFiles": [
-          "LICENSE"
+          "LICENSE",
+          "vendor/ymfm/LICENSE"
         ],
         "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_ym2413.cpp",
           "native/reference/tauri/native_genesis_ym2413.h",
-          "native/reference/tauri/native_genesis_opll.h"
+          "native/reference/tauri/native_genesis_opll.h",
+          "native/include/tetorica/ym2413.hpp",
+          "native/src/ymfm_opl_provider.cpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_ym2413",
+        "tests": [
+          "tetorica.ym2413.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Independent OPLL renderer with nine melodic channels or six melodic channels plus five aliased rhythm voices, and explicit Native OPL template definitions. The older machine-level native_genesis_opll.h remains a reference; no Sega PSG or AY core is constructed by this target."
       },
       "sourceFiles": [
+        "native/include/tetorica/ym2413.hpp",
         "native/reference/tauri/native_genesis_opll.h",
         "native/reference/tauri/native_genesis_ym2413.cpp",
         "native/reference/tauri/native_genesis_ym2413.h",
+        "native/src/ymfm_opl_provider.cpp",
         "vendor/ymfm/chip_state.h",
         "vendor/ymfm/segapsg.cpp",
         "vendor/ymfm/segapsg.h",

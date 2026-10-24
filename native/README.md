@@ -28,8 +28,8 @@ translation-unit constraints.
 
 ## Build support
 
-The independently buildable Native components are **ymfm YM2612 and YM2151,
-plus Sega PSG**:
+The independently buildable Native components are **ymfm YM2612, YM2151 and
+YM2413, plus Sega PSG**:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -44,6 +44,7 @@ build/native`. Neither build downloads dependencies.
 | --- | --- | --- | --- |
 | `tetorica::ym2612` | `tetorica_native_ym2612` | `<tetorica/ym2612.hpp>` | `native_ym2612_*`, `NativeYm2612State` |
 | `tetorica::ym2151` | `tetorica_native_ym2151` | `<tetorica/ym2151.hpp>` | `native_ym2151_*`, `NativeYm2151State` |
+| `tetorica::ym2413` | `tetorica_native_ym2413` | `<tetorica/ym2413.hpp>` | `native_ym2413_*`, `NativeYm2413State` |
 | `tetorica::segapsg` | `tetorica_native_segapsg` | `<tetorica/segapsg.hpp>` | `native_game_gear_*`, `NativeGameGearState` |
 
 The exported names and observational state layouts remain unchanged. These
@@ -63,7 +64,11 @@ reject C++ allocation/free in the tested paths.
 
 The Sega PSG fixture covers the independent three-tone/noise renderer, stereo
 routing, mute, retained controls, Stop/reset, clock changes and observation.
-All three fixtures run through CTest with assertions enabled in Release builds.
+The YM2413 fixture covers melodic channels, built-in/user instruments, rhythm
+aliases, retained controls, clock conversion, Stop/reset, cancellation,
+observation and deferred audition. Its five rhythm voices share physical FM
+channels 6–8 rather than adding five independent melodic channels.
+All four fixtures run through CTest with assertions enabled in Release builds.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
@@ -75,6 +80,12 @@ Both linkage changes come from Tauri commit
 `83bfba8cbbc272a02279aba250b13e4c0f6ca57b`. The shared ymfm vendor files and WASM
 recipes are unchanged. The YM2151 target is an independent OPM implementation;
 it does not allocate an OKIM6258 core or provide a complete X68000 sound system.
+
+`src/ymfm_opl_provider.cpp` supplies the existing Native OPL/OPLL explicit
+template definitions. The YM2413 target links the unchanged ADPCM/PCM support
+translation units required by that provider, but constructs only YM2413.
+Other OPL standalone targets are not implied by this linkage; their adapters
+remain reference sources. Shared vendor bytes and WASM recipes are unchanged.
 
 ## Embed YM2151
 
@@ -148,27 +159,52 @@ rate. Stop, mute, audition, reset and observational state access retain their
 existing Native semantics; host scheduling and synchronization stay outside
 the library.
 
-## Offline FM + PSG example
+## Embed YM2413 / OPLL
 
-`examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in the
-`tetorica_genesis_wav` executable. From the SDK root:
+Link `tetorica::ym2413` and include `<tetorica/ym2413.hpp>` for the existing
+`native_ym2413_*` ABI. The target owns one YM2413 with nine melodic channels,
+or six melodic channels plus BD/SD/TOM/CYM/HH rhythm voices sharing physical
+channels 6–8. It supports the built-in instruments and the chip's one shared
+user patch. Output is mono, copied to both stereo channels.
+
+The Native voice APIs use logical IDs 0–8 for melodic channels and 9–13 for
+BD/SD/TOM/CYM/HH. The host must account for rhythm's physical-channel sharing
+when scheduling and managing ownership. Register writes, retained Stop,
+forced release, deferred audition and observational snapshots keep their
+existing adapter semantics. This chip can provide the FM part of an MSX-MUSIC
+configuration; it does not add a standalone AY-3-8910 or complete MSX target.
+
+At the default 3,579,545 Hz clock, musical pitch is
+`clock * FNUM * 2^BLOCK / (72 * 2^19)`, with F-NUM 1–511 and BLOCK 0–7. The
+OPN formula has a different block factor; do not reuse it for OPLL. The offline
+example below shows register-level melody and rhythm configuration.
+
+## Offline WAV examples
+
+`examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in
+`tetorica_genesis_wav`. `examples/master_system_wav.cpp` links
+`tetorica::ym2413` and `tetorica::segapsg` in `tetorica_master_system_wav`.
+The second example uses OPLL's built-in piano, light rhythm and PSG tones.
+From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_genesis_wav
+cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
+./build/native/native/tetorica_master_system_wav "master system demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
+./build/native/native/Release/tetorica_master_system_wav.exe "master system demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
-exist. The example generates exactly 144,000 frames of stereo PCM16 at 48 kHz
-from synthetic notes and noise, with no audio device or external assets. It
-uses the hardware FM BLOCK/F-NUM and PSG period equations, fixed mix headroom
-and short output fades. PSG stereo remains `0xff`; no Game Gear-only routing
-is applied to this Genesis-style sketch. Rendering and file writing happen
-offline, rather than inside an audio callback.
+exist. Each example generates exactly 144,000 frames of stereo PCM16 at 48 kHz
+from synthetic notes/percussion, with no audio device or external assets.
+They use their chips' respective hardware pitch equations, fixed mix headroom
+and short output fades. PSG stereo remains `0xff`; the OPLL output is mono on
+both channels. Rendering and file writing happen offline, rather than inside
+an audio callback.
 
 `TETORICA_NATIVE_BUILD_EXAMPLES` defaults to `ON`. Disable it with
 `-DTETORICA_NATIVE_BUILD_EXAMPLES=OFF` for a library-only integration; tests are
@@ -184,7 +220,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | YM2608 | `native_genesis_ym2608.cpp` | Not yet connected |
 | YM2610 / YM2610B | `native_genesis_ym2610b.cpp`, selected immutable variant | Not yet connected |
 | YM2151 | `native_genesis_ym2151.cpp` | Standalone OPM target and fixture; X68000 OKI remains reference-only |
-| YM2413 | `native_genesis_ym2413.cpp`, `native_genesis_opll.h` | Not yet connected |
+| YM2413 | `native_genesis_ym2413.cpp`, `native_genesis_opll.h` | Standalone OPLL target and fixture; MSX AY remains reference-only |
 | AY-3-8910 | `native_genesis_ay8910.cpp` | Not yet connected |
 | YM3526 / YM3812 / Y8950 / YMF262 | `native_genesis_opl.cpp`, `native_genesis_extra_opl.cpp` | Not yet connected |
 | RF5C164 | `native_genesis_rf5c164.cpp`, `native_genesis_extra_rf5c164.cpp` | Not yet connected |

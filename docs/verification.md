@@ -2,7 +2,7 @@
 
 Local verification was performed on macOS on 2026-10-24 using installed development tools. The results below cover the stated configurations; standalone Native builds are not yet provided for every collected chip.
 
-The [Verify SDK workflow](../.github/workflows/verify-sdk.yml) passed all six jobs in [run 40079785622](https://github.com/kyorohiro/tetorica-soundchip-native/actions/runs/40079785622) at commit `175d20e1e2ca7397a267f3c8e3cd403669b9c989`: Windows MSVC, Linux GCC x64/ARM64, macOS Clang Intel/Apple Silicon source-archive builds, and Ubuntu YM2612 WASM build/archive rebuild. That linked run covers YM2612 only. The YM2151 and Sega PSG sections below record local results; they do not establish remote platform coverage for those later additions.
+The [Verify SDK workflow](../.github/workflows/verify-sdk.yml) passed all six jobs in [run 40079785622](https://github.com/kyorohiro/tetorica-soundchip-native/actions/runs/40079785622) at commit `175d20e1e2ca7397a267f3c8e3cd403669b9c989`: Windows MSVC, Linux GCC x64/ARM64, macOS Clang Intel/Apple Silicon source-archive builds, and Ubuntu YM2612 WASM build/archive rebuild. That linked run covers YM2612 only. The YM2151, Sega PSG and YM2413 sections below record local results; they do not establish remote platform coverage for those later additions.
 
 ## Source and release audits
 
@@ -57,6 +57,19 @@ This target implements OPM only. It does not include X68000 OKIM6258, sample ban
 - All 50 Python regression tests passed. They require the PSG fixture and example executable, reject missing or unbuilt artifacts and malformed, silent, clipped or truncated WAV output, and retain the Windows/single-/multi-configuration path checks. Source validation checked 255 snapshot records.
 
 Sega PSG alone does not provide Genesis FM or the Master System's optional YM2413. Hosts use stereo mask `0xff` for centered Genesis/Master System output and may select individual Game Gear routes. The standalone PSG target opens no audio device and includes no host scheduler or real-time deadline guarantee. Existing WASM recipes and the YM2612-only compiled WASM release remain unchanged by this Native addition.
+
+## YM2413 and the Master System WAV example
+
+- The standalone `tetorica::ym2413` static target and public `<tetorica/ym2413.hpp>` header expose the existing `native_ym2413_*` C ABI. The independent cached OPLL adapter is used; the older machine-level `native_genesis_opll.h` remains a reference. No Sega PSG or AY instance is constructed by this target.
+- The Native OPL provider explicitly instantiates the OPLL/OPL engine, channel and operator templates, matching Tauri revision `83bfba8cbbc272a02279aba250b13e4c0f6ca57b`. The adapter amendment removes only its redundant local `compute_volume` and `envelope_attenuation` instantiations. Vendor source bytes, the exported ABI and WASM recipes are retained. ADPCM/PCM definitions are included as separate archive members to satisfy the unchanged full OPL provider; this does not establish standalone SDK support for the other OPL chips.
+- Release CMake builds and CTest passed 4/4. The OPLL-only fixture covers all nine melodic channels, sixteen instrument selections including the shared user patch, rhythm gates and retained levels, reads/observations, Stop/reset, deferred audition, independent instances and cancellation across shared rhythm channels. Rendering and controls observed zero C++ `new`/`delete` calls.
+- Comparison against the shipped YM2413 Worklet/WASM passed 558 cases at 44,100, 48,000 and 96,000 Hz: 2,285,568 stereo frames with zero PCM, register, clock, status, IRQ or read-port differences. The additional comparison uses the original application's `scripts/check_native_extra_ym2413.mjs` with the SDK-built fixture; that checkout is not a source-package build dependency.
+- Temporary C++ consumers included all four public headers and linked the four static libraries in both archive orders. Both produced finite audible output without missing or duplicate symbols.
+- `tetorica_master_system_wav` combines the actual OPLL and Sega PSG SDK cores in a three-second, 48 kHz stereo PCM16 example. It uses built-in piano, light rhythm percussion and PSG tones, with hardware pitch equations and fixed demo mix gains. The checker runs both WAV examples in the isolated build directory and validates format, payload, nonzero output on both channels and headroom.
+- An independently extracted source ZIP built all four libraries, four fixtures and both examples in Release mode. CTest passed 4/4; both examples produced 144,000 stereo frames without clipping. The Master System example's channel peaks were approximately 0.035. The ten JavaScript reference checks and existing YM2612 WASM ABI smoke also passed against the extracted releases.
+- All 51 Python regression tests passed, including missing/unbuilt YM2413 and Master System example artifacts and rejection of a silent second example. Source validation checked 258 snapshot records. The final source/WASM archives retained matching manifests, provenance and the exact embedded companion source ZIP.
+
+YM2413 provides nine melodic channels, or six melodic channels plus five rhythm voices sharing physical channels 6–8. It is mono and is sent to both output channels. The Master System-style example keeps PSG stereo at `0xff`; it is not a console emulator. This Native addition retains the existing YM2612-only compiled WASM release and does not rebuild unchanged WASM inputs.
 
 ## MSM5205 and OKIM6295 JavaScript references
 

@@ -317,8 +317,10 @@
       "file": "native/reference/tauri/native_genesis_ym2413.cpp",
       "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2413.cpp",
       "originSha256": "60ca7ead16c51c36111e80dd02fa27dac9dc1d52e4c39326c0287490a093ed95",
-      "sha256": "60ca7ead16c51c36111e80dd02fa27dac9dc1d52e4c39326c0287490a093ed95",
-      "adaptation": "unchanged reference copy"
+      "sha256": "67599b8f9f7ffa0cc0016b67520f88b33aab49d4899df43a7bbcbaecd4205241",
+      "adaptation": "SDK template-ownership amendment: remove the redundant local compute_volume and envelope_attenuation instantiations and use the explicit Native OPL provider. DSP and exported ABI are unchanged.",
+      "amendmentOriginCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "amendmentOriginSha256": "67599b8f9f7ffa0cc0016b67520f88b33aab49d4899df43a7bbcbaecd4205241"
     },
     {
       "file": "native/reference/tauri/native_genesis_ym2413.h",
@@ -451,6 +453,22 @@
       "originSha256": "43f4f024676fefd10c439387db36beb5745225c0510311c548fd7fd7ba777539",
       "sha256": "55b69e8c3c553e85e5b30b968a6981a90b02238bba67828b203294763857c20e",
       "adaptation": "SDK public-header include relocation; extend self-test coverage for all eight noise modes, tone/noise/volume continuation latches, exact noise phase across mute/unmute, and upper clock-bound acceptance. Event CLI and PCM layout are retained."
+    },
+    {
+      "file": "native/src/ymfm_opl_provider.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ymfm_opl.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "75bc291a79d9e86570abc55c4417e5b9d65700706f31773ff9c6ac3240836c07",
+      "sha256": "d2d3783960513a27ad349e72143e3ecc87d96a73f1659b9acc5a430722bea0ec",
+      "adaptation": "SDK include-path relocation only: the unchanged ymfm provider is included from ../../vendor/ymfm/ymfm_opl.cpp"
+    },
+    {
+      "file": "native/tests/ym2413_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_msx_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "45b288a61ab5aabed274368756ae783026a1ab63449c64593de9b5553f9d17a2",
+      "sha256": "48237874404d5aadaaed436ca8873a6aac4efe945198880d5525c9445277cd7f",
+      "adaptation": "Extract the YM2413-only branch and shared-rhythm cancellation tests without AY dependencies; include the SDK public header and extend coverage for all nine melodic channels, all sixteen instrument choices, rhythm gates/retained levels, independent instances and non-advancing observations. The optional leading ym2413 CLI argument and 71-plane observation layout are retained."
     }
   ]
 }
