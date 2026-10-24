@@ -203,6 +203,31 @@ if(MSVC)
   target_compile_options(tetorica_native_rf5c164 PRIVATE /EHsc)
 endif()
 
+add_library(tetorica_native_opl STATIC
+  reference/tauri/native_genesis_opl.cpp
+  reference/tauri/native_genesis_extra_opl.cpp
+  src/ymfm_opl_provider.cpp
+  "${TETORICA_SDK_ROOT}/vendor/ymfm/ymfm_adpcm.cpp"
+  "${TETORICA_SDK_ROOT}/vendor/ymfm/ymfm_pcm.cpp"
+)
+add_library(tetorica::opl ALIAS tetorica_native_opl)
+add_library(tetorica::ym3526 ALIAS tetorica_native_opl)
+add_library(tetorica::ym3812 ALIAS tetorica_native_opl)
+add_library(tetorica::ymf262 ALIAS tetorica_native_opl)
+add_library(tetorica::y8950 ALIAS tetorica_native_opl)
+target_compile_features(tetorica_native_opl PUBLIC cxx_std_14)
+target_include_directories(tetorica_native_opl
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/ymfm"
+    "${TETORICA_SDK_ROOT}/wasm"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_opl PRIVATE /EHsc)
+endif()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
   add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
   target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
@@ -223,6 +248,16 @@ if(TETORICA_NATIVE_BUILD_EXAMPLES)
   target_link_libraries(tetorica_pc98_ym2203_wav PRIVATE tetorica::ym2203)
   if(MSVC)
     target_compile_options(tetorica_pc98_ym2203_wav PRIVATE /EHsc)
+  endif()
+  add_executable(tetorica_dos_opl_wav examples/dos_opl_wav.cpp)
+  target_link_libraries(tetorica_dos_opl_wav PRIVATE tetorica::opl)
+  if(MSVC)
+    target_compile_options(tetorica_dos_opl_wav PRIVATE /EHsc)
+  endif()
+  add_executable(tetorica_msx_audio_wav examples/msx_audio_wav.cpp)
+  target_link_libraries(tetorica_msx_audio_wav PRIVATE tetorica::y8950 tetorica::ay8910 tetorica::ym2413)
+  if(MSVC)
+    target_compile_options(tetorica_msx_audio_wav PRIVATE /EHsc)
   endif()
   add_executable(tetorica_megacd_wav examples/megacd_wav.cpp)
   target_link_libraries(tetorica_megacd_wav PRIVATE tetorica::ym2612 tetorica::segapsg tetorica::rf5c164)
@@ -345,4 +380,31 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.rf5c164.self_test
     COMMAND tetorica_rf5c164_fixture --self-test)
+  add_executable(tetorica_opl_fixture tests/opl_fixture.cpp)
+  target_link_libraries(tetorica_opl_fixture PRIVATE tetorica::opl)
+  if(MSVC)
+    target_compile_options(tetorica_opl_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_opl_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.opl.self_test
+    COMMAND tetorica_opl_fixture --self-test)
+  add_executable(tetorica_extra_opl_fixture tests/extra_opl_fixture.cpp)
+  target_link_libraries(tetorica_extra_opl_fixture PRIVATE tetorica::opl)
+  if(MSVC)
+    target_compile_options(tetorica_extra_opl_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_extra_opl_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.extra_opl.self_test
+    COMMAND tetorica_extra_opl_fixture --self-test)
+  add_executable(tetorica_y8950_memory_fixture tests/y8950_memory_fixture.cpp)
+  target_link_libraries(tetorica_y8950_memory_fixture PRIVATE tetorica::y8950)
+  if(MSVC)
+    target_compile_options(tetorica_y8950_memory_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_y8950_memory_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.y8950_memory.self_test
+    COMMAND tetorica_y8950_memory_fixture --self-test)
 endif()

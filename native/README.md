@@ -29,9 +29,10 @@ translation-unit constraints.
 ## Build support
 
 The independently buildable Native components are **ymfm YM2612, YM2151,
-YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258 and RF5C164**.
-These eleven chip IDs use ten static libraries; YM2610 and YM2610B share one
-library and select an immutable per-handle variant:
+YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164 and YM3526/YM3812/YMF262/Y8950**.
+These fifteen chip IDs use eleven static libraries; YM2610/YM2610B share one
+library, and four OPL-family chips share another. Constructors explicitly select
+the per-handle variant/kind. Sixteen aliases/headers include the generic OPL entry:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -54,6 +55,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::ym2610`, `tetorica::ym2610b` | `tetorica_native_ym2610` | `<tetorica/ym2610.hpp>`, `<tetorica/ym2610b.hpp>` | `native_ym2610b_*`, `NativeYm2610BState`, `NativeYm2610BExtraState` |
 | `tetorica::okim6258` | `tetorica_native_okim6258` | `<tetorica/okim6258.hpp>` | `native_extra_okim6258_*`, `NativeExtraOkim6258State` |
 | `tetorica::rf5c164` | `tetorica_native_rf5c164` | `<tetorica/rf5c164.hpp>` | `native_rf5c164_*`, `native_extra_rf5c164_*`, `NativeExtraRf5c164State` |
+| `tetorica::opl`, `tetorica::ym3526`, `tetorica::ym3812`, `tetorica::ymf262`, `tetorica::y8950` | `tetorica_native_opl` | `<tetorica/opl.hpp>` and matching chip forwarders | `native_opl_*`, `native_extra_opl_*`, `NativeOplState`, `NativeExtraOplState` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -91,7 +93,10 @@ clock/divider guards, pan, repeat, retained Stop/reset and observation.
 The RF5C164 fixture covers both profiles, eight voices, sign-magnitude PCM,
 loop markers, RAM/bank access, clock conversion, reset retention and the
 additional profile's immediate source cancellation and observation.
-All ten fixtures run through CTest with assertions enabled in Release builds.
+All thirteen fixtures run through CTest with assertions enabled in Release builds.
+The three OPL-family fixtures exercise primary controls/PCM, additional source
+ownership/held output, and Y8950 writable-page memory separately. The shared OPL
+library covers four selected chip kinds; each handle constructs only one kind.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
@@ -110,10 +115,10 @@ recipes are unchanged. The YM2151 target is an independent OPM implementation;
 it does not allocate an OKIM6258 core or provide a complete X68000 sound system.
 
 `src/ymfm_opl_provider.cpp` supplies the existing Native OPL/OPLL explicit
-template definitions. The YM2413 target links the unchanged ADPCM/PCM support
-translation units required by that provider, but constructs only YM2413.
-Other OPL standalone targets are not implied by this linkage; their adapters
-remain reference sources. Shared vendor bytes and WASM recipes are unchanged.
+template definitions. YM2413 and the shared OPL-family target link the unchanged
+ADPCM/PCM support translation units required by that provider. YM2413 constructs
+only OPLL; the separate OPL-family constructors select YM3526, YM3812, YMF262 or
+Y8950. Shared vendor bytes and WASM recipes are unchanged.
 
 ## Embed YM2151
 
@@ -468,6 +473,84 @@ without advancing foreign voices or sample addresses. Extra state and register
 reads are observational; extra `read_memory()` / `read_memory_range()` inspect
 absolute RAM, independent of the CPU bank. These views are not WASM save states.
 
+## Embed the OPL family
+
+`tetorica::opl`, `tetorica::ym3526`, `tetorica::ym3812`, `tetorica::ymf262` and
+`tetorica::y8950` all link **one** `tetorica_native_opl` library. Include
+`<tetorica/opl.hpp>` or a matching chip forwarder. Every header exposes the same
+existing primary/additional ABIs. **Neither alias nor header selects the chip.**
+Pass a kind to `native_opl_create(rate, kind)` or
+`native_extra_opl_create(rate, kind)`; one chosen core/profile is constructed:
+
+| Kind | Chip | Default clock | FM channels | Source sample rate |
+| --- | --- | --- | --- | --- |
+| 0 | YM3526 / OPL | 3,579,545 Hz | 9 | clock/72 |
+| 1 | YM3812 / OPL2 | 3,579,545 Hz | 9 | clock/72 |
+| 2 | YMF262 / OPL3 | 14,318,180 Hz | 18 | clock/288 |
+| 3 | Y8950 / MSX-AUDIO | 3,579,545 Hz | 9 plus ADPCM-B | clock/72 |
+
+At operator multiplier 1, pitch is `clock * FNUM * 2^BLOCK / (divider * 2^20)`,
+with divider 72 or 288 above, F-NUM 1–1023 and BLOCK 0–7. OPL2 has four waveforms;
+OPL3 has eight when NEW mode is enabled. OPL3 four-operator pairs share two
+physical channels, and rhythm's five logical voices share channels 6–8. OPL3
+NEW=0 folds upper bus writes according to the existing core; the additional
+profile exposes authored/effective register views for this distinction. Its four
+output buses fold A+C to left and B+D to right. Other kinds produce mono on both
+channels. Voice IDs are FM 0–8 (OPL3 0–17), BD/SD/TOM/CYM/HH 18–22, and Y8950
+ADPCM 23. Constructors accept 8–384 kHz; clock edits accept 100 kHz–100 MHz.
+
+Primary Stop clears active voices/pending previews and silences output while
+retaining controls. Additional `all_notes_off()` uses ordinary gate writes and
+keeps release timing; `host_all_notes_off()` silences the host presentation,
+while strong `stop()` also cancels CSM. The additional profile separates normal
+FM cancellation from CSM and tracks held voice/drum contributions so runtime
+cancellation does not advance foreign sources. Preview release/audition retains
+its distinct held-output timing, with retrigger after an ordinary chip interval;
+OPL3 source-preview functions also respect physical/effective state when NEW
+mode has changed. These functions are not interchangeable generic key-offs.
+Primary reset calls the core reset; additional reset restores its captured
+power-on state and clears held caches. Both clear outer output history and
+register controls, retaining the selected kind, edited clock and Y8950 page
+bindings. See the existing headers for profile-specific functions.
+
+### Y8950 writable ADPCM memory
+
+Both profiles borrow **up to 2 MiB of writable RAM** as 512 caller-owned
+**4 KiB pages**. `memory_page(chip, index, page)` publishes a pointer (or null)
+without copying/owning/freeing it; `memory_length(chip, bytes)` publishes the
+logical byte length, up to 2 MiB. A mapped page beyond that length still reads
+as zero. Unmapped reads return zero and unmapped writes are ignored. Index/length
+values outside capacity are ignored. These operations are inert for other kinds.
+The raw ABI does not atomically stop playback on page/length edits: cancel ADPCM
+first and serialize publication with the renderer. CPU transfer writes can
+modify mapped pages, so immutable sample storage is not valid here.
+
+Keep page storage stable and writable across reset and until replacement or
+destruction has been synchronized with all rendering users. Stop/reset retain
+page pointers, length and revision counters; destruction does not free pages.
+The host owns preparation, synchronization, replacement and retirement; the SDK
+does not include the Rust queue, copy-on-write manager, budgets or callback
+fences. Declare the page owner before the chip's RAII handle so it is destroyed
+after the chip. The MSX-AUDIO example maps one full page with a 2048-byte logical
+sample, without an external allocator or application runtime.
+
+Each accepted `memory_length()` sets
+`upload_revision = ++memory_revision`; actual mapped CPU RAM writes increment
+only `memory_revision`. Installing a page alone does not change either counter.
+These are revision markers, not independent upload/write counts. To clear,
+cancel ADPCM, zero or replace pages and publish the desired length; there is no
+copy-owning bulk-memory API in this C ABI.
+
+Y8950 ADPCM-B uses register `7` for control (`1` stop, `0xa0` start, `0xb0`
+repeat), register `8` low bits `2` for eight-bit DRAM/32-byte units, start
+`9/10`, inclusive end `11/12`, Delta-N `16/17` and volume `18`. Preserve the
+FM CSM/note-select bits in register `8` when changing memory mode. Decoded rate
+is `DeltaN * clock / (72 * 65536)`. Output is mono, with no ADPCM pan API.
+Raw CPU-data reads/writes have transfer side effects. State snapshots do not
+consume ADPCM data or advance audio, but their Y8950 status read can propagate
+ADPCM flags into IRQ state; they are not universally IRQ-neutral observations.
+No Native snapshot is a transferable WASM save state.
+
 ## Offline WAV examples
 
 `examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in
@@ -501,11 +584,16 @@ configuration, without device drivers or a complete X68000 emulation.
 uploads an original sign-magnitude looping waveform and plays three PCM voices
 alongside FM/PSG. A marker-filled tail handles skipped bytes safely; positive
 sample magnitudes avoid the reserved `0xff` encoding.
+`examples/dos_opl_wav.cpp` renders YM3526, YM3812 and YMF262 in three one-second
+sections, exercising sine/half-sine waveforms, rhythm, an OPL3 four-operator pair
+and left/right routing. `examples/msx_audio_wav.cpp` combines one Y8950's FM and
+original ADPCM-B with AY8910 and YM2413. The writable sample page is declared
+before the Y8950 handle so the decoder never outlives its RAM.
 From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav
+cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
 ./build/native/native/tetorica_master_system_wav "master system demo.wav"
@@ -515,6 +603,8 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/tetorica_neogeo_wav "neogeo demo.wav"
 ./build/native/native/tetorica_x68000_wav "x68000 demo.wav"
 ./build/native/native/tetorica_megacd_wav "megacd demo.wav"
+./build/native/native/tetorica_dos_opl_wav "dos opl demo.wav"
+./build/native/native/tetorica_msx_audio_wav "msx audio demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
 ./build/native/native/Release/tetorica_master_system_wav.exe "master system demo.wav"
@@ -524,6 +614,8 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/Release/tetorica_neogeo_wav.exe "neogeo demo.wav"
 ./build/native/native/Release/tetorica_x68000_wav.exe "x68000 demo.wav"
 ./build/native/native/Release/tetorica_megacd_wav.exe "megacd demo.wav"
+./build/native/native/Release/tetorica_dos_opl_wav.exe "dos opl demo.wav"
+./build/native/native/Release/tetorica_msx_audio_wav.exe "msx audio demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
@@ -551,7 +643,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | YM2151 | `native_genesis_ym2151.cpp` | Standalone OPM target and fixture; separate from the OKI handle |
 | YM2413 | `native_genesis_ym2413.cpp`, `native_genesis_opll.h` | Standalone OPLL target and fixture |
 | AY-3-8910 | `native_genesis_ay8910.cpp` | Standalone AY target and fixture; fixed Native type/flags |
-| YM3526 / YM3812 / Y8950 / YMF262 | `native_genesis_opl.cpp`, `native_genesis_extra_opl.cpp` | Not yet connected |
+| YM3526 / YM3812 / Y8950 / YMF262 | `native_genesis_opl.cpp`, `native_genesis_extra_opl.cpp` | One kind-selected library; primary, additional and Y8950 memory fixtures |
 | RF5C164 | `native_genesis_rf5c164.cpp`, `native_genesis_extra_rf5c164.cpp` | One standalone library and fixture; distinct primary/additional profiles |
 | OKIM6258 | `native_genesis_extra_okim6258.cpp` | Standalone ADPCM target and fixture; borrowed immutable sample |
 | Game Boy | `native_genesis_gameboy.cpp` | Not yet connected |
@@ -592,8 +684,9 @@ shadows, mute, forced release, audition, and Stop. A later shared ABI must decid
 which of these policies are common before consumers are switched.
 
 The Y8950 page table in `native_genesis_y8950_memory.h` describes memory supplied
-by a host. The Rust host still owns preparation, COW pages, budget accounting,
-retirement, and final reclamation. None of the Native wrappers supplies the
+by a host. In the reference Tauri application, Rust owns preparation, COW pages,
+budget accounting, retirement and final reclamation; standalone consumers must
+supply their own lifetime and synchronization policy. None of the Native wrappers supplies the
 Playground's 16-instance/64 MiB rack, timestamp queue, owner leases, or thread
 coordination by itself. Each host must keep chip access serial and satisfy the
 existing pointer-lifetime contract.

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "notes": [
     "Reference C++/C ABI sources are collected for 22 public chips. source-only does not claim an independent SDK Native build.",
-    "Standalone CMake targets build YM2612/ymfm, YM2203/ymfm, YM2608/ymfm, YM2610/YM2610B through one ymfm library, YM2151/ymfm, YM2413/ymfm, Sega PSG, AY-3-8910, OKIM6258 and RF5C164. YM2612 Nuked sources remain reference-only.",
+    "Standalone CMake targets build eleven static libraries covering fifteen chip IDs: YM2612, YM2203, YM2608, YM2610/YM2610B, YM2151, YM2413, Sega PSG, AY-3-8910, OKIM6258, RF5C164 and the shared YM3526/YM3812/YMF262/Y8950 OPL family. YM2612 Nuked sources remain reference-only.",
     "Vendor component origins and license files are recorded by the shared source inventory, rather than copied again here."
   ],
   "chips": [
@@ -478,14 +478,18 @@
         "native/reference/tauri/native_genesis_opl.h",
         "native/reference/tauri/native_genesis_extra_opl.cpp",
         "native/reference/tauri/native_genesis_extra_opl.h",
-        "native/reference/tauri/native_genesis_y8950_memory.h"
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "native/include/tetorica/opl.hpp",
+        "native/include/tetorica/ym3526.hpp",
+        "native/src/ymfm_opl_provider.cpp"
       ],
-      "status": "source-only",
+      "status": "verified",
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "declaredFileLicenses": {},
       "defaultLicensedFiles": [
@@ -493,7 +497,20 @@
         "native/reference/tauri/native_genesis_opl.h",
         "native/reference/tauri/native_genesis_extra_opl.cpp",
         "native/reference/tauri/native_genesis_extra_opl.h",
-        "native/reference/tauri/native_genesis_y8950_memory.h"
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "native/include/tetorica/opl.hpp",
+        "native/include/tetorica/ym3526.hpp",
+        "native/src/ymfm_opl_provider.cpp"
+      ],
+      "target": "tetorica_native_opl",
+      "verificationScope": "Common selected-kind OPL library, primary and additional profiles: 0 YM3526, 1 YM3812, 2 YMF262, 3 Y8950. FM/rhythm, OPL3 four-operator and four-bus routing, controls/observations and offline Worklet/WASM comparison. Y8950 adds caller-owned writable 4 KiB pages in a 2 MiB ADPCM address space; host owns synchronization and lifetime. No audio device, scheduler or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.opl.self_test",
+        "tetorica.extra_opl.self_test"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {
@@ -503,14 +520,18 @@
         "native/reference/tauri/native_genesis_opl.h",
         "native/reference/tauri/native_genesis_extra_opl.cpp",
         "native/reference/tauri/native_genesis_extra_opl.h",
-        "native/reference/tauri/native_genesis_y8950_memory.h"
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "native/include/tetorica/opl.hpp",
+        "native/include/tetorica/ym3812.hpp",
+        "native/src/ymfm_opl_provider.cpp"
       ],
-      "status": "source-only",
+      "status": "verified",
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "declaredFileLicenses": {},
       "defaultLicensedFiles": [
@@ -518,7 +539,20 @@
         "native/reference/tauri/native_genesis_opl.h",
         "native/reference/tauri/native_genesis_extra_opl.cpp",
         "native/reference/tauri/native_genesis_extra_opl.h",
-        "native/reference/tauri/native_genesis_y8950_memory.h"
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "native/include/tetorica/opl.hpp",
+        "native/include/tetorica/ym3812.hpp",
+        "native/src/ymfm_opl_provider.cpp"
+      ],
+      "target": "tetorica_native_opl",
+      "verificationScope": "Common selected-kind OPL library, primary and additional profiles: 0 YM3526, 1 YM3812, 2 YMF262, 3 Y8950. FM/rhythm, OPL3 four-operator and four-bus routing, controls/observations and offline Worklet/WASM comparison. Y8950 adds caller-owned writable 4 KiB pages in a 2 MiB ADPCM address space; host owns synchronization and lifetime. No audio device, scheduler or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.opl.self_test",
+        "tetorica.extra_opl.self_test"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {
@@ -528,14 +562,18 @@
         "native/reference/tauri/native_genesis_opl.h",
         "native/reference/tauri/native_genesis_extra_opl.cpp",
         "native/reference/tauri/native_genesis_extra_opl.h",
-        "native/reference/tauri/native_genesis_y8950_memory.h"
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "native/include/tetorica/opl.hpp",
+        "native/include/tetorica/y8950.hpp",
+        "native/src/ymfm_opl_provider.cpp"
       ],
-      "status": "source-only",
+      "status": "verified",
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "declaredFileLicenses": {},
       "defaultLicensedFiles": [
@@ -543,7 +581,21 @@
         "native/reference/tauri/native_genesis_opl.h",
         "native/reference/tauri/native_genesis_extra_opl.cpp",
         "native/reference/tauri/native_genesis_extra_opl.h",
-        "native/reference/tauri/native_genesis_y8950_memory.h"
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "native/include/tetorica/opl.hpp",
+        "native/include/tetorica/y8950.hpp",
+        "native/src/ymfm_opl_provider.cpp"
+      ],
+      "target": "tetorica_native_opl",
+      "verificationScope": "Common selected-kind OPL library, primary and additional profiles: 0 YM3526, 1 YM3812, 2 YMF262, 3 Y8950. FM/rhythm, OPL3 four-operator and four-bus routing, controls/observations and offline Worklet/WASM comparison. Y8950 adds caller-owned writable 4 KiB pages in a 2 MiB ADPCM address space; host owns synchronization and lifetime. No audio device, scheduler or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.opl.self_test",
+        "tetorica.extra_opl.self_test",
+        "tetorica.y8950_memory.self_test"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {
@@ -553,14 +605,18 @@
         "native/reference/tauri/native_genesis_opl.h",
         "native/reference/tauri/native_genesis_extra_opl.cpp",
         "native/reference/tauri/native_genesis_extra_opl.h",
-        "native/reference/tauri/native_genesis_y8950_memory.h"
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "native/include/tetorica/opl.hpp",
+        "native/include/tetorica/ymf262.hpp",
+        "native/src/ymfm_opl_provider.cpp"
       ],
-      "status": "source-only",
+      "status": "verified",
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "declaredFileLicenses": {},
       "defaultLicensedFiles": [
@@ -568,7 +624,20 @@
         "native/reference/tauri/native_genesis_opl.h",
         "native/reference/tauri/native_genesis_extra_opl.cpp",
         "native/reference/tauri/native_genesis_extra_opl.h",
-        "native/reference/tauri/native_genesis_y8950_memory.h"
+        "native/reference/tauri/native_genesis_y8950_memory.h",
+        "native/include/tetorica/opl.hpp",
+        "native/include/tetorica/ymf262.hpp",
+        "native/src/ymfm_opl_provider.cpp"
+      ],
+      "target": "tetorica_native_opl",
+      "verificationScope": "Common selected-kind OPL library, primary and additional profiles: 0 YM3526, 1 YM3812, 2 YMF262, 3 Y8950. FM/rhythm, OPL3 four-operator and four-bus routing, controls/observations and offline Worklet/WASM comparison. Y8950 adds caller-owned writable 4 KiB pages in a 2 MiB ADPCM address space; host owns synchronization and lifetime. No audio device, scheduler or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.opl.self_test",
+        "tetorica.extra_opl.self_test"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {

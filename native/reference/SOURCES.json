@@ -56,8 +56,10 @@
       "file": "native/reference/tauri/native_genesis_extra_opl.cpp",
       "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_opl.cpp",
       "originSha256": "41c4591e031b5a80837a53d308e0e4ed30a0f4c00d8b9d3254f16cc56be8d6de",
-      "sha256": "41c4591e031b5a80837a53d308e0e4ed30a0f4c00d8b9d3254f16cc56be8d6de",
-      "adaptation": "unchanged reference copy"
+      "sha256": "7ff507d217a3137536a05450944af46892abeccb1f35b0c8b4e6b72ce70b0d03",
+      "adaptation": "Remove eighteen redundant explicit OPL/OPL2/OPL3 method and observation-helper instantiations and their stale ownership comment, adding a Native-provider ownership comment. The existing complete Native OPL provider supplies their definitions. This carries the Tauri linkage fix; vendor DSP and the exported C ABI remain unchanged.",
+      "amendmentOriginCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "amendmentOriginSha256": "7ff0773d52cd192df60d806b23817ef8d17f27128ccb67e21f40fab0be68b1e4"
     },
     {
       "file": "native/reference/tauri/native_genesis_extra_opl.h",
@@ -523,6 +525,30 @@
       "originSha256": "578708f4576700601310fc2cbdbc12dc367d9de43efe3e72c23a79f7624022ab",
       "sha256": "6bf6dc300f0da50b2900ab4b1331031babd7bccf8f00ac29775b78dd23cd9a8d",
       "adaptation": "Include the SDK dual-ABI public header and retain the 95-float extra-profile CLI. Extend the default self-test with primary/extra common-operation PCM across three output rates and six clock edits, all voices/pan, copied RAM lifetime, banked OR writes versus absolute crossing uploads, loop/double-marker behavior, reset/clear, empty/invalid-range/rejected-copy rollback, observations and explicit rate/clock/null contract differences. Distinguish ordinary low-clock mask holds from immediate additional cancellation/Stop; retain foreign-voice, clipping and held-history tests and callback allocation/free audits."
+    },
+    {
+      "file": "native/tests/opl_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_opl_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "3068d91fda67a3a20341f0003a00dc8d67e1b9cbf5b720cb4109fbfda2669581",
+      "sha256": "83ed7bb39acd2d6b447ceb21cbd05a09a51e9cdf1d87b222373e98aee0f0f199",
+      "adaptation": "Include the public SDK header and extend all four kinds with every physical FM channel, all four OPL3 output buses, paired FM observation/instance-isolation and ignored-invalid-input tests. Retain the original Stop/reset, rhythm, four-op, timer/IRQ and callback-allocation tests, and the two/eight-plane PCM CLI."
+    },
+    {
+      "file": "native/tests/extra_opl_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_opl_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "d17f4e92f065befb1d2bf3201feab76b257cca75d7753878c64481f73203abdc",
+      "sha256": "7db00a995f018f13e15844710d1da2775f2ebdc5dfdec8c6b5529e33bee90af1",
+      "adaptation": "Include the public SDK header, clarify ABI assertion wording and add explicit OPL3 four-bus fold assertions. Retain the existing four-kind control, CSM, held-source cancellation and callback-allocation suite and the 263/519-plane PCM/state CLI."
+    },
+    {
+      "file": "native/tests/y8950_memory_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_y8950_memory_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "1d3293d46597a34fbb4e75dddc94047ede37d1ca9092572dcc5c8080e61aa0fd",
+      "sha256": "cbba9afaf6b63a7540760e7a3f5eb74a1dd74ba23d1a6cca307ce61391df3dd0",
+      "adaptation": "Include public opl.hpp/y8950.hpp headers; preserve the existing primary/extra ten-plane memory-event CLI and add a profile-neutral --self-test for caller-owned writable pages, bounds/length/revisions, CPU writes, sparse reads, replacement/clear, Stop/reset retention, observation PCM/revision continuity and low-clock ADPCM/FM cancellation. Audit callback C++ allocation/free counts without importing Rust COW or lifecycle infrastructure."
     }
   ]
 }

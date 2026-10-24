@@ -435,10 +435,12 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                                                    "fixture-segapsg-release.json", "fixture-ym2413-release.json",
                                                    "fixture-ay8910-release.json", "fixture-ym2203-release.json", "fixture-ym2608-release.json",
                                                    "fixture-ym2610-release.json", "fixture-okim6258-release.json", "fixture-rf5c164-release.json",
+                                                   "fixture-opl-release.json", "fixture-extra_opl-release.json", "fixture-y8950_memory-release.json",
                                                    "example-genesis-release.json", "example-master-system-release.json",
                                                    "example-msx-release.json", "example-pc98-ym2203-release.json",
                                                    "example-pc98-ym2608-release.json", "example-neogeo-release.json",
-                                                   "example-x68000-release.json", "example-megacd-release.json")]
+                                                   "example-x68000-release.json", "example-megacd-release.json",
+                                                   "example-dos-opl-release.json", "example-msx-audio-release.json")]
         model = {"paths": {"source": str(self.root), "build": str(self.build)}, "configurations": [
             {"name": "Debug", "targets": [{"jsonFile": "fixture-debug.json"}]},
             {"name": "Release", "targets": targets},
@@ -453,14 +455,16 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                   "compileGroups": [{"includes": [{"path": str(self.root / "vendor/include files")},
                                                     {"path": str(self.build / "generated")}]}]}
         extra_targets = {}
-        for chip in ("ym2151", "segapsg", "ym2413", "ay8910", "ym2203", "ym2608", "ym2610", "okim6258", "rf5c164"):
+        for chip in ("ym2151", "segapsg", "ym2413", "ay8910", "ym2203", "ym2608", "ym2610", "okim6258", "rf5c164",
+                     "opl", "extra_opl", "y8950_memory"):
             target = copy.deepcopy(detail)
             target["name"] = f"tetorica_{chip}_fixture"
             target["nameOnDisk"] = executable.replace("ym2612", chip)
             target["artifacts"] = [{"path": artifact_directory + target["nameOnDisk"]}]
             target["sources"][0]["path"] = f"native/tests/{chip}_fixture.cpp"
             extra_targets[f"fixture-{chip}-release.json"] = target
-        for machine in ("genesis", "master_system", "msx", "pc98_ym2203", "pc98_ym2608", "neogeo", "x68000", "megacd"):
+        for machine in ("genesis", "master_system", "msx", "pc98_ym2203", "pc98_ym2608", "neogeo", "x68000", "megacd",
+                        "dos_opl", "msx_audio"):
             example = copy.deepcopy(detail)
             example["name"] = f"tetorica_{machine}_wav"
             example["nameOnDisk"] = example["name"] + Path(executable).suffix
@@ -529,6 +533,9 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                                           ("fixture-ym2610-release.json", "tetorica_ym2610_fixture"),
                                           ("fixture-okim6258-release.json", "tetorica_okim6258_fixture"),
                                           ("fixture-rf5c164-release.json", "tetorica_rf5c164_fixture"),
+                                          ("fixture-opl-release.json", "tetorica_opl_fixture"),
+                                          ("fixture-extra_opl-release.json", "tetorica_extra_opl_fixture"),
+                                          ("fixture-y8950_memory-release.json", "tetorica_y8950_memory_fixture"),
                                           ("example-genesis-release.json", "tetorica_genesis_wav"),
                                           ("example-master-system-release.json", "tetorica_master_system_wav"),
                                           ("example-msx-release.json", "tetorica_msx_wav"),
@@ -536,7 +543,9 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                                           ("example-pc98-ym2608-release.json", "tetorica_pc98_ym2608_wav"),
                                           ("example-neogeo-release.json", "tetorica_neogeo_wav"),
                                           ("example-x68000-release.json", "tetorica_x68000_wav"),
-                                          ("example-megacd-release.json", "tetorica_megacd_wav")):
+                                          ("example-megacd-release.json", "tetorica_megacd_wav"),
+                                          ("example-dos-opl-release.json", "tetorica_dos_opl_wav"),
+                                          ("example-msx-audio-release.json", "tetorica_msx_audio_wav")):
                 with self.subTest(multi_config=multi_config, target=target_name):
                     reply, model, _ = self.file_api_fixture(multi_config=multi_config)
                     release = next(item for item in model["configurations"] if item["name"] == "Release")
@@ -636,6 +645,10 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                                        str(self.build.resolve() / "x68000 example output.wav")])
         self.assertEqual(commands[10], [str(self.build.resolve() / "native/Release/tetorica_megacd_wav.exe"),
                                         str(self.build.resolve() / "mega-cd example output.wav")])
+        self.assertEqual(commands[11], [str(self.build.resolve() / "native/Release/tetorica_dos_opl_wav.exe"),
+                                        str(self.build.resolve() / "dos pc opl example output.wav")])
+        self.assertEqual(commands[12], [str(self.build.resolve() / "native/Release/tetorica_msx_audio_wav.exe"),
+                                        str(self.build.resolve() / "msx-audio example output.wav")])
 
     def test_native_build_rejects_an_unbuilt_ym2151_fixture_before_running_ctest(self):
         commands = []
@@ -660,8 +673,10 @@ class NativeBuildPortabilityTests(unittest.TestCase):
             for missing in ("tetorica_segapsg_fixture", "tetorica_ym2413_fixture", "tetorica_ay8910_fixture",
                             "tetorica_ym2203_fixture", "tetorica_ym2608_fixture", "tetorica_ym2610_fixture",
                             "tetorica_okim6258_fixture", "tetorica_rf5c164_fixture",
+                            "tetorica_opl_fixture", "tetorica_extra_opl_fixture", "tetorica_y8950_memory_fixture",
                             "tetorica_master_system_wav", "tetorica_msx_wav", "tetorica_pc98_ym2203_wav",
-                            "tetorica_pc98_ym2608_wav", "tetorica_neogeo_wav", "tetorica_x68000_wav", "tetorica_megacd_wav"):
+                            "tetorica_pc98_ym2608_wav", "tetorica_neogeo_wav", "tetorica_x68000_wav", "tetorica_megacd_wav",
+                            "tetorica_dos_opl_wav", "tetorica_msx_audio_wav"):
                 with self.subTest(multi_config=multi_config, missing=missing):
                     self.build = self.work / f"native build {multi_config} {missing}"
                     self.build.mkdir()
@@ -685,7 +700,8 @@ class NativeBuildPortabilityTests(unittest.TestCase):
 
     def test_native_build_validates_later_wavs_after_running_their_examples(self):
         for label, failing_command in (("Master System", 5), ("MSX", 6), ("PC-98 YM2203", 7), ("PC-98 YM2608", 8),
-                                       ("NeoGeo", 9), ("X68000", 10), ("Mega-CD", 11)):
+                                       ("NeoGeo", 9), ("X68000", 10), ("Mega-CD", 11),
+                                       ("DOS PC OPL", 12), ("MSX-AUDIO", 13)):
             with self.subTest(label=label):
                 self.build = self.work / f"invalid {label} example build"
                 self.build.mkdir()
