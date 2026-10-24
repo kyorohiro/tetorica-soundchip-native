@@ -245,6 +245,24 @@ if(MSVC)
   target_compile_options(tetorica_native_gameboy PRIVATE /EHsc)
 endif()
 
+# The wrapper includes the snapshotted implementation after exposing its state
+# for observation. Compile it once; a separate huc6280.cpp would duplicate symbols.
+add_library(tetorica_native_huc6280 STATIC
+  reference/tauri/native_genesis_huc6280.cpp
+)
+add_library(tetorica::huc6280 ALIAS tetorica_native_huc6280)
+target_compile_features(tetorica_native_huc6280 PUBLIC cxx_std_14)
+target_include_directories(tetorica_native_huc6280
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/mame-huc6280"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_huc6280 PRIVATE /EHsc)
+endif()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
   add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
   target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
@@ -300,6 +318,11 @@ if(TETORICA_NATIVE_BUILD_EXAMPLES)
   target_link_libraries(tetorica_gameboy_wav PRIVATE tetorica::gameboy)
   if(MSVC)
     target_compile_options(tetorica_gameboy_wav PRIVATE /EHsc)
+  endif()
+  add_executable(tetorica_pcengine_wav examples/pcengine_wav.cpp)
+  target_link_libraries(tetorica_pcengine_wav PRIVATE tetorica::huc6280)
+  if(MSVC)
+    target_compile_options(tetorica_pcengine_wav PRIVATE /EHsc)
   endif()
 endif()
 
@@ -438,4 +461,13 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.gameboy.self_test
     COMMAND tetorica_gameboy_fixture --self-test)
+  add_executable(tetorica_huc6280_fixture tests/huc6280_fixture.cpp)
+  target_link_libraries(tetorica_huc6280_fixture PRIVATE tetorica::huc6280)
+  if(MSVC)
+    target_compile_options(tetorica_huc6280_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_huc6280_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.huc6280.self_test
+    COMMAND tetorica_huc6280_fixture --self-test)
 endif()

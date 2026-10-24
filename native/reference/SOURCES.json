@@ -557,6 +557,14 @@
       "originSha256": "9553af91e81724f1430d5976cd772690075d2d9d55e15e22bd83a7438f0ff430",
       "sha256": "0b5b07c6dcb3ce498fd8cf914239426844f12d1368e1d6484071b5d13669c92e",
       "adaptation": "Include the public SDK header; retain the interleaved two-float PCM event CLI and original control/observation/allocation audit. Extend self-test coverage for all four isolated voices and stereo, per-voice foreign-source isolation at three rates and three clocks, exact low-clock held-output channel Stop versus immediate global Stop, state observations, invalid-input rollback, constructor/clock bounds, reset and retained mute/clock behavior. Rendering and exported C ABI remain unchanged."
+    },
+    {
+      "file": "native/tests/huc6280_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_huc6280_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "c38e44de6a05b6d4256b87f69000cf9931a7fb1955a91559745e0b2a8f0f2e67",
+      "sha256": "19399bbbbd4e411e4fd852f3d4ce6fde69a1ed507b51ebc7ddd7cc7c2c3e0c3b",
+      "adaptation": "Include the public SDK header and retain the two-float interleaved PCM event CLI, original state/mute/LFO/noise/isolation and callback-allocation tests. Extend ABI layout, six-voice stereo and per-channel Stop across output rates/clocks, waveform copy/masking/selection/control/DDA retention, invalid-operation rollback and fallback, low-clock held gate-off/Stop timing, constructor/clock boundaries and reset/mute/clock retention. No wrapper or vendor rendering changes."
     }
   ]
 }

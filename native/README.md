@@ -28,10 +28,10 @@ translation-unit constraints.
 ## Build support
 
 The independently buildable Native components are **ymfm YM2612, YM2151,
-YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy and YM3526/YM3812/YMF262/Y8950**.
-These sixteen chip IDs use twelve static libraries; YM2610/YM2610B share one
+YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280 and YM3526/YM3812/YMF262/Y8950**.
+These seventeen chip IDs use thirteen static libraries; YM2610/YM2610B share one
 library, and four OPL-family chips share another. Constructors explicitly select
-the per-handle variant/kind. Seventeen aliases/headers include the generic OPL entry:
+the per-handle variant/kind. Eighteen aliases/headers include the generic OPL entry:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -56,6 +56,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::rf5c164` | `tetorica_native_rf5c164` | `<tetorica/rf5c164.hpp>` | `native_rf5c164_*`, `native_extra_rf5c164_*`, `NativeExtraRf5c164State` |
 | `tetorica::opl`, `tetorica::ym3526`, `tetorica::ym3812`, `tetorica::ymf262`, `tetorica::y8950` | `tetorica_native_opl` | `<tetorica/opl.hpp>` and matching chip forwarders | `native_opl_*`, `native_extra_opl_*`, `NativeOplState`, `NativeExtraOplState` |
 | `tetorica::gameboy` | `tetorica_native_gameboy` | `<tetorica/gameboy.hpp>` | `native_gameboy_*`, `NativeGameboyState` |
+| `tetorica::huc6280` | `tetorica_native_huc6280` | `<tetorica/huc6280.hpp>` | `native_huc6280_*`, `NativeHuc6280State` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -93,7 +94,7 @@ clock/divider guards, pan, repeat, retained Stop/reset and observation.
 The RF5C164 fixture covers both profiles, eight voices, sign-magnitude PCM,
 loop markers, RAM/bank access, clock conversion, reset retention and the
 additional profile's immediate source cancellation and observation.
-All fourteen fixtures run through CTest with assertions enabled in Release builds.
+All fifteen fixtures run through CTest with assertions enabled in Release builds.
 The three OPL-family fixtures exercise primary controls/PCM, additional source
 ownership/held output, and Y8950 writable-page memory separately. The shared OPL
 library covers four selected chip kinds; each handle constructs only one kind.
@@ -103,6 +104,10 @@ Stop, reset and repeated non-advancing state observations. It checks every
 channel's Stop against foreign-voice reference PCM at 44.1/48/96 kHz and
 100 kHz/base/100 MHz clocks, including retained outer samples below the base
 clock, along with invalid controls, ABI layout and allocation-free rendering.
+The HuC6280 fixture covers six audible sources, owned 5-bit wave RAM, selected
+and explicit-channel writes, waveform-helper control/DDA restoration and phase
+effects, stereo, noise/LFO, mute progression, Stop/reset, clock conversion,
+non-advancing observation and rendering without allocation/free.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
@@ -639,6 +644,110 @@ WASM save state. The access-only friend declaration is recorded in the vendor
 inventory; no synthesis algorithm is amended. Create/destroy outside the audio
 callback, keep valid handles/output pointers, and serialize all chip access.
 
+## Embed PC Engine HuC6280 audio
+
+Link `tetorica::huc6280` and include `<tetorica/huc6280.hpp>`. This forwards the
+existing `native_genesis_huc6280.h` ABI and `NativeHuc6280State` without renaming
+exports. Each handle owns six audible channels 0–5, each with 32 unsigned 5-bit
+wave samples and a DDA latch. Channels 4/5 also support noise; LFO modulates
+channel 0 using channel 1. The eight-channel register/state storage retains
+selection slots 6/7 for compatibility; those slots are not audible sources.
+No external ROM or borrowed sample storage is needed. The existing MAME
+adaptation retains its documented imperfect/unverified noise and LFO model.
+
+```cmake
+add_subdirectory(vendor/tetorica-soundchip-native)
+target_link_libraries(your_application PRIVATE tetorica::huc6280)
+```
+
+```cpp
+#include <tetorica/huc6280.hpp>
+#include <cstdint>
+
+int main() {
+    void* chip = native_huc6280_create(48000);
+    if (!chip) return 1;
+    uint8_t wave[32];
+    for (unsigned i = 0; i < 32; ++i)
+        wave[i] = uint8_t(i < 16 ? 1 + 2 * i : 63 - 2 * i);
+    native_huc6280_waveform(chip, 0, wave); // Synchronous copy; wave may now expire.
+    native_huc6280_write(chip, 1, 0xff, -1); // Global left/right balance.
+    native_huc6280_write(chip, 5, 0xff, 0);  // Channel 0 left/right balance.
+    native_huc6280_write(chip, 2, 254, 0);   // round(3579545 / (32 * 440)).
+    native_huc6280_write(chip, 3, 0, 0);
+    native_huc6280_write(chip, 4, 0x9f, 0);  // Wave enabled, maximum level.
+    float left[512], right[512];
+    for (unsigned i = 0; i < 512; ++i)
+        native_huc6280_sample(chip, &left[i], &right[i]);
+    // Send these buffers to your audio output or file renderer.
+    native_huc6280_stop(chip);
+    native_huc6280_destroy(chip);
+}
+```
+
+Creation accepts **8,000–384,000 Hz** inclusive. The reference chip clock is
+**3,579,545 Hz**. `set_clock()` accepts **100,000–100,000,000 Hz** inclusive,
+returning 1 on success or 0 without changing the clock on rejection. Clock
+edits keep the shared core at its reference clock and apply outer fractional
+averaging/hold; accepted edits preserve that outer phase/held PCM. At the
+reference clock no outer conversion is enabled until `set_clock()` is called.
+With LFO disabled, wave pitch is `clock / (32 * period)`, where the 12-bit
+frequency in registers 2/3 encodes periods 1–4095 and zero means 4096. DDA
+instead holds an unsigned 5-bit value until the host supplies another timed
+register-6 write. Both wave samples and DDA use **16 as neutral**; zero is a
+negative DAC extreme, not silence.
+
+`write(handle, reg, value, channel)` accepts register offsets **0–9**, not CPU
+addresses. Register 0 selects `value & 7`; register 1 is global balance;
+registers 8/9 are global LFO frequency/control. Their channel argument is
+ignored. For registers 2–7, an explicit channel 0–7 temporarily selects that
+slot and restores the previous selection afterward. Any other channel value,
+including the conventional `-1`, writes the currently selected slot. Offsets
+above 9 are ignored. Register 4 uses bit 7 as enable, bit 6 as DDA mode and bits
+0–4 as level. Register 5 and global balance use the high nibble for left and
+low nibble for right. The retained logarithmic attenuation table is summed
+without automatic peak normalization or an analog output filter. Register 7's
+noise-enable bit 7 affects only channels 4/5; bits 0–4 select the noise rate.
+LFO mode uses register 9's low two bits, with bit 7 resetting its source phase.
+The retained model can also output channel 1 while it supplies LFO modulation.
+
+`waveform(handle, channel, samples)` copies exactly 32 bytes immediately for
+channels 0–5; each byte is masked to five bits. A null source or any other
+channel is ignored. The caller may release or modify the source array after
+the call. The helper preserves current channel selection, restores the
+channel's control byte and, if DDA was selected, restores its prior DDA latch.
+It temporarily disables playback and toggles DDA to reset the wave-write
+index, then writes the complete wave. **It changes index/phase**: the final
+index is zero and restoring an enabled control can retrigger its period
+counter. It does not promise uninterrupted active playback. Raw register-6
+wave writes use the current index, advancing it only while playback is off;
+raw DDA writes update the latch instead. Serialize either operation with
+rendering. There is no sample-buffer publication or retirement obligation.
+
+`set_mute_mask()` bits 0–5 suppress output while enabled oscillators, noise and
+LFO continue advancing. `key_off(channel)` accepts slots 0–7 and only clears
+control bit 7; `stop()` does the same for all eight slots. They preserve waves,
+frequency, levels, balance, noise/LFO, DDA mode/latch, clock and mute. **Stop
+does not write neutral DDA**: re-enabling a DDA channel resumes its retained
+value. Neither operation clears outer held PCM, so below the reference clock
+an old mixed frame can remain until the next core frame. They do not provide
+immediate source cancellation or advance other channels at the call itself.
+Reset instead clears registers, wave RAM, DDA, selection, LFO/noise controls
+and core/outer output phase, restoring the noise seeds; edited clock and mute
+survive. Applications can fade output or explicitly supply neutral DDA when
+that is their intended playback policy.
+
+`get_state()` copies selection, authored register shadows, all eight wave,
+index and DDA slots, and the edited clock without advancing audio. Shadows
+record authored bytes, including helper writes; this is an observational
+snapshot, not hardware readback or a portable save/load format. Keep valid
+handles and output pointers, create/destroy outside the audio callback, and
+serialize register writes, waveform copies, reset, observation and rendering.
+The CMake target compiles only `native_genesis_huc6280.cpp`, which already
+includes `huc6280.cpp`; do not compile the vendor implementation again as a
+separate translation unit. No scheduler, audio device or machine runtime is
+imported.
+
 ## Offline WAV examples
 
 `examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in
@@ -683,11 +792,17 @@ right; the second isolates an original triangle in wave RAM left and short
 noise hits right; the last combines all four with pulse sides reversed.
 It derives musical pitches from the 4,194,304 Hz clock and uses equal NR50
 gains, fixed output headroom and short per-note fades.
+`examples/pcengine_wav.cpp` links only `tetorica::huc6280` in
+`tetorica_pcengine_wav`. Its first second separates original triangle/sine
+waves left/right; the next uses a pulse bass, host-fed 5-bit DDA melody and
+both noise channels; the last combines all six audible sources and reverses
+the first two voices' sides. It uses the 3,579,545 Hz clock, unsigned DAC
+neutral 16, fixed gain and short per-note fades without external sample data.
 From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav
+cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
 ./build/native/native/tetorica_master_system_wav "master system demo.wav"
@@ -700,6 +815,7 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/tetorica_dos_opl_wav "dos opl demo.wav"
 ./build/native/native/tetorica_msx_audio_wav "msx audio demo.wav"
 ./build/native/native/tetorica_gameboy_wav "gameboy demo.wav"
+./build/native/native/tetorica_pcengine_wav "pcengine demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
 ./build/native/native/Release/tetorica_master_system_wav.exe "master system demo.wav"
@@ -712,6 +828,7 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/Release/tetorica_dos_opl_wav.exe "dos opl demo.wav"
 ./build/native/native/Release/tetorica_msx_audio_wav.exe "msx audio demo.wav"
 ./build/native/native/Release/tetorica_gameboy_wav.exe "gameboy demo.wav"
+./build/native/native/Release/tetorica_pcengine_wav.exe "pcengine demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
@@ -744,7 +861,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | OKIM6258 | `native_genesis_extra_okim6258.cpp` | Standalone ADPCM target and fixture; borrowed immutable sample |
 | Game Boy | `native_genesis_gameboy.cpp` | Standalone DMG APU target and fixture; owned wave RAM, gate-only Stop and observation |
 | NES + optional FDS | `native_genesis_nes.cpp` | Not yet connected |
-| PC Engine / HuC6280 | `native_genesis_huc6280.cpp` | Not yet connected |
+| PC Engine / HuC6280 | `native_genesis_huc6280.cpp` | Standalone six-source target and fixture; copied wave RAM, DDA/noise/LFO and observation |
 | DX7 | `native_genesis_dx7.cpp` | Not yet connected |
 | 32X PWM | `native_genesis_pwm.cpp` | Not yet connected |
 | SNES S-DSP | `native_genesis_snes.cpp` | Not yet connected |

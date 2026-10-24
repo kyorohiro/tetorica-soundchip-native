@@ -436,25 +436,39 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {
           "native/reference/tauri/native_genesis_huc6280.cpp": "BSD-3-Clause",
           "native/reference/tauri/native_genesis_huc6280.h": "BSD-3-Clause"
         },
-        "defaultLicensedFiles": [],
+        "defaultLicensedFiles": [
+          "native/include/tetorica/huc6280.hpp"
+        ],
         "id": "huc6280",
         "licenseFiles": [
-          "LICENSE"
+          "LICENSE",
+          "vendor/mame-huc6280/LICENSE"
         ],
         "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_huc6280.cpp",
-          "native/reference/tauri/native_genesis_huc6280.h"
+          "native/reference/tauri/native_genesis_huc6280.h",
+          "native/include/tetorica/huc6280.hpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_huc6280",
+        "tests": [
+          "tetorica.huc6280.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Independent pinned HuC6280 sound renderer exposing native_huc6280_*: six audible wave/DDA sources, noise on channels 4/5, LFO, stereo, copied 32-byte waveforms, channel-selected writes, retained gate-off/Stop, mute, clock resampling, reset and observational state. The unchanged wrapper includes the shared core implementation once in its own translation unit. Offline Worklet/WASM PCM comparison and Native state/control tests; no PC Engine CPU/CD audio, device, event scheduler or playback-deadline guarantee."
       },
       "sourceFiles": [
+        "native/include/tetorica/huc6280.hpp",
         "native/reference/tauri/native_genesis_huc6280.cpp",
         "native/reference/tauri/native_genesis_huc6280.h",
         "vendor/mame-huc6280/huc6280.cpp",
