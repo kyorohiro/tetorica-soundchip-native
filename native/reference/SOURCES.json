@@ -597,6 +597,14 @@
       "originSha256": "4832f2bb9e73e3c685b246df4b688633014b46605c1cf62626289aba1d403de6",
       "sha256": "102a0bd96ed8b3db702e8378529b0c454fe9cc31c333a09ec3cc62476cede6f9",
       "adaptation": "Include the public SDK header; preserve the original PCM event CLI and extend constructor/rate bounds, raw voice loading and identity-scoped edits, protected allocation and released-slot reuse, release/kill/panic histories, all sixteen preallocated slots, seventeen partial-construction failure cleanups, independent instances and callback allocation/free auditing. Add 96 feedback-enabled panic/restart cases against fresh Native instances, covering all 32 algorithms at three output rates. Rendering changes are limited to the separately recorded NativePanic correction."
+    },
+    {
+      "file": "native/tests/snes_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_snes_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "37a61a69a0bd1022fc20841d062b00e95ec121a9fbad238ac9c00304845db5a5",
+      "sha256": "f7f5416ca36af165ed5035123095a00e86ddcc12c9847b92f1f09974455c102c",
+      "adaptation": "Include the public SDK header; preserve the original PCM event CLI and both self-test modes. Extend output-rate boundaries, copied/bounded RAM and rejected-load rollback, stable views and all-RAM reset, all eight same-frame BRR key-ons with explicitly authored global/voice controls and release, protected gates and ignored invalid registers/channels, echo-disabled Stop silence with retained authored settings, borrowed timeline replay/completion/detach and zero runtime C++ allocation/free checks. Native wrapper and vendor synthesis bytes remain unchanged."
     }
   ]
 }

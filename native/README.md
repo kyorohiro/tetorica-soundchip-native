@@ -30,10 +30,10 @@ translation-unit constraints.
 Requirements: CMake 3.20 or newer and a C++17 compiler.
 
 The independently buildable Native components are **ymfm YM2612, YM2151,
-YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280, NES with optional FDS, 32X PWM, MSFA DX7 and YM3526/YM3812/YMF262/Y8950**.
-These twenty chip IDs use sixteen static libraries; YM2610/YM2610B share one
+YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280, NES with optional FDS, 32X PWM, MSFA DX7, SNES S-DSP and YM3526/YM3812/YMF262/Y8950**.
+These twenty-one chip IDs use seventeen static libraries; YM2610/YM2610B share one
 library, and four OPL-family chips share another. Constructors explicitly select
-the per-handle variant/kind. Twenty-one aliases/headers include the generic OPL entry:
+the per-handle variant/kind. Twenty-two aliases/headers include the generic OPL entry:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -62,6 +62,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::nes` | `tetorica_native_nes` | `<tetorica/nes.hpp>` | `native_nes_*`, `NativeNesState` |
 | `tetorica::pwm` | `tetorica_native_pwm` | `<tetorica/pwm.hpp>` | `native_pwm_*`, `NativePwmState` |
 | `tetorica::dx7` | `tetorica_native_dx7` | `<tetorica/dx7.hpp>` | `native_dx7_*`; no public state snapshot |
+| `tetorica::snes` | `tetorica_native_snes` | `<tetorica/snes.hpp>` | `native_snes_*`, `NativeSnesState` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -99,7 +100,8 @@ clock/divider guards, pan, repeat, retained Stop/reset and observation.
 The RF5C164 fixture covers both profiles, eight voices, sign-magnitude PCM,
 loop markers, RAM/bank access, clock conversion, reset retention and the
 additional profile's immediate source cancellation and observation.
-All nineteen fixtures run through CTest with assertions enabled in Release builds.
+Twenty fixture executables supply twenty-one CTest tests, with assertions enabled
+in Release builds. The SNES executable supplies two entries.
 The three OPL-family fixtures exercise primary controls/PCM, additional source
 ownership/held output, and Y8950 writable-page memory separately. The shared OPL
 library covers four selected chip kinds; each handle constructs only one kind.
@@ -131,6 +133,11 @@ foreign-identity isolation, invalid-slot no-ops, release/kill buffering,
 independent instances and one-time initialization. Immediate panic silence
 and 96 clean feedback restarts (32 algorithms at 44.1/48/96 kHz) compare with
 fresh instances; tested rendering/control paths allocate/free no C++ memory.
+The SNES fixture provides two CTest entries: instrument/Stop/reset checks and
+extended RAM/timeline/protected-gate checks. It covers eight BRR voices with
+direct GAIN, same-frame KON merging, KOFF, copied RAM and a stable owned
+view, non-advancing observation, instance isolation and borrowed timeline
+playback/restart/pause. Tested rendering/control paths reject C++ allocation/free.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
@@ -1101,6 +1108,122 @@ integration use the default BSD-3-Clause terms.
 explicit note-slot release and mono-to-stereo output; no SysEx or assets are
 needed.
 
+## Embed SNES S-DSP
+
+Link `tetorica::snes` and include `<tetorica/snes.hpp>`. This separate static
+target compiles the unchanged `native_genesis_snes.cpp` wrapper and accurate
+`SPC_DSP.cpp`. It does not compile `SNES_SPC.cpp` or an SPC700 CPU, load SPC
+files or need a Nintendo IPL ROM. The existing wrapper/header and DSP retain
+their LGPL-2.1-or-later notices. The new public forwarder/integration use the
+SDK BSD-3-Clause default; they do not change the linked component's terms.
+Retain the component sources/notices when distributing this target.
+
+`native_snes_create(output_rate)` accepts integer **8,000–384,000 Hz** and
+returns null on a rejected rate or failed allocation. Each handle owns its DSP
+and zero-initialized **65,536-byte RAM**. Create/destroy outside the callback.
+The DSP always generates stereo Int16 PCM at **32,000 Hz**. Each
+`native_snes_sample(chip, &left, &right)` returns one normalized stereo float
+frame, using the retained two-frame prefetch and integer-phase linear output
+interpolation. There is no clock or rate setter and no SDK mixer gain.
+No audio device, host callback, scheduler or thread synchronization is supplied.
+Serialize every write, upload, timeline control, observation and sample call;
+keep handles and output pointers valid. Apart from `load`'s documented guards,
+these low-level functions do not provide general null-pointer validation.
+
+The eight physical voices are numbered **0–7**. Voice `ch` uses registers
+`ch*16 + 0/1` for signed left/right volume, `+2/3` for 14-bit PITCH, `+4` for
+SRCN, `+5/6` for ADSR and `+7` for GAIN. PITCH `4096` advances one decoded
+BRR sample per native frame, not one frame at the host output rate. For an
+original periodic waveform of `N` decoded samples, use
+`round(frequency_hz * N * 4096 / 32000)`, checked within `1..16383`; arbitrary
+recordings need their own declared root tuning. No voice allocator, BRR
+encoder or musical-note parser is included in this C ABI.
+
+Set master volume and FLG deliberately before key-on: reset initially
+mutes/resets the DSP. For a dry instrument, FLG `0x20` disables echo RAM writes;
+set echo volumes, echo sends and feedback to zero as well. DIR selects the
+256-byte page for the 256 four-byte sample-directory entries. Each entry has
+little-endian start/loop pointers into the same 64 KiB RAM. Reserve directory,
+sample and any enabled echo regions explicitly. Supply valid BRR blocks and
+END/LOOP flags with block-aligned loop pointers; disabling echo writes alone
+does not arrange RAM or sample tuning for the host.
+
+`native_snes_load(chip, data, address, size)` validates the handle and nonempty
+input pointer and rejects ranges outside `0..65536`; it copies immediately,
+so a successful input buffer can expire on return. Use a valid data pointer
+even for a zero-length upload. The input range must not overlap the destination
+RAM range. It does not allocate or validate BRR/directory contents.
+`native_snes_get_ram(chip, output)` copies all 65,536 bytes to a caller-provided
+buffer. `native_snes_ram_data` instead returns a stable
+read-only view of the Core-owned allocation, valid until destruction; mutation
+and concurrent rendering must be excluded while reading it.
+`native_snes_read_memory` reads one 16-bit RAM address. These observations do
+not advance synthesis; the view is not an independent snapshot.
+
+`native_snes_write` accepts raw registers `0..127`; out-of-range register
+numbers are ignored. It tracks raw KON writes for the key helper.
+`native_snes_key_on(chip, ch)` clears that voice's KOFF and merges key-on bits
+only within the same native DSP frame. Consecutive calls can start a chord
+without replacing earlier bits. `native_snes_key_off` removes a same-frame
+pending KON bit and sets KOFF; the hardware release tail remains audible.
+Invalid voice indices are ignored. `native_snes_write_protected` preserves
+masked host-owned bits for KON/KOFF; for other registers it behaves like a raw
+write. This is a bit-preservation helper, not host ownership management.
+
+`native_snes_stop` discards a prepared timeline, resets active DSP state and
+output interpolation, and restores authored register settings except the
+KON/KOFF and ENVX/OUTX registers; ENDX is cleared by its write semantics. It
+sets KON to zero and KOFF to `255`, retains all RAM including sample/echo
+contents and resets the frame count. Retained
+echo RAM can still sound when echo is enabled; Stop does not guarantee
+immediate silence for every configuration. Re-keying uses the retained
+instrument. `native_snes_reset` also discards the timeline
+and resets output/history, but clears all RAM and restores DSP reset defaults;
+the host must upload/configure the instrument again. The output rate is fixed
+for the handle. `native_snes_get_state` copies 128 readable DSP registers,
+the native frame count and timeline status/position without advancing PCM.
+It is observational data, not a portable save/load format.
+
+### Optional borrowed timeline
+
+`native_snes_prepare_timeline(chip, ram, dsp, events, event_count,
+duration_clocks)` loads captured initial state and leaves playback paused.
+`ram` must point to **65,536 bytes**, `dsp` to **128 bytes**, and `events` to an
+aligned array of **four `uint32_t` words per event**:
+`{clock, kind, address, value}`. Kind `0` writes a DSP register `0..127`; kind
+`1` writes a RAM address `0..65535`. Values must fit one byte. Provide events
+in nondecreasing clock order within the duration; equal-clock events retain
+array order. Use a duration of at least `32` divisible by `32`, and
+`event_count <= UINT32_MAX/4` so four-word indexing does not overflow. Clocks use
+**1,024,000 Hz**, with 32 clocks per native audio frame. These are caller
+preconditions; the C wrapper does not validate arrays, event ordering or
+addresses before copying/indexing them.
+
+All three input arrays are **borrowed immutable storage**. Although preparation
+copies initial RAM/register bytes into the core, play/replay copies them
+again and event playback reads the borrowed event array. Retain every array,
+including while paused or ended, until `native_snes_reset`,
+`native_snes_stop`, replacement preparation or destruction; exclude mutation
+and concurrent access. An empty event list has count zero and may use a null
+event pointer; RAM/DSP pointers must still be valid.
+
+`native_snes_play_timeline` restarts from the initial capture and begins
+playback. `native_snes_stop_timeline` pauses, clears interpolation history and
+retains the prepared arrays; the next play starts again from the beginning,
+rather than resuming. While paused, sampling returns zero without advancing
+the timeline. Playback preserves the captured four-native-frame initial
+output delay and produces zero after the duration. State positions/totals use
+32 kHz native frames, not host-rate samples. Timeline mode is exclusive with
+authored instrument controls at the host level; reset/Stop before switching
+back. A timeline replays DSP/RAM events without executing an SPC700 program;
+SPC loading/seeking and trace capture remain separate APIs outside this target.
+
+`examples/snes_wav.cpp` is a complete instrument host. It generates three
+original 64-sample BRR loops, reserves directory/sample RAM, auditions a sine
+left and an ADSR triangle right, then plays all eight voices with alternating
+stereo balance and ADSR/direct GAIN. All voices receive KOFF and retain their
+hardware release tails. It uses no timeline buffers, ROM or external assets.
+
 ## Offline WAV examples
 
 `examples/sega32x_wav.cpp` links `tetorica::pwm`, `tetorica::ym2612` and
@@ -1171,11 +1294,17 @@ It constructs three original 155-byte voices with all six operators: algorithm
 algorithm 32 C-major chord. MIDI notes return slots for explicit release,
 leaving envelope tails. Fixed gain and edge fades reserve output headroom;
 the fixed 44.1 kHz core is interpolated to 48 kHz and copied to both channels.
+`examples/snes_wav.cpp` links only `tetorica::snes` in `tetorica_snes_wav`.
+It creates original 64-sample sine/triangle/pulse BRR loops and copies their
+directory and data into owned RAM. A left sine and right ADSR triangle are
+followed by an eight-voice stereo chord using ADSR/direct GAIN, with explicit
+KOFF releases. Pitch uses 32 kHz source frames rather than the 48 kHz output;
+echo writes are disabled. Fixed gain/fades preserve headroom.
 From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_32x_wav tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav tetorica_nes_fds_wav tetorica_dx7_wav
+cmake --build build/native --config Release --target tetorica_32x_wav tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav tetorica_nes_fds_wav tetorica_dx7_wav tetorica_snes_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_32x_wav "32x demo.wav"
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
@@ -1192,6 +1321,7 @@ cmake --build build/native --config Release --target tetorica_32x_wav tetorica_g
 ./build/native/native/tetorica_pcengine_wav "pcengine demo.wav"
 ./build/native/native/tetorica_nes_fds_wav "nes fds demo.wav"
 ./build/native/native/tetorica_dx7_wav "dx7 demo.wav"
+./build/native/native/tetorica_snes_wav "snes demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_32x_wav.exe "32x demo.wav"
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
@@ -1208,6 +1338,7 @@ cmake --build build/native --config Release --target tetorica_32x_wav tetorica_g
 ./build/native/native/Release/tetorica_pcengine_wav.exe "pcengine demo.wav"
 ./build/native/native/Release/tetorica_nes_fds_wav.exe "nes fds demo.wav"
 ./build/native/native/Release/tetorica_dx7_wav.exe "dx7 demo.wav"
+./build/native/native/Release/tetorica_snes_wav.exe "snes demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
@@ -1243,7 +1374,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | PC Engine / HuC6280 | `native_genesis_huc6280.cpp` | Standalone six-source target and fixture; copied wave RAM, DDA/noise/LFO and observation |
 | DX7 | `native_genesis_dx7.cpp`, generated Native MSFA tree | Standalone six-operator/16-slot target and fixture; original-voice WAV host |
 | 32X PWM | `native_genesis_pwm.cpp`, shared `pwm32x_core.h` | Standalone PWM target, primary/additional-tag fixtures and 32X WAV host |
-| SNES S-DSP | `native_genesis_snes.cpp` | Not yet connected |
+| SNES S-DSP | `native_genesis_snes.cpp`, accurate `SPC_DSP.cpp` | Standalone eight-voice target, instrument/timeline CTest entries and original-BRR WAV host; no SPC700 CPU |
 | SPC700 file player | `native_genesis_spc.cpp` | Not yet connected |
 
 The grouped rows cover 22 public components. Component origins and notices are

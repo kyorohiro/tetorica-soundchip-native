@@ -840,11 +840,17 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {
           "native/reference/tauri/native_genesis_snes.cpp": "LGPL-2.1-or-later",
           "native/reference/tauri/native_genesis_snes.h": "LGPL-2.1-or-later"
         },
-        "defaultLicensedFiles": [],
+        "defaultLicensedFiles": [
+          "native/include/tetorica/snes.hpp"
+        ],
         "id": "snes",
         "licenseFiles": [
           "LICENSE",
@@ -854,12 +860,20 @@
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_snes.cpp",
-          "native/reference/tauri/native_genesis_snes.h"
+          "native/reference/tauri/native_genesis_snes.h",
+          "native/include/tetorica/snes.hpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_snes",
+        "tests": [
+          "tetorica.snes.self_test",
+          "tetorica.snes.extra_self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Independent accurate eight-voice S-DSP instrument with native_snes_* ABI, copied owned 64 KiB RAM, stable read-only RAM views, DSP registers and protected KON/KOFF, Stop/reset and observational 152-byte state. Fixed 32 kHz source with integer-phase output-rate interpolation. Caller-validated timelines borrow immutable initial RAM/DSP and ordered event tuples for replay. Stop retains authored settings and RAM, so stored echo can remain audible; reset clears RAM. Native lifecycle and zero-allocation controls/rendering tests plus actual WASM/Worklet PCM comparisons; no SPC700 CPU, SPC-file loader, audio device, IPC scheduler, portable save state or playback-deadline guarantee."
       },
       "sourceFiles": [
+        "native/include/tetorica/snes.hpp",
         "native/reference/tauri/native_genesis_snes.cpp",
         "native/reference/tauri/native_genesis_snes.h",
         "vendor/snes-spc/snes_spc/SNES_SPC.cpp",

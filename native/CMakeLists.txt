@@ -371,7 +371,39 @@ foreach(flag IN ITEMS -fwrapv -fno-strict-aliasing -ffp-contract=off)
   endif()
 endforeach()
 
+# Accurate standalone S-DSP only. SPC700 CPU/player sources belong to the
+# separate SPC integration and are not linked into this instrument target.
+add_library(tetorica_native_snes STATIC
+  reference/tauri/native_genesis_snes.cpp
+  "${TETORICA_SDK_ROOT}/vendor/snes-spc/snes_spc/SPC_DSP.cpp"
+)
+add_library(tetorica::snes ALIAS tetorica_native_snes)
+target_compile_features(tetorica_native_snes PUBLIC cxx_std_17)
+target_include_directories(tetorica_native_snes
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/snes-spc/snes_spc"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_snes PRIVATE /EHsc)
+endif()
+# Retain the original Tauri S-DSP build's integer and floating-point semantics.
+foreach(flag IN ITEMS -fwrapv -fno-strict-aliasing -ffp-contract=off)
+  string(MAKE_C_IDENTIFIER "TETORICA_SNES_SUPPORTS_${flag}" supported_flag)
+  check_cxx_compiler_flag("${flag}" "${supported_flag}")
+  if(${supported_flag})
+    target_compile_options(tetorica_native_snes PRIVATE "${flag}")
+  endif()
+endforeach()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
+  add_executable(tetorica_snes_wav examples/snes_wav.cpp)
+  target_link_libraries(tetorica_snes_wav PRIVATE tetorica::snes)
+  if(MSVC)
+    target_compile_options(tetorica_snes_wav PRIVATE /EHsc)
+  endif()
   add_executable(tetorica_dx7_wav examples/dx7_wav.cpp)
   target_link_libraries(tetorica_dx7_wav PRIVATE tetorica::dx7)
   if(MSVC)
@@ -452,6 +484,18 @@ endif()
 if(TETORICA_NATIVE_BUILD_TESTS)
   # A Release configuration must execute the fixture's assertions as well.
   enable_testing()
+  add_executable(tetorica_snes_fixture tests/snes_fixture.cpp)
+  target_link_libraries(tetorica_snes_fixture PRIVATE tetorica::snes)
+  if(MSVC)
+    target_compile_options(tetorica_snes_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_snes_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.snes.self_test
+    COMMAND tetorica_snes_fixture --self-test)
+  add_test(NAME tetorica.snes.extra_self_test
+    COMMAND tetorica_snes_fixture --self-test-extra)
+
   add_executable(tetorica_dx7_fixture tests/dx7_fixture.cpp)
   target_link_libraries(tetorica_dx7_fixture PRIVATE tetorica::dx7)
   if(MSVC)
