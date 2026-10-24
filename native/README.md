@@ -11,6 +11,19 @@ layout. `reference/SOURCES.json` records the original and packaged byte hashes.
 The vendor cores have one canonical copy in `../vendor/`; they are not copied
 again under `native/`.
 
+[Per-chip differences](../docs/chip-differences.md) distinguish upstream
+adaptations, SDK relocation, and existing Native/WASM API or rendering
+differences. [MSFA details](../docs/research.md) describe all six Native
+overrides, including slot-control APIs and panic behavior, not just portability.
+
+One known prerequisite is not yet applied to the common vendor tree: the Tauri
+Game Boy header adds `friend struct NativeGameboyAccess` to `GameboyApu`.
+The Native reference wrapper requires this access for observation and gate-only
+Stop. The common SDK header retains the Browser version. A future Native
+Game Boy target must include the Native header adaptation; adding the wrapper
+alone is insufficient. See the per-chip document for this and the NES/HuC6280
+translation-unit constraints.
+
 ## Build support
 
 The initial independently buildable Native component is **ymfm YM2612**:
@@ -64,19 +77,20 @@ variants under `reference/overrides/msfa/`. Unchanged MSFA files are shared from
 `vendor/msfa/`; the overrides are explicitly recorded rather than silently
 substituted into the WASM build.
 
-## Reference wrapper license status
+## Licensing
 
-No repository-wide `LICENSE`, `COPYING`, or `NOTICE`, and no `package.json`
-license field, was found in the source Tauri checkout. Many imported wrappers
-and headers have no file-level declaration. Existing explicit declarations are
-preserved, but a vendor core's license does not establish the license of a
-separately authored Native wrapper. `catalog/native_inventory.json` records the
-located declarations and unresolved files for each component.
+Original Tetorica adapters, headers, and integration code are covered by the
+BSD 3-Clause License in [LICENSE](../LICENSE), matching tetorica-fm2612, unless
+a file carries an explicit different declaration. This repository-wide default
+also covers original files without a separate file-level declaration.
 
-The imported code has not been relicensed, and `LICENSE.tools` does not apply to
-it. The applicable source terms need to be confirmed with the source owners
-before public distribution. Build verification does not resolve that provenance
-question.
+Existing declarations and third-party terms are retained. In particular,
+the MSFA sources and DX7 Native overrides retain Apache-2.0, the NES/FDS port
+retains its Apache-2.0 and MIT notices, and the SNES/SPC and Nuked-derived
+adapters retain their LGPL notices. See [LICENSES.md](../LICENSES.md) and
+[catalog/native_inventory.json](../catalog/native_inventory.json) for the
+component-specific records. `LICENSE.tools` is a compatibility copy of the
+same BSD 3-Clause text, not a separate restriction on the original adapters.
 
 ## Boundaries to preserve during migration
 

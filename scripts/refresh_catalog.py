@@ -27,6 +27,7 @@ def main():
                    "licenseFiles": a["licenseFiles"], "buildScript": a["buildScript"], "format": a["format"]}
                   for a in inventory["artifacts"] if not set(a.get("chipIds", [])).intersection(CHIP_IDS)]
     data = {"schemaVersion": 1, "stage": "bootstrap", "chips": chips, "additionalArtifacts": additional,
+            "differencesDocument": "docs/chip-differences.md",
             "notes": ["Source collection is complete for these 22 Playground IDs; independent Native targets are being migrated one by one.",
                       "A WASM recipe is not a claim of runtime verification; release build-info and tests report the verified scope.",
                       "snes (DSP/RAM access) and spc (SPC CPU/file player) share the SNES-SPC sources but remain separate APIs."]}

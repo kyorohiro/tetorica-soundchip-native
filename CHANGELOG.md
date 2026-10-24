@@ -1,9 +1,12 @@
 # Changelog
 
-## 0.1.0 — bootstrap
+## 0.1.0 — Initial SDK
 
-- Playground の追加生成 22 種類に必要なコアと、既存 Native C++ 接続コードをソース付きで集約。
-- 共通 ymfm ソースを一箇所へ配置し、チップ別カタログ・ライセンス・取得元・SHA-256 を収録。
-- Native YM2612 の独立 CMake target と PCM 自動試験を追加。他の Native 接続コードは移行用原本として保持。
-- WASM ビルド手順と、バージョン固定の自己完結した配布 ZIP・独立展開検証を追加。
-- 既存 npm / Playground Tauri の参照先切り替えは次段階。
+- Collect source cores and existing Native C++ bridges for all 22 chips supported by Playground's additional-instance API.
+- Consolidate shared ymfm sources and add chip catalogs, component licenses, origins and SHA-256 inventories.
+- Add a standalone Native YM2612 CMake target and automated PCM tests. Retain other Native implementations as reference sources for subsequent integration.
+- Add WASM build recipes, versioned source/WASM release archives and verification from independently extracted packages.
+- Preserve existing npm and Playground Tauri dependency paths during the initial extraction; adopting SDK releases is a separate integration step.
+- Document upstream adaptations, import changes and Native/WASM differences for all 22 chips and additional WASM artifacts, including six MSFA Native differences and the pending Game Boy Native header adaptation.
+- Document the workflow for incorporating changes verified in the application repositories and distributing pinned SDK snapshots.
+- License original Tetorica code under BSD-3-Clause, retaining third-party licenses and existing explicit file-level terms.

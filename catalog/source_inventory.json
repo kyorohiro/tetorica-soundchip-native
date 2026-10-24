@@ -1079,8 +1079,9 @@
         "wasm/ymfm_wasm_interface.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
-        "vendor/mame-32x-pwm/LICENSE"
+        "LICENSE",
+        "vendor/mame-32x-pwm/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "upstream": [
         "https://github.com/kyorohiro/hello_ymfm_wasm"
@@ -1281,8 +1282,9 @@
         "vendor/mame-ay8910/upstream/ay8910.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
-        "vendor/mame-ay8910/LICENSE"
+        "LICENSE",
+        "vendor/mame-ay8910/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ay8910_wasm.sh",
       "format": "emscripten-es-module",
@@ -1318,8 +1320,9 @@
         "vendor/mame-gameboy/upstream/gb.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
-        "vendor/mame-gameboy/LICENSE"
+        "LICENSE",
+        "vendor/mame-gameboy/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_gameboy_apu_wasm.sh",
       "format": "emscripten-es-module",
@@ -1355,8 +1358,9 @@
         "vendor/mame-huc6280/upstream/c6280.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
-        "vendor/mame-huc6280/LICENSE"
+        "LICENSE",
+        "vendor/mame-huc6280/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_huc6280_wasm.sh",
       "format": "emscripten-es-module",
@@ -1392,8 +1396,9 @@
         "vendor/mame-k051649/upstream/k051649.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
-        "vendor/mame-k051649/LICENSE"
+        "LICENSE",
+        "vendor/mame-k051649/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_k051649_wasm.sh",
       "format": "emscripten-es-module",
@@ -1427,12 +1432,13 @@
         "vendor/tetorica-nes/nes_core.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
+        "LICENSE",
         "vendor/tetorica-nes/AUTHORS-JSNES.md",
         "vendor/tetorica-nes/LICENSE-FDS",
         "vendor/tetorica-nes/LICENSE-JSNES",
         "vendor/tetorica-nes/UPSTREAM-FDS.md",
-        "vendor/tetorica-nes/UPSTREAM-JSNES.md"
+        "vendor/tetorica-nes/UPSTREAM-JSNES.md",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_nesapu_wasm.sh",
       "format": "emscripten-es-module",
@@ -1467,8 +1473,9 @@
         "vendor/nuked-opn2/ym3438.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
-        "vendor/nuked-opn2/LICENSE"
+        "LICENSE",
+        "vendor/nuked-opn2/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_nuked_opn2_wasm.sh",
       "format": "emscripten-es-module",
@@ -1504,8 +1511,9 @@
         "vendor/mame-okim6258/upstream/okim6258.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
-        "vendor/mame-okim6258/LICENSE"
+        "LICENSE",
+        "vendor/mame-okim6258/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_okim6258_wasm.sh",
       "format": "emscripten-es-module",
@@ -1540,8 +1548,9 @@
         "vendor/mame-32x-pwm/upstream/mega32x.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
-        "vendor/mame-32x-pwm/LICENSE"
+        "LICENSE",
+        "vendor/mame-32x-pwm/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_pwm32x_wasm.sh",
       "format": "emscripten-es-module",
@@ -1576,8 +1585,9 @@
         "vendor/mame-rf5c164/upstream/rf5c68.cpp"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
-        "vendor/mame-rf5c164/LICENSE"
+        "LICENSE",
+        "vendor/mame-rf5c164/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_rf5c164_wasm.sh",
       "format": "emscripten-es-module",
@@ -1613,8 +1623,9 @@
         "vendor/mame-segapcm/upstream/segapcm.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
-        "vendor/mame-segapcm/LICENSE"
+        "LICENSE",
+        "vendor/mame-segapcm/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_segapcm_wasm.sh",
       "format": "emscripten-es-module",
@@ -1671,6 +1682,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_segapsg_wasm.sh",
@@ -1721,10 +1733,11 @@
         "vendor/snes-spc/snes_spc/spc.h"
       ],
       "licenseFiles": [
-        "vendor/ymfm/LICENSE",
+        "LICENSE",
         "vendor/snes-spc/LICENSE",
         "vendor/snes-spc/README.upstream.md",
-        "vendor/snes-spc/license.txt"
+        "vendor/snes-spc/license.txt",
+        "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_spc_wasm.sh",
       "format": "emscripten-es-module",
@@ -1783,6 +1796,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_y8950_wasm.sh",
@@ -1842,6 +1856,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ym2151_wasm.sh",
@@ -1901,6 +1916,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ym2203_wasm.sh",
@@ -1960,6 +1976,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ym2413_wasm.sh",
@@ -2019,6 +2036,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ym2608_wasm.sh",
@@ -2079,6 +2097,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ym2610b_wasm.sh",
@@ -2138,6 +2157,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ym2612_wasm.sh",
@@ -2197,6 +2217,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ym3438_wasm.sh",
@@ -2257,6 +2278,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ym3526_wasm.sh",
@@ -2316,6 +2338,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ym3812_wasm.sh",
@@ -2375,6 +2398,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ymf262_wasm.sh",
@@ -2434,6 +2458,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ymf276_wasm.sh",
@@ -2494,6 +2519,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ymf278b_wasm.sh",
@@ -2553,6 +2579,7 @@
         "vendor/ymfm/ymfm_ssg.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/ymfm/LICENSE"
       ],
       "buildScript": "scripts/build_ymf288_wasm.sh",
@@ -2617,10 +2644,11 @@
         "wasm/dx7/dx7.h"
       ],
       "licenseFiles": [
+        "LICENSE",
         "vendor/msfa/COPYING",
-        "vendor/msfa/UPSTREAM.md",
         "vendor/msfa/LICENSE",
-        "vendor/msfa/THIRD_PARTY_NOTICES.md"
+        "vendor/msfa/THIRD_PARTY_NOTICES.md",
+        "vendor/msfa/UPSTREAM.md"
       ],
       "buildScript": "scripts/build_dx7_wasm.sh",
       "format": "standalone-wasm",

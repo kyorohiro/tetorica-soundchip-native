@@ -3,10 +3,6 @@ BSD 3-Clause License
 Copyright (c) 2026, kyorohiro
 All rights reserved.
 
-Applies only to newly written collection tooling, tests, CMake integration,
-and documentation in this repository. Imported source and adaptations retain
-their own licenses and copyright notices.
-
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 

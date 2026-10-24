@@ -1,26 +1,30 @@
-# 責務と移行方針
+# Architecture and adoption
 
-`tetorica-soundchip-native` を、音源コアと Native / WASM 低レベル接続コードの編集元にします。利用側へ配るファイルは、バージョンを固定した配布用スナップショットとして扱います。
+`tetorica-soundchip-native` distributes sound-chip cores and their low-level Native and WASM bridges as versioned source snapshots. It incorporates changes developed and verified in `tetorica-fm2612` and Playground Tauri, with provenance, component licenses and backend differences recorded alongside the code.
 
-| 管理元 | 担当 |
+| Project | Responsibility |
 | --- | --- |
-| tetorica-soundchip-native | 音源コア、C/C++ 接続コード、低レベル ABI、WASM ビルド、出典・ライセンス、コア試験 |
-| tetorica-fm2612（将来の tetorica-fm） | JS API、Synth、AudioWorklet、WASM / Native へ接続する adapter |
-| Playground / Tauri | 設定、画面、プロジェクト、Native IPC、演奏スケジューラー、owner / voice 管理、CPAL、音声デバイス、ホスト側 FX |
+| `tetorica-soundchip-native` | Source snapshots, low-level bridges, standalone build targets, provenance and license records, verification and release archives |
+| `tetorica-fm2612` source repository; prospective `tetorica-fm` | Core improvements, WASM bridges, JavaScript APIs, Synth, AudioWorklet and adapter development and testing |
+| Playground / Tauri | Native bridge development and testing, configuration and UI, Native IPC, playback scheduling, owner and voice management, CPAL and host effects |
 
-## 二箇所にファイルを置く理由
+Original Tetorica code is licensed under BSD-3-Clause, matching `tetorica-fm2612`. Third-party components and files with existing explicit licenses retain those terms. See [LICENSES.md](../LICENSES.md) for component exceptions and notices.
 
-利用側にもソースを保管しますが、そこで独自に編集する運用にはしません。修正はこのリポジトリに集約し、配布 ZIP の版を上げ、利用側で取り込み更新します。更新前の利用側は以前の版のまま動きます。別リポジトリ同士を同時に変更する必要はありません。
+## Development sources and release snapshots
 
-緊急に利用側で修正した場合は、その差分を明示し、ここへ反映した後に通常の配布版へ戻します。無記録の二重管理を避けます。
+Changes developed in the application repositories enter the SDK after verification. When Native and WASM need different implementations, both versions and the reasons for their differences are retained. Each update records its source revision, file hashes and [chip-specific differences](chip-differences.md), then produces a new versioned release.
 
-## 移行の順序
+Consumers vendor a selected release and update on their own schedule. Record downstream patches separately so a later import preserves them and distinguishes them from SDK changes. Development repositories and consuming applications do not need to update together.
 
-1. 全音源のソース・ライセンス・元の接続コードを集める。この段階では既存アプリの参照先を変更しない。
-2. 代表 YM2612 を、元リポジトリの外に展開した source ZIP だけで Native / WASM ビルドし、PCM と状態操作を検証する。
-3. 既存アプリの YM2612 一種類だけを、版と hash を記録した配布物へ切り替え、既存の出力・ビルドを比較する。
-4. 他のコアを順に独立 target 化して移行する。Native / WASM の相違は黙って統合せず、差分を記録してから揃える。
+The SDK is the distribution source for these snapshots. Moving shared-core development into this repository is possible later; the current workflow also supports development and verification in the application repositories.
 
-`native/reference/tauri/` は収録時点の原本です。全 API の安定化や全種類の独立ビルド完了を表していません。Native の既存 resampling / mute / audition 処理を、WASM のコア生成処理と同じだと仮定しません。DX7 の Native 差分も別に保存しています。
+## Adoption stages
 
-WASM の `read()` / `generateStereo()` に相当する同期的な低レベル呼び出しは保持します。Native IPC の非同期性を理由に、AudioWorklet 用 API を削らない方針です。
+1. Collect the chip sources, component licenses and existing bridges while preserving the dependency paths used by current applications.
+2. Build representative YM2612 Native and WASM targets using only a source ZIP extracted outside the original repositories, then verify PCM and state operations.
+3. Switch one application's YM2612 dependency to a release pinned by version and archive hash, and compare its build and output with the existing implementation.
+4. Add standalone targets for other cores incrementally. Document Native/WASM differences and integration requirements before adopting each target.
+
+`native/reference/tauri/` contains captured Native provider implementations. These sources retain backend-specific resampling, mute, audition and cancellation behavior. Their presence does not establish a stable SDK API or a completed standalone build for every chip. DX7's Native-specific changes are also retained separately. The current standalone Native CMake target is YM2612/ymfm; see the [verification record](verification.md) for the tested scope.
+
+Synchronous WASM primitives used to implement `read()` and `generateStereo()` remain part of the low-level interface. The asynchronous Native IPC path does not replace the synchronous calls needed by AudioWorklet consumers. JavaScript APIs and host transport selection remain responsibilities of the consuming projects.

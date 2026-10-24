@@ -1,12 +1,12 @@
-# 初期集約の検証記録
+# Verification record
 
-2026-10-24、macOS のローカルコンパイラーで実施。Windows / Linux / ARM の実行確認や、全音源の独立 target 完成を示す記録ではありません。
+Verification was performed on macOS on 2026-10-24 using installed development tools. The results below cover the stated configurations. They do not establish Windows/Linux/ARM execution coverage or standalone Native targets for every chip.
 
-## ソースと配布
+## Source and release audits
 
-`scripts/check_sdk.py` で、22 Playground ID、27 WASM recipe、229 個の取り込みファイルの SHA-256 と source / license 参照を確認しました。音源コアと Native 接続原本は元のデータを保持し、配置変更した include は出典原票に記録しています。
+`scripts/check_sdk.py` verified 22 Playground chip IDs, 27 WASM recipes, SHA-256 digests for 229 imported files, and their source/license references. Captured cores and Native bridges retain their source bytes; include-path adaptations are recorded in the provenance inventory.
 
-source / WASM ZIP を元リポジトリ外へ展開し、全 payload と manifest の一致、hash / size、安全な相対パス、出典カタログ、内包する source ZIP の一致を検査しています。CMake File API と compile_commands に、展開先以外の project source / include が含まれないことも確認します。
+Source and WASM archives were extracted outside the original repositories. The audits checked complete manifest coverage, hashes and byte sizes, safe relative paths, source catalogs, and the identity of the source ZIP embedded in the WASM release. CMake File API and compiler-command records confirmed that project sources and include paths stayed within the extracted SDK and its build directory.
 
 ```sh
 python3 scripts/check_sdk.py
@@ -18,22 +18,22 @@ python3 tests/check_standalone_release.py \
   --build-wasm ym2612
 ```
 
-コンパイラーと Node.js / Python / CMake はローカルの開発ツールを使用します。音源ソースや別アプリの checkout をダウンロードしません。ライセンス未記載箇所の利用条件は、この機械的検査で確定したものではありません。
+These checks use installed compilers, Node.js, Python and CMake. They do not download sound-chip sources or another application's checkout. Source and license records preserve the SDK's BSD-3-Clause original-code license and the component exceptions listed in [LICENSES.md](../LICENSES.md).
 
 ## YM2612
 
-- SDK 内および独立展開先の Native Release ビルド・CTest が成功。
-- Native fixture は独立インスタンス、6FM、DAC、timer / status / IRQ、read、観測、clock、Stop / reset、mute、audition、source 取消しを検査。render 中の C++ new / delete が0回。
-- SDK の Native fixture を既存アプリ側の実WASM比較へ渡した統合検証では、198 ケース・1,216,512 ステレオフレーム、status / IRQ / read が差分0。この大規模比較は元アプリ側の checker で実施。
-- SDK のみの source と手順で Emscripten ビルドが成功。配布対象はこの新規生成物。`build-info.json` に compiler、source / output の hash を記録。
-- 配布WASMと独立展開先で再ビルドしたWASMの両方で、Node から同期 read / status、有限で発音する stereo PCM、reset、save / load 後の PCM 完全一致を確認。
+- Native Release builds and CTest passed both in the SDK checkout and in an independently extracted source archive.
+- The Native fixture covers independent instances, six FM channels, DAC, timers/status/IRQ, reads, observation, clock changes, Stop/reset, mute, audition and source cancellation. It observed zero C++ `new`/`delete` calls during rendering.
+- Integration against the existing application's real WASM reference produced zero PCM, status, IRQ or read differences across 198 cases and 1,216,512 stereo frames. This larger comparison used the checker in the original application repository.
+- Emscripten compiled the SDK sources using the included build recipe. The WASM release contains this newly generated artifact. `build-info.json` records compiler information and source/output hashes.
+- Both the released WASM and the WASM rebuilt from the independently extracted sources passed the Node ABI smoke: synchronous reads/status, audible finite stereo PCM, reset, and exact PCM continuation after save/load.
 
-配布監査ツール自体の regression test は18件成功しました。最終 ZIP の内包ソースから監査と Node ABI smoke を再実行しています。
+All 18 regression tests for the release-audit tools passed. The final archives were checked again using the tests included in their source payload, including the Node ABI smoke. Repackaging identical inputs also produced matching archive hashes.
 
-Emscripten の最適化時に、既存 ymfm のテンプレートで array-bounds warning が2箇所出ます。初期集約では原本を変更していません。
+Emscripten optimization emits two existing array-bounds warnings in ymfm templates. This extraction retains that source snapshot unchanged.
 
-## DX7 と他の音源
+## DX7 and remaining chips
 
-DX7 は単独 WASM ビルドも成功し、生成 `msfa.wasm` の SHA-256 が既存の参照生成物と一致しました。初期 WASM ZIP へ含めるのは YM2612 だけです。
+A standalone DX7 WASM build also succeeded. Its generated `msfa.wasm` SHA-256 matched the existing reference artifact. The initial WASM release still contains YM2612 only.
 
-他の音源は source / license / build recipe の存在と取得元 hash を検査済みです。独立 Native build と全 WASM recipe の実ビルド・演奏比較は、今後種類ごとに追加します。
+For other chips, the audits verified source files, component licenses, build recipes and origin hashes. Standalone Native builds, execution of every WASM recipe, and playback comparisons will be added per chip. See [chip-specific differences](chip-differences.md) for backend behavior and integration prerequisites, including the Game Boy Native header adaptation.

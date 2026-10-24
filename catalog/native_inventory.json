@@ -21,8 +21,22 @@
       "tests": [
         "tetorica.ym2612.self_test"
       ],
-      "licenseStatus": "partially-declared",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_nuked.cpp, native/reference/tauri/native_genesis_nuked_ym2612.inc. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2612.cpp, native/reference/tauri/native_genesis_ym2612.h. The new SDK forwarding header is covered by LICENSE.tools, which does not apply to imported reference code. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE",
+        "vendor/nuked-opn2/LICENSE"
+      ],
+      "declaredFileLicenses": {
+        "native/reference/tauri/native_genesis_nuked.cpp": "LGPL-2.1-or-later",
+        "native/reference/tauri/native_genesis_nuked_ym2612.inc": "LGPL-2.1-or-later"
+      },
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_ym2612.cpp",
+        "native/reference/tauri/native_genesis_ym2612.h",
+        "native/include/tetorica/ym2612.hpp"
+      ]
     },
     {
       "id": "ym2203",
@@ -31,8 +45,17 @@
         "native/reference/tauri/native_genesis_ym2203.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2203.cpp, native/reference/tauri/native_genesis_ym2203.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_ym2203.cpp",
+        "native/reference/tauri/native_genesis_ym2203.h"
+      ]
     },
     {
       "id": "ym2610",
@@ -41,8 +64,17 @@
         "native/reference/tauri/native_genesis_ym2610b.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2610b.cpp, native/reference/tauri/native_genesis_ym2610b.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_ym2610b.cpp",
+        "native/reference/tauri/native_genesis_ym2610b.h"
+      ]
     },
     {
       "id": "ym2610b",
@@ -51,8 +83,17 @@
         "native/reference/tauri/native_genesis_ym2610b.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2610b.cpp, native/reference/tauri/native_genesis_ym2610b.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_ym2610b.cpp",
+        "native/reference/tauri/native_genesis_ym2610b.h"
+      ]
     },
     {
       "id": "rf5c164",
@@ -63,8 +104,20 @@
         "native/reference/tauri/native_genesis_extra_rf5c164.h"
       ],
       "status": "source-only",
-      "licenseStatus": "partially-declared",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_extra_rf5c164.cpp. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_rf5c164.cpp, native/reference/tauri/native_genesis_rf5c164.h, native/reference/tauri/native_genesis_extra_rf5c164.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {
+        "native/reference/tauri/native_genesis_extra_rf5c164.cpp": "BSD-3-Clause"
+      },
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_rf5c164.cpp",
+        "native/reference/tauri/native_genesis_rf5c164.h",
+        "native/reference/tauri/native_genesis_extra_rf5c164.h"
+      ]
     },
     {
       "id": "ym2608",
@@ -73,8 +126,17 @@
         "native/reference/tauri/native_genesis_ym2608.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2608.cpp, native/reference/tauri/native_genesis_ym2608.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_ym2608.cpp",
+        "native/reference/tauri/native_genesis_ym2608.h"
+      ]
     },
     {
       "id": "gameboy",
@@ -83,8 +145,20 @@
         "native/reference/tauri/native_genesis_gameboy.h"
       ],
       "status": "source-only",
-      "licenseStatus": "partially-declared",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_gameboy.cpp, native/reference/tauri/native_genesis_gameboy.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "knownRequirements": [
+        "The Tauri snapshot adds friend struct NativeGameboyAccess to GameboyApu. This Native-only header change is not applied to the SDK common vendor header yet; it is required before compiling the Native reference wrapper. See docs/chip-differences.md."
+      ],
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {
+        "native/reference/tauri/native_genesis_gameboy.cpp": "BSD-3-Clause",
+        "native/reference/tauri/native_genesis_gameboy.h": "BSD-3-Clause"
+      },
+      "defaultLicensedFiles": []
     },
     {
       "id": "segapsg",
@@ -94,8 +168,18 @@
         "native/reference/tauri/native_genesis_game_gear.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_psg.h, native/reference/tauri/native_genesis_game_gear.cpp, native/reference/tauri/native_genesis_game_gear.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_psg.h",
+        "native/reference/tauri/native_genesis_game_gear.cpp",
+        "native/reference/tauri/native_genesis_game_gear.h"
+      ]
     },
     {
       "id": "ym2151",
@@ -104,8 +188,17 @@
         "native/reference/tauri/native_genesis_ym2151.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2151.cpp, native/reference/tauri/native_genesis_ym2151.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_ym2151.cpp",
+        "native/reference/tauri/native_genesis_ym2151.h"
+      ]
     },
     {
       "id": "pwm",
@@ -114,8 +207,17 @@
         "native/reference/tauri/native_genesis_pwm.h"
       ],
       "status": "source-only",
-      "licenseStatus": "partially-declared",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_pwm.cpp, native/reference/tauri/native_genesis_pwm.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {
+        "native/reference/tauri/native_genesis_pwm.cpp": "BSD-3-Clause",
+        "native/reference/tauri/native_genesis_pwm.h": "BSD-3-Clause"
+      },
+      "defaultLicensedFiles": []
     },
     {
       "id": "nes",
@@ -124,8 +226,20 @@
         "native/reference/tauri/native_genesis_nes.h"
       ],
       "status": "source-only",
-      "licenseStatus": "partially-declared",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_nes.cpp. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_nes.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE",
+        "vendor/tetorica-nes/LICENSE-FDS",
+        "vendor/tetorica-nes/LICENSE-JSNES"
+      ],
+      "declaredFileLicenses": {
+        "native/reference/tauri/native_genesis_nes.cpp": "Apache-2.0 AND MIT"
+      },
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_nes.h"
+      ]
     },
     {
       "id": "dx7",
@@ -140,8 +254,29 @@
         "native/reference/overrides/msfa/synth_unit.h"
       ],
       "status": "source-only",
-      "licenseStatus": "partially-declared",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_dx7.cpp. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_dx7.h, native/reference/overrides/msfa/dx7note.cc, native/reference/overrides/msfa/env.cc, native/reference/overrides/msfa/ringbuffer.cc, native/reference/overrides/msfa/synth.h, native/reference/overrides/msfa/synth_unit.cc, native/reference/overrides/msfa/synth_unit.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "differencesDocument": "docs/research.md",
+      "knownRequirements": [
+        "Use the common MSFA files plus the six Native overrides, replacing same-name common files; the standalone Native DX7 SDK target is not yet implemented."
+      ],
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE",
+        "vendor/msfa/COPYING"
+      ],
+      "declaredFileLicenses": {
+        "native/reference/tauri/native_genesis_dx7.cpp": "Apache-2.0",
+        "native/reference/overrides/msfa/dx7note.cc": "Apache-2.0",
+        "native/reference/overrides/msfa/env.cc": "Apache-2.0",
+        "native/reference/overrides/msfa/ringbuffer.cc": "Apache-2.0",
+        "native/reference/overrides/msfa/synth.h": "Apache-2.0",
+        "native/reference/overrides/msfa/synth_unit.cc": "Apache-2.0",
+        "native/reference/overrides/msfa/synth_unit.h": "Apache-2.0"
+      },
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_dx7.h"
+      ]
     },
     {
       "id": "snes",
@@ -150,8 +285,18 @@
         "native/reference/tauri/native_genesis_snes.h"
       ],
       "status": "source-only",
-      "licenseStatus": "partially-declared",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_snes.cpp, native/reference/tauri/native_genesis_snes.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE",
+        "vendor/snes-spc/LICENSE"
+      ],
+      "declaredFileLicenses": {
+        "native/reference/tauri/native_genesis_snes.cpp": "LGPL-2.1-or-later",
+        "native/reference/tauri/native_genesis_snes.h": "LGPL-2.1-or-later"
+      },
+      "defaultLicensedFiles": []
     },
     {
       "id": "spc",
@@ -160,8 +305,18 @@
         "native/reference/tauri/native_genesis_spc.h"
       ],
       "status": "source-only",
-      "licenseStatus": "partially-declared",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_spc.cpp, native/reference/tauri/native_genesis_spc.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE",
+        "vendor/snes-spc/LICENSE"
+      ],
+      "declaredFileLicenses": {
+        "native/reference/tauri/native_genesis_spc.cpp": "LGPL-2.1-or-later",
+        "native/reference/tauri/native_genesis_spc.h": "LGPL-2.1-or-later"
+      },
+      "defaultLicensedFiles": []
     },
     {
       "id": "huc6280",
@@ -170,8 +325,17 @@
         "native/reference/tauri/native_genesis_huc6280.h"
       ],
       "status": "source-only",
-      "licenseStatus": "partially-declared",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. Existing file-level declarations are preserved in native/reference/tauri/native_genesis_huc6280.cpp, native/reference/tauri/native_genesis_huc6280.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {
+        "native/reference/tauri/native_genesis_huc6280.cpp": "BSD-3-Clause",
+        "native/reference/tauri/native_genesis_huc6280.h": "BSD-3-Clause"
+      },
+      "defaultLicensedFiles": []
     },
     {
       "id": "okim6258",
@@ -180,8 +344,17 @@
         "native/reference/tauri/native_genesis_extra_okim6258.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_extra_okim6258.cpp, native/reference/tauri/native_genesis_extra_okim6258.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_extra_okim6258.cpp",
+        "native/reference/tauri/native_genesis_extra_okim6258.h"
+      ]
     },
     {
       "id": "ym3526",
@@ -193,8 +366,20 @@
         "native/reference/tauri/native_genesis_y8950_memory.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h"
+      ]
     },
     {
       "id": "ym3812",
@@ -206,8 +391,20 @@
         "native/reference/tauri/native_genesis_y8950_memory.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h"
+      ]
     },
     {
       "id": "y8950",
@@ -219,8 +416,20 @@
         "native/reference/tauri/native_genesis_y8950_memory.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h"
+      ]
     },
     {
       "id": "ymf262",
@@ -232,8 +441,20 @@
         "native/reference/tauri/native_genesis_y8950_memory.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_opl.cpp, native/reference/tauri/native_genesis_opl.h, native/reference/tauri/native_genesis_extra_opl.cpp, native/reference/tauri/native_genesis_extra_opl.h, native/reference/tauri/native_genesis_y8950_memory.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_opl.cpp",
+        "native/reference/tauri/native_genesis_opl.h",
+        "native/reference/tauri/native_genesis_extra_opl.cpp",
+        "native/reference/tauri/native_genesis_extra_opl.h",
+        "native/reference/tauri/native_genesis_y8950_memory.h"
+      ]
     },
     {
       "id": "ym2413",
@@ -243,8 +464,18 @@
         "native/reference/tauri/native_genesis_opll.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ym2413.cpp, native/reference/tauri/native_genesis_ym2413.h, native/reference/tauri/native_genesis_opll.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_ym2413.cpp",
+        "native/reference/tauri/native_genesis_ym2413.h",
+        "native/reference/tauri/native_genesis_opll.h"
+      ]
     },
     {
       "id": "ay8910",
@@ -253,8 +484,23 @@
         "native/reference/tauri/native_genesis_ay8910.h"
       ],
       "status": "source-only",
-      "licenseStatus": "unresolved",
-      "licenseNote": "No repository-wide LICENSE/COPYING/NOTICE or package license was found in the source Tauri checkout. These imported Native reference files have no located file-level declaration: native/reference/tauri/native_genesis_ay8910.cpp, native/reference/tauri/native_genesis_ay8910.h. Vendor core licenses must not be inferred as the license of separately authored wrappers. Confirm the applicable source terms before public distribution; no source has been relicensed here."
+      "licenseStatus": "declared",
+      "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
+      "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+      "licenseFiles": [
+        "LICENSE"
+      ],
+      "declaredFileLicenses": {},
+      "defaultLicensedFiles": [
+        "native/reference/tauri/native_genesis_ay8910.cpp",
+        "native/reference/tauri/native_genesis_ay8910.h"
+      ]
     }
-  ]
+  ],
+  "differencesDocument": "docs/chip-differences.md",
+  "licensePolicy": {
+    "tetoricaOriginal": "BSD-3-Clause",
+    "licenseFile": "LICENSE",
+    "explicitDeclarations": "Existing file-level and third-party licenses take precedence for their corresponding files."
+  }
 }

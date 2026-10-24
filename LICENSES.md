@@ -1,19 +1,48 @@
 # Component licenses and provenance
 
-このコレクション全体を一つのライセンスへ変更していません。音源コアと既存の接続コードは、それぞれの著作権表示・ライセンスを保持しています。
+Tetorica's original code is licensed under the **BSD 3-Clause License** in
+[LICENSE](LICENSE). This covers Tetorica-authored integration glue, SDK tooling,
+build configuration, tests, and documentation, except where an existing explicit
+file-level license applies. [LICENSE.tools](LICENSE.tools) retains the same BSD
+3-Clause terms for the original integration and tooling code.
 
-- [catalog/chips.json](catalog/chips.json): チップ単位で source / license を探す入口。
-- [catalog/source_inventory.json](catalog/source_inventory.json): 上流・取得元の版・取り込み時のファイル SHA-256。WASM の参照生成物も、ソースと区別して記録。
-- [native/reference/SOURCES.json](native/reference/SOURCES.json): 既存 Tauri C++ 接続コードと Native 差分の取得元・SHA-256。
-- `vendor/<component>/`: 使用ソース、上流の README / NOTICE、ライセンス原文。
-- [native/README.md](native/README.md): Native 用に保持した差分と、移行用コードの扱い。
+Third-party cores and adaptations keep their existing copyright notices and
+licenses. These include BSD-3-Clause, Apache-2.0, MIT, and LGPL-2.1-or-later
+components. Existing explicit Apache, MIT, LGPL, or other license declarations
+remain applicable to their respective files and portions. The BSD default for
+Tetorica's original code does not replace those component terms.
 
-出典に記録した URL へのアクセスはビルドに不要です。異なるライセンスのコアを一つの包括ライセンスで扱わず、利用・再配布する構成に対応する文書とソースを保持してください。配布用 WASM ZIP に対応ソース ZIP を同梱するのも、この記録を失わないためです。
+## Find the licenses for a component
 
-## Native 接続原本の未確定箇所
+- [catalog/chips.json](catalog/chips.json) maps each public chip to its source
+  files, original license texts, WASM artifacts, and Native build status.
+- [catalog/source_inventory.json](catalog/source_inventory.json) records upstream
+  projects, source versions, import paths, and SHA-256 hashes. Reference WASM
+  artifacts are identified separately from their source files.
+- [catalog/native_inventory.json](catalog/native_inventory.json) maps Native
+  wrappers to their sources and records existing file-level declarations and the
+  BSD default for Tetorica-authored glue.
+- [native/reference/SOURCES.json](native/reference/SOURCES.json) records the
+  origin and original/packaged hashes of imported Native wrappers and overrides.
+- `vendor/<component>/` contains the component's license text and accompanying
+  README, NOTICE, authorship, or upstream records.
 
-取り込み元の Playground Tauri のルートには LICENSE / COPYING / NOTICE がなく、一部の接続コードにもファイル単位のライセンス宣言がありませんでした。明記された宣言は保持していますが、無宣言のファイルへ音源コアの BSD / LGPL 等を推定で適用していません。`catalog/native_inventory.json` の `licenseStatus` / `licenseNote` に記録しています。
+For example, [ymfm](vendor/ymfm/LICENSE) uses BSD-3-Clause,
+[MSFA](vendor/msfa/COPYING) and [JSNES](vendor/tetorica-nes/LICENSE-JSNES) use
+Apache-2.0, [FDS](vendor/tetorica-nes/LICENSE-FDS) uses MIT, and
+[Nuked-OPN2](vendor/nuked-opn2/LICENSE) and [SNES-SPC](vendor/snes-spc/LICENSE)
+retain their LGPL terms. Use the catalog's complete file list when selecting a
+chip and its adapters.
 
-この初期版はローカルでのソース整理・検証用です。Native 接続原本の利用・公開条件は、未記載ファイルの由来と権利者の意図を確認して確定させる必要があります。新しいツールの LICENSE.tools が、これらの原本へ自動適用されるものではありません。
+## Source and binary releases
 
-このリポジトリで新規作成した集約用スクリプト・試験・CMake 設定・文書のみ [LICENSE.tools](LICENSE.tools) を適用します。収録元にあったコード、音源コア、その生成物へ適用範囲を広げるものではありません。
+Source releases include the collected sources, license texts, provenance
+records, and build recipes. WASM releases identify their corresponding sources
+and build outputs through the release manifests. Preserve the notices and
+applicable terms for the components included in your chosen configuration.
+
+[docs/chip-differences.md](docs/chip-differences.md) describes existing
+adaptations and differences between upstream, Tetorica WASM, and Native
+wrappers. [native/README.md](native/README.md) describes the Native build boundary.
+The recorded upstream URLs provide provenance; accessing them is unnecessary
+to build from a complete source release.
