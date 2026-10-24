@@ -8,10 +8,10 @@
 #include <cstring>
 #include <vector>
 
+// The Native OPN provider explicitly supplies these template definitions.
 extern template class ymfm::fm_engine_base<ymfm::opna_registers>;
 extern template class ymfm::fm_channel<ymfm::opna_registers>;
 extern template class ymfm::fm_operator<ymfm::opna_registers>;
-template void ymfm::fm_operator<ymfm::opna_registers>::keyonoff(uint32_t, ymfm::keyon_type);
 
 namespace {
 constexpr uint32_t ROM_SIZE = 0x1000000, PAGE_SIZE = 0x10000, PAGE_COUNT = ROM_SIZE / PAGE_SIZE;

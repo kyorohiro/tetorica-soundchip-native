@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "notes": [
     "Reference C++/C ABI sources are collected for 22 public chips. source-only does not claim an independent SDK Native build.",
-    "Standalone CMake targets build YM2612/ymfm, YM2203/ymfm, YM2608/ymfm, YM2151/ymfm, YM2413/ymfm, Sega PSG and AY-3-8910. YM2612 Nuked sources remain reference-only.",
+    "Standalone CMake targets build YM2612/ymfm, YM2203/ymfm, YM2608/ymfm, YM2610/YM2610B through one ymfm library, YM2151/ymfm, YM2413/ymfm, Sega PSG and AY-3-8910. YM2612 Nuked sources remain reference-only.",
     "Vendor component origins and license files are recorded by the shared source inventory, rather than copied again here."
   ],
   "chips": [
@@ -82,38 +82,66 @@
       "id": "ym2610",
       "sourceFiles": [
         "native/reference/tauri/native_genesis_ym2610b.cpp",
-        "native/reference/tauri/native_genesis_ym2610b.h"
+        "native/reference/tauri/native_genesis_ym2610b.h",
+        "native/include/tetorica/ym2610.hpp",
+        "native/src/ymfm_opn_provider.cpp"
       ],
-      "status": "source-only",
+      "status": "verified",
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "declaredFileLicenses": {},
       "defaultLicensedFiles": [
         "native/reference/tauri/native_genesis_ym2610b.cpp",
-        "native/reference/tauri/native_genesis_ym2610b.h"
+        "native/reference/tauri/native_genesis_ym2610b.h",
+        "native/include/tetorica/ym2610.hpp",
+        "native/src/ymfm_opn_provider.cpp"
+      ],
+      "target": "tetorica_native_ym2610",
+      "verificationScope": "Common ymfm YM2610/YM2610B renderer with immutable four-FM/six-FM selection, primary and additional profiles, SSG, ADPCM-A/B and separate ROM banks. Primary owns dense 16 MiB banks; additional instances borrow externally owned immutable 64 KiB pages. Offline PCM, memory lifetime/bounds, cancellation, Stop/reset and observation checks; no host queue, audio device or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.ym2610.self_test"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {
       "id": "ym2610b",
       "sourceFiles": [
         "native/reference/tauri/native_genesis_ym2610b.cpp",
-        "native/reference/tauri/native_genesis_ym2610b.h"
+        "native/reference/tauri/native_genesis_ym2610b.h",
+        "native/include/tetorica/ym2610b.hpp",
+        "native/src/ymfm_opn_provider.cpp"
       ],
-      "status": "source-only",
+      "status": "verified",
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "declaredFileLicenses": {},
       "defaultLicensedFiles": [
         "native/reference/tauri/native_genesis_ym2610b.cpp",
-        "native/reference/tauri/native_genesis_ym2610b.h"
+        "native/reference/tauri/native_genesis_ym2610b.h",
+        "native/include/tetorica/ym2610b.hpp",
+        "native/src/ymfm_opn_provider.cpp"
+      ],
+      "target": "tetorica_native_ym2610",
+      "verificationScope": "Common ymfm YM2610/YM2610B renderer with immutable four-FM/six-FM selection, primary and additional profiles, SSG, ADPCM-A/B and separate ROM banks. Primary owns dense 16 MiB banks; additional instances borrow externally owned immutable 64 KiB pages. Offline PCM, memory lifetime/bounds, cancellation, Stop/reset and observation checks; no host queue, audio device or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.ym2610.self_test"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {

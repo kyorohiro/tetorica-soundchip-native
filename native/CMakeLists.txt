@@ -145,6 +145,27 @@ if(MSVC)
   target_compile_options(tetorica_native_ym2608 PRIVATE /EHsc)
 endif()
 
+add_library(tetorica_native_ym2610 STATIC
+  reference/tauri/native_genesis_ym2610b.cpp
+  src/ymfm_opn_provider.cpp
+  "${TETORICA_SDK_ROOT}/vendor/ymfm/ymfm_ssg.cpp"
+  "${TETORICA_SDK_ROOT}/vendor/ymfm/ymfm_adpcm.cpp"
+)
+add_library(tetorica::ym2610 ALIAS tetorica_native_ym2610)
+add_library(tetorica::ym2610b ALIAS tetorica_native_ym2610)
+target_compile_features(tetorica_native_ym2610 PUBLIC cxx_std_14)
+target_include_directories(tetorica_native_ym2610
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/ymfm"
+    "${TETORICA_SDK_ROOT}/wasm"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_ym2610 PRIVATE /EHsc)
+endif()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
   add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
   target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
@@ -165,6 +186,11 @@ if(TETORICA_NATIVE_BUILD_EXAMPLES)
   target_link_libraries(tetorica_pc98_ym2203_wav PRIVATE tetorica::ym2203)
   if(MSVC)
     target_compile_options(tetorica_pc98_ym2203_wav PRIVATE /EHsc)
+  endif()
+  add_executable(tetorica_neogeo_wav examples/neogeo_wav.cpp)
+  target_link_libraries(tetorica_neogeo_wav PRIVATE tetorica::ym2610)
+  if(MSVC)
+    target_compile_options(tetorica_neogeo_wav PRIVATE /EHsc)
   endif()
   add_executable(tetorica_pc98_ym2608_wav examples/pc98_ym2608_wav.cpp)
   target_link_libraries(tetorica_pc98_ym2608_wav PRIVATE tetorica::ym2608)
@@ -245,4 +271,13 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.ym2608.self_test
     COMMAND tetorica_ym2608_fixture --self-test)
+  add_executable(tetorica_ym2610_fixture tests/ym2610_fixture.cpp)
+  target_link_libraries(tetorica_ym2610_fixture PRIVATE tetorica::ym2610)
+  if(MSVC)
+    target_compile_options(tetorica_ym2610_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_ym2610_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.ym2610.self_test
+    COMMAND tetorica_ym2610_fixture --self-test)
 endif()

@@ -1286,27 +1286,43 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {},
         "defaultLicensedFiles": [
           "native/reference/tauri/native_genesis_ym2610b.cpp",
-          "native/reference/tauri/native_genesis_ym2610b.h"
+          "native/reference/tauri/native_genesis_ym2610b.h",
+          "native/include/tetorica/ym2610.hpp",
+          "native/src/ymfm_opn_provider.cpp"
         ],
         "id": "ym2610",
         "licenseFiles": [
-          "LICENSE"
+          "LICENSE",
+          "vendor/ymfm/LICENSE"
         ],
         "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_ym2610b.cpp",
-          "native/reference/tauri/native_genesis_ym2610b.h"
+          "native/reference/tauri/native_genesis_ym2610b.h",
+          "native/include/tetorica/ym2610.hpp",
+          "native/src/ymfm_opn_provider.cpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_ym2610",
+        "tests": [
+          "tetorica.ym2610.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Common ymfm YM2610/YM2610B renderer with immutable four-FM/six-FM selection, primary and additional profiles, SSG, ADPCM-A/B and separate ROM banks. Primary owns dense 16 MiB banks; additional instances borrow externally owned immutable 64 KiB pages. Offline PCM, memory lifetime/bounds, cancellation, Stop/reset and observation checks; no host queue, audio device or playback-deadline guarantee."
       },
       "sourceFiles": [
+        "native/include/tetorica/ym2610.hpp",
         "native/reference/tauri/native_genesis_ym2610b.cpp",
         "native/reference/tauri/native_genesis_ym2610b.h",
+        "native/src/ymfm_opn_provider.cpp",
         "vendor/ymfm/chip_state.h",
         "vendor/ymfm/segapsg.cpp",
         "vendor/ymfm/segapsg.h",
@@ -1354,27 +1370,43 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {},
         "defaultLicensedFiles": [
           "native/reference/tauri/native_genesis_ym2610b.cpp",
-          "native/reference/tauri/native_genesis_ym2610b.h"
+          "native/reference/tauri/native_genesis_ym2610b.h",
+          "native/include/tetorica/ym2610b.hpp",
+          "native/src/ymfm_opn_provider.cpp"
         ],
         "id": "ym2610b",
         "licenseFiles": [
-          "LICENSE"
+          "LICENSE",
+          "vendor/ymfm/LICENSE"
         ],
         "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_ym2610b.cpp",
-          "native/reference/tauri/native_genesis_ym2610b.h"
+          "native/reference/tauri/native_genesis_ym2610b.h",
+          "native/include/tetorica/ym2610b.hpp",
+          "native/src/ymfm_opn_provider.cpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_ym2610",
+        "tests": [
+          "tetorica.ym2610.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Common ymfm YM2610/YM2610B renderer with immutable four-FM/six-FM selection, primary and additional profiles, SSG, ADPCM-A/B and separate ROM banks. Primary owns dense 16 MiB banks; additional instances borrow externally owned immutable 64 KiB pages. Offline PCM, memory lifetime/bounds, cancellation, Stop/reset and observation checks; no host queue, audio device or playback-deadline guarantee."
       },
       "sourceFiles": [
+        "native/include/tetorica/ym2610b.hpp",
         "native/reference/tauri/native_genesis_ym2610b.cpp",
         "native/reference/tauri/native_genesis_ym2610b.h",
+        "native/src/ymfm_opn_provider.cpp",
         "vendor/ymfm/chip_state.h",
         "vendor/ymfm/segapsg.cpp",
         "vendor/ymfm/segapsg.h",
