@@ -1202,27 +1202,43 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {},
         "defaultLicensedFiles": [
           "native/reference/tauri/native_genesis_ym2608.cpp",
-          "native/reference/tauri/native_genesis_ym2608.h"
+          "native/reference/tauri/native_genesis_ym2608.h",
+          "native/include/tetorica/ym2608.hpp",
+          "native/src/ymfm_opn_provider.cpp"
         ],
         "id": "ym2608",
         "licenseFiles": [
-          "LICENSE"
+          "LICENSE",
+          "vendor/ymfm/LICENSE"
         ],
         "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_ym2608.cpp",
-          "native/reference/tauri/native_genesis_ym2608.h"
+          "native/reference/tauri/native_genesis_ym2608.h",
+          "native/include/tetorica/ym2608.hpp",
+          "native/src/ymfm_opn_provider.cpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_ym2608",
+        "tests": [
+          "tetorica.ym2608.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Independent ymfm YM2608 renderer, primary and additional constructor profiles. Six FM, three SSG and six rhythm voices, ADPCM-B, bounded ROM/RAM transfers, timers/CSM, Stop/reset and observational state; no hardware ROM, host audio device or playback-deadline guarantee is provided by this target."
       },
       "sourceFiles": [
+        "native/include/tetorica/ym2608.hpp",
         "native/reference/tauri/native_genesis_ym2608.cpp",
         "native/reference/tauri/native_genesis_ym2608.h",
+        "native/src/ymfm_opn_provider.cpp",
         "vendor/ymfm/chip_state.h",
         "vendor/ymfm/segapsg.cpp",
         "vendor/ymfm/segapsg.h",

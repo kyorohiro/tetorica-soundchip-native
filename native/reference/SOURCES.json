@@ -335,8 +335,10 @@
       "file": "native/reference/tauri/native_genesis_ym2608.cpp",
       "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2608.cpp",
       "originSha256": "bcd8c2576449ba245812dc7ff3b22fac90c29087673f7d622214f9c329c65e6a",
-      "sha256": "bcd8c2576449ba245812dc7ff3b22fac90c29087673f7d622214f9c329c65e6a",
-      "adaptation": "unchanged reference copy"
+      "sha256": "f2eebcf96d9f303e0d6347f643c3c3450974a46770cd837b21e9f9c268d24249",
+      "adaptation": "Remove the redundant local OPNA keyonoff template instantiation and update its ownership comment; the existing Native OPN provider supplies the explicit definitions. Vendor DSP and the exported C ABI are retained.",
+      "amendmentOriginCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "amendmentOriginSha256": "f2eebcf96d9f303e0d6347f643c3c3450974a46770cd837b21e9f9c268d24249"
     },
     {
       "file": "native/reference/tauri/native_genesis_ym2608.h",
@@ -487,6 +489,14 @@
       "originSha256": "efac503f1b76bd3e198868d72bb69fe25a375676557b9d9cf32381dfd71a3417",
       "sha256": "dd29f6e044eb4bdef86a36278741acc5d1d7f53b36d20058086c148f699a3570",
       "adaptation": "Include the SDK public header; run both primary and additional constructor profiles from the default self-test, including their distinct output-rate reset boundaries. Extend isolated SSG channel/noise/all-sixteen-envelope coverage and upper clock-bound tests while retaining the original FM, CSM, prescaler, cancellation and independent-instance tests. The optional --extra PCM CLI and eight-plane observation layout are retained."
+    },
+    {
+      "file": "native/tests/ym2608_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_ym2608_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "87d04749340fbfa3cce7bb96d6c343b1bc436bda1ef429b7c58442df22155421",
+      "sha256": "c22d389ba84b5fd6dd3a735a56391cca2a4fb7abae0ab0bc986921eb5b9d18bc",
+      "adaptation": "Include the SDK public header; run both primary and additional constructor profiles from the default self-test. Extend six-FM-channel stereo, observational and instance-isolation checks; distinguish exact reset-profile held frames; test memory copy ownership, zero-size/null/overflow ranges and rejected-write rollback; verify ROM/RAM retention across Stop/reset, synthetic rhythm/ADPCM-B output and observational EOS/IRQ versus raw extended-status reads. Retain the optional --extra PCM CLI and nine-plane observation layout."
     }
   ]
 }
