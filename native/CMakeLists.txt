@@ -398,7 +398,44 @@ foreach(flag IN ITEMS -fwrapv -fno-strict-aliasing -ffp-contract=off)
   endif()
 endforeach()
 
+# The complete SPC700 player shares the accurate DSP implementation with the
+# S-DSP instrument, but has independent state and no output device or IPL image.
+# Keep SPC_DSP.cpp as a separate archive member in each independently usable
+# target. Ordinary static linking extracts that identical member only once when
+# both targets are used; no consumer must link an extra internal DSP archive.
+add_library(tetorica_native_spc STATIC
+  reference/tauri/native_genesis_spc.cpp
+  "${TETORICA_SDK_ROOT}/vendor/snes-spc/snes_spc/SNES_SPC.cpp"
+  "${TETORICA_SDK_ROOT}/vendor/snes-spc/snes_spc/SNES_SPC_misc.cpp"
+  "${TETORICA_SDK_ROOT}/vendor/snes-spc/snes_spc/SNES_SPC_state.cpp"
+  "${TETORICA_SDK_ROOT}/vendor/snes-spc/snes_spc/SPC_DSP.cpp"
+)
+add_library(tetorica::spc ALIAS tetorica_native_spc)
+target_compile_features(tetorica_native_spc PUBLIC cxx_std_17)
+target_include_directories(tetorica_native_spc
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/snes-spc/snes_spc"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_spc PRIVATE /EHsc)
+endif()
+foreach(flag IN ITEMS -fwrapv -fno-strict-aliasing -ffp-contract=off)
+  string(MAKE_C_IDENTIFIER "TETORICA_SPC_SUPPORTS_${flag}" supported_flag)
+  check_cxx_compiler_flag("${flag}" "${supported_flag}")
+  if(${supported_flag})
+    target_compile_options(tetorica_native_spc PRIVATE "${flag}")
+  endif()
+endforeach()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
+  add_executable(tetorica_spc_wav examples/spc_wav.cpp)
+  target_link_libraries(tetorica_spc_wav PRIVATE tetorica::spc)
+  if(MSVC)
+    target_compile_options(tetorica_spc_wav PRIVATE /EHsc)
+  endif()
   add_executable(tetorica_snes_wav examples/snes_wav.cpp)
   target_link_libraries(tetorica_snes_wav PRIVATE tetorica::snes)
   if(MSVC)
@@ -484,6 +521,16 @@ endif()
 if(TETORICA_NATIVE_BUILD_TESTS)
   # A Release configuration must execute the fixture's assertions as well.
   enable_testing()
+  add_executable(tetorica_spc_fixture tests/spc_fixture.cpp)
+  target_link_libraries(tetorica_spc_fixture PRIVATE tetorica::spc)
+  if(MSVC)
+    target_compile_options(tetorica_spc_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_spc_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.spc.self_test
+    COMMAND tetorica_spc_fixture --self-test)
+
   add_executable(tetorica_snes_fixture tests/snes_fixture.cpp)
   target_link_libraries(tetorica_snes_fixture PRIVATE tetorica::snes)
   if(MSVC)

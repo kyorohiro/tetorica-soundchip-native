@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "notes": [
-    "Reference C++/C ABI sources are collected for 22 public chips. source-only does not claim an independent SDK Native build.",
-    "Standalone CMake targets build seventeen static libraries covering twenty-one chip IDs: YM2612, YM2203, YM2608, YM2610/YM2610B, YM2151, YM2413, Sega PSG, AY-3-8910, OKIM6258, RF5C164, the shared YM3526/YM3812/YMF262/Y8950 OPL family, Game Boy, HuC6280, NES with optional FDS, 32X PWM, DX7 and SNES S-DSP. SPC700 and YM2612 Nuked sources remain reference-only.",
+    "Reference C++/C ABI sources and standalone targets are included for all 22 public chip IDs; each verificationScope records supported APIs and tested configurations.",
+    "Standalone CMake targets build eighteen static libraries covering all twenty-two chip IDs: YM2612, YM2203, YM2608, YM2610/YM2610B, YM2151, YM2413, Sega PSG, AY-3-8910, OKIM6258, RF5C164, the shared YM3526/YM3812/YMF262/Y8950 OPL family, Game Boy, HuC6280, NES with optional FDS, 32X PWM, DX7, SNES S-DSP and the SPC700/SPC-file player. The alternative YM2612 Nuked sources remain reference-only.",
     "Vendor component origins and license files are recorded by the shared source inventory, rather than copied again here."
   ],
   "chips": [
@@ -462,9 +462,10 @@
       "id": "spc",
       "sourceFiles": [
         "native/reference/tauri/native_genesis_spc.cpp",
-        "native/reference/tauri/native_genesis_spc.h"
+        "native/reference/tauri/native_genesis_spc.h",
+        "native/include/tetorica/spc.hpp"
       ],
-      "status": "source-only",
+      "status": "verified",
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
@@ -476,7 +477,18 @@
         "native/reference/tauri/native_genesis_spc.cpp": "LGPL-2.1-or-later",
         "native/reference/tauri/native_genesis_spc.h": "LGPL-2.1-or-later"
       },
-      "defaultLicensedFiles": []
+      "defaultLicensedFiles": [
+        "native/include/tetorica/spc.hpp"
+      ],
+      "target": "tetorica_native_spc",
+      "verificationScope": "Independent SPC700 and accurate S-DSP player with native_spc_* ABI, copied SPC files, control-only load and incremental seek blocks up to 16000 native frames, pause/resume, future-source mute, snapshots and fixed-capacity borrowed raw DSP events with overflow accounting. Fixed 32 kHz synthesis, 128-native-frame lookahead and integer-phase output interpolation. Load failures latch an error until successful reload; hosts retain original file bytes and prepare cores for Stop or absolute seeks outside rendering. Native lifecycle/allocation tests and deployed Worklet/WASM PCM, selected-state, RAM-hash, DSP-register and ordered-event comparisons; no complete IPL ROM, metadata end/fade, host lifetime queue, device, portable checkpoint or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.spc.self_test"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
+      ]
     },
     {
       "id": "huc6280",

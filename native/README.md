@@ -30,10 +30,10 @@ translation-unit constraints.
 Requirements: CMake 3.20 or newer and a C++17 compiler.
 
 The independently buildable Native components are **ymfm YM2612, YM2151,
-YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280, NES with optional FDS, 32X PWM, MSFA DX7, SNES S-DSP and YM3526/YM3812/YMF262/Y8950**.
-These twenty-one chip IDs use seventeen static libraries; YM2610/YM2610B share one
+YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280, NES with optional FDS, 32X PWM, MSFA DX7, SNES S-DSP, SPC700/S-DSP playback and YM3526/YM3812/YMF262/Y8950**.
+These twenty-two chip IDs use eighteen static libraries; YM2610/YM2610B share one
 library, and four OPL-family chips share another. Constructors explicitly select
-the per-handle variant/kind. Twenty-two aliases/headers include the generic OPL entry:
+the per-handle variant/kind. Twenty-three aliases/headers include the generic OPL entry:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -63,6 +63,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::pwm` | `tetorica_native_pwm` | `<tetorica/pwm.hpp>` | `native_pwm_*`, `NativePwmState` |
 | `tetorica::dx7` | `tetorica_native_dx7` | `<tetorica/dx7.hpp>` | `native_dx7_*`; no public state snapshot |
 | `tetorica::snes` | `tetorica_native_snes` | `<tetorica/snes.hpp>` | `native_snes_*`, `NativeSnesState` |
+| `tetorica::spc` | `tetorica_native_spc` | `<tetorica/spc.hpp>` | `native_spc_*`, `NativeSpcState`, `NativeSpcEvent` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -100,7 +101,7 @@ clock/divider guards, pan, repeat, retained Stop/reset and observation.
 The RF5C164 fixture covers both profiles, eight voices, sign-magnitude PCM,
 loop markers, RAM/bank access, clock conversion, reset retention and the
 additional profile's immediate source cancellation and observation.
-Twenty fixture executables supply twenty-one CTest tests, with assertions enabled
+Twenty-one fixture executables supply twenty-two CTest tests, with assertions enabled
 in Release builds. The SNES executable supplies two entries.
 The three OPL-family fixtures exercise primary controls/PCM, additional source
 ownership/held output, and Y8950 writable-page memory separately. The shared OPL
@@ -138,9 +139,15 @@ extended RAM/timeline/protected-gate checks. It covers eight BRR voices with
 direct GAIN, same-frame KON merging, KOFF, copied RAM and a stable owned
 view, non-advancing observation, instance isolation and borrowed timeline
 playback/restart/pause. Tested rendering/control paths reject C++ allocation/free.
+The SPC fixture checks complete copied file loading, rate/header/size guards,
+latched-error recovery, bounded incremental seek, cached mute, pause/resume,
+independent instances, non-advancing analysis and bounded observer/overflow
+semantics. Tested callback paths reject allocation/free; original SPC bytes
+and replacement-handle handoff remain host responsibilities.
 See the [verification record](../docs/verification.md)
-for completed checks and platform results. Other collected wrappers still need
-their own standalone targets and verification.
+for completed checks and platform results. These targets cover all 22 cataloged Playground chip IDs. The optional Nuked
+YM2612 engine and separate Analyzer-only chip references remain outside this
+standalone target set.
 
 `src/ymfm_opn_provider.cpp` includes the unchanged shared ymfm provider and explicitly instantiates the Native OPN engine/channel/operator templates. The adapter declares those templates `extern`; optimized providers must emit their callable definitions even when the provider's own calls are inlined. This incorporates the Tauri link fix without changing DSP behavior or the exported ABI. The provider's origin and include relocation are recorded in the source inventories.
 
@@ -1224,6 +1231,154 @@ left and an ADSR triangle right, then plays all eight voices with alternating
 stereo balance and ADSR/direct GAIN. All voices receive KOFF and retain their
 hardware release tails. It uses no timeline buffers, ROM or external assets.
 
+## Embed SPC700 file playback
+
+Link `tetorica::spc` and include `<tetorica/spc.hpp>` for the existing
+`native_spc_*` ABI. Unlike `tetorica::snes`, this target executes an SPC700
+program together with the accurate stereo S-DSP. It adds file playback, pause,
+source mute, analysis snapshots and a bounded DSP-write observer. It does not
+add an audio device, metadata-based duration/fade, tempo conversion or the
+Nintendo IPL ROM. Programs that depend on the full IPL are outside the supplied
+snapshot's coverage. The core, wrapper and included ABI header retain
+LGPL-2.1-or-later notices; the new public forwarder and SDK integration use the
+repository's BSD default.
+
+```cmake
+add_subdirectory(vendor/tetorica-soundchip-native)
+target_link_libraries(your_application PRIVATE tetorica::spc)
+```
+
+Prepare a handle before installing it in the render callback. For example,
+this helper accepts complete SPC bytes and a position expressed in **32 kHz
+native frames**, prepares a fresh paused player, and returns ownership to the
+caller:
+
+```cpp
+#include <tetorica/spc.hpp>
+#include <algorithm>
+#include <cstdint>
+#include <memory>
+#include <stdexcept>
+#include <vector>
+
+using Spc = std::unique_ptr<void, void (*)(void *)>;
+
+Spc prepare_spc(const std::vector<uint8_t>& original, uint32_t skip_frames) {
+    if (original.size() > 16u * 1024u * 1024u)
+        throw std::runtime_error("SPC file exceeds the Native size limit");
+    Spc player(native_spc_create(48000), native_spc_destroy);
+    if (!player) throw std::runtime_error("Could not create SPC player");
+    if (!native_spc_load_control(player.get(), original.data(),
+                                 uint32_t(original.size())))
+        throw std::runtime_error(native_spc_error(player.get()));
+    while (skip_frames) {
+        const uint32_t block = std::min(skip_frames, 16000u);
+        if (!native_spc_seek_control(player.get(), block))
+            throw std::runtime_error(native_spc_error(player.get()));
+        skip_frames -= block;
+    }
+    return player;
+}
+```
+
+After a host-controlled handoff, `native_spc_set_playing(player, 1)` starts
+playback and `native_spc_sample(player, &left, &right)` renders one stereo
+output frame. The output rate is fixed at creation and must be 8–384 kHz.
+The internal source remains 32 kHz, rendered in **128-frame blocks**, followed
+by two-sample integer-phase interpolation. There is no master-clock setter.
+
+### Control operations, pause and host Stop
+
+Create, destroy, load and seek on the **control side**, never on a handle
+already installed in an audio callback, including while that handle is paused.
+These operations initialize or run the CPU and are not callback preparation
+shortcuts. Prepare a separate handle, synchronize its publication, retire the
+old one after the callback stops accessing it, and destroy it on control.
+The SDK supplies no handoff queue, locking or reclamation manager. Serialize
+all rendering, controls and observations for each handle.
+
+`native_spc_load_control` accepts a recognized SPC header, a size of at least
+`0x10180` bytes and no more than 16 MiB. Successful loading copies the file's
+RAM, DSP and CPU state into the player; the input pointer is not borrowed.
+It leaves playback paused, clears failure, resets playback counters and
+interpolation, disables/clears observation and retains the source mute mask.
+The wrapper does **not** retain the original file. Keep an immutable host copy
+if you need Stop-to-start or absolute seeking later. Load failure latches an
+error and is not a transactional replacement: previous `loaded`/`playing`
+flags can remain set, but failed sampling returns zero until a successful
+reload. Check return values and `native_spc_error`, not just those flags.
+
+`native_spc_seek_control(player, frames)` advances a loaded, paused,
+non-observing handle by **0–16,000 native frames per call**. It discards rendered
+audio, resets output interpolation and updates the base position. Repeated
+bounded calls after a fresh load prepare a longer position. This operation is
+relative advancement, not an absolute file-position setter. A previously
+played handle can have CPU/DSP state ahead of audible output because of
+128-frame render-ahead and interpolation; prepare absolute seeks from the
+original file in a fresh player. Invalid load/seek operations latch failure;
+a successful reload is required to clear it.
+
+There is no separate Native Stop or reset function. `set_playing(player, 0)`
+**pauses**: subsequent samples return zero without advancing CPU, DSP or output
+counters, preserving cached PCM and interpolation for resumption. It does not
+rewind. Implement Stop-to-start by preparing a replacement from the retained
+original file. Pausing a callback-installed handle does not make control-only
+load or seek safe on that handle.
+
+`native_spc_set_mute_mask(player, mask)` accepts bits 0–7 for the eight voices,
+where a set bit mutes output without stopping CPU/DSP progression. It changes
+future DSP output, retaining already rendered 128-frame PCM and interpolation
+samples; echo history can also remain audible. Do not assume an immediate
+all-channel silence boundary. Pause provides silent output while frozen.
+Playback and mute setters and tested rendering paths require no allocation,
+destruction or internal locks; the caller still serializes access.
+
+### Analysis and DSP-write observation
+
+`native_spc_get_state` copies the 56-byte observational `NativeSpcState`.
+`native_frames` counts source frames already rendered, which can be ahead of
+playback. `base_native_frames` records prepared seek advancement;
+`output_frames` counts output since the last load/seek. The derived
+`playback_native_frames` is `base + output_frames * 32000 / sample_rate`, not a
+CPU execution position. Error text is borrowed from the handle's current
+error state; copy it if the host needs to retain it across later operations.
+
+`native_spc_snapshot` writes into a caller-owned buffer of at least
+**`0x10200` bytes**; zero-initialize the workspace before use because file-header
+fields are not supplied. Public RAM is `[0x100, 0x10100)` and the 128 DSP bytes are
+`[0x10100, 0x10180)`. This analysis workspace is **not a resumable save state or
+a complete exportable SPC file**: the operation does not supply a valid file
+header or preserve every internal DSP/CPU/timer/interpolation field. A snapshot
+does not retain an input-buffer lifetime after returning. For DSP-only reads,
+provide 128 writable bytes to `native_spc_read_dsp_registers`. These observations
+do not advance audio; exclude concurrent mutation while reading.
+
+`native_spc_observe(player, enabled, capacity)` configures a preallocated
+DSP-write observer, with capacity **16–8192 events**. It clears the buffered
+event count and overflow counter on each configuration. Each 16-byte
+`NativeSpcEvent` contains an emulated clock, register and byte value. Clocks use
+**1,024,000 Hz** (32 clocks per 32 kHz frame); CPU block render-ahead also affects
+when events become visible to the host. It is not the full WASM trace/RAM
+read-discovery interface or a host wall-clock event stream.
+
+`native_spc_event_data` returns **borrowed handle-owned storage**; read or copy
+only `native_spc_event_count` entries while excluding core mutation. Consume
+before further rendering, reconfiguration, clearing or destruction.
+`native_spc_events_clear` clears the count without clearing overflow.
+`native_spc_overflow_take` retrieves and clears the saturating lost-event
+counter without draining events. The host supplies bounded capture storage
+and a draining policy; an observer overflow loses writes rather than allocating
+more memory. Disable observation before control-side seeking.
+
+`examples/spc_wav.cpp` is a complete original-data player host. It builds a
+full SPC file in memory, including an original SPC700 program and three
+64-sample sine/triangle/pulse BRR loops. The **emulated CPU** configures the DSP,
+polls timer 0 at 100 Hz, alternates a stereo melody, plays a three-voice
+C-major chord and releases all notes through `$F2/$F3` writes. The host only
+loads, starts and samples it; a bounded observer verifies CPU-driven note
+writes. Pitch uses the fixed 32 kHz DSP rate and echo writes are disabled.
+No Nintendo IPL bytes, game music, ROM, external file or audio device is used.
+
 ## Offline WAV examples
 
 `examples/sega32x_wav.cpp` links `tetorica::pwm`, `tetorica::ym2612` and
@@ -1300,11 +1455,16 @@ directory and data into owned RAM. A left sine and right ADSR triangle are
 followed by an eight-voice stereo chord using ADSR/direct GAIN, with explicit
 KOFF releases. Pitch uses 32 kHz source frames rather than the 48 kHz output;
 echo writes are disabled. Fixed gain/fades preserve headroom.
+`examples/spc_wav.cpp` links only `tetorica::spc` in `tetorica_spc_wav`.
+Its original SPC700 timer-driven program plays a stereo melody and chord
+through the DSP using three original BRR loops; the host does not schedule
+raw DSP notes. A bounded observer confirms CPU writes, with fixed gain/fades
+and no IPL, game data, external file or audio device.
 From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_32x_wav tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav tetorica_nes_fds_wav tetorica_dx7_wav tetorica_snes_wav
+cmake --build build/native --config Release --target tetorica_32x_wav tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav tetorica_nes_fds_wav tetorica_dx7_wav tetorica_snes_wav tetorica_spc_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_32x_wav "32x demo.wav"
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
@@ -1322,6 +1482,7 @@ cmake --build build/native --config Release --target tetorica_32x_wav tetorica_g
 ./build/native/native/tetorica_nes_fds_wav "nes fds demo.wav"
 ./build/native/native/tetorica_dx7_wav "dx7 demo.wav"
 ./build/native/native/tetorica_snes_wav "snes demo.wav"
+./build/native/native/tetorica_spc_wav "spc demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_32x_wav.exe "32x demo.wav"
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
@@ -1339,6 +1500,7 @@ cmake --build build/native --config Release --target tetorica_32x_wav tetorica_g
 ./build/native/native/Release/tetorica_nes_fds_wav.exe "nes fds demo.wav"
 ./build/native/native/Release/tetorica_dx7_wav.exe "dx7 demo.wav"
 ./build/native/native/Release/tetorica_snes_wav.exe "snes demo.wav"
+./build/native/native/Release/tetorica_spc_wav.exe "spc demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
@@ -1375,7 +1537,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | DX7 | `native_genesis_dx7.cpp`, generated Native MSFA tree | Standalone six-operator/16-slot target and fixture; original-voice WAV host |
 | 32X PWM | `native_genesis_pwm.cpp`, shared `pwm32x_core.h` | Standalone PWM target, primary/additional-tag fixtures and 32X WAV host |
 | SNES S-DSP | `native_genesis_snes.cpp`, accurate `SPC_DSP.cpp` | Standalone eight-voice target, instrument/timeline CTest entries and original-BRR WAV host; no SPC700 CPU |
-| SPC700 file player | `native_genesis_spc.cpp` | Not yet connected |
+| SPC700 file player | `native_genesis_spc.cpp`, accurate `SPC_DSP.cpp`, `SNES_SPC.cpp`, `SNES_SPC_misc.cpp`, `SNES_SPC_state.cpp` | Standalone player target and fixture; original CPU-program/BRR WAV host |
 
 The grouped rows cover 22 public components. Component origins and notices are
 kept with the shared vendor inventory; these adapters do not replace the

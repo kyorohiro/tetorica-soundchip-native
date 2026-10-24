@@ -916,11 +916,17 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {
           "native/reference/tauri/native_genesis_spc.cpp": "LGPL-2.1-or-later",
           "native/reference/tauri/native_genesis_spc.h": "LGPL-2.1-or-later"
         },
-        "defaultLicensedFiles": [],
+        "defaultLicensedFiles": [
+          "native/include/tetorica/spc.hpp"
+        ],
         "id": "spc",
         "licenseFiles": [
           "LICENSE",
@@ -930,12 +936,19 @@
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_spc.cpp",
-          "native/reference/tauri/native_genesis_spc.h"
+          "native/reference/tauri/native_genesis_spc.h",
+          "native/include/tetorica/spc.hpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_spc",
+        "tests": [
+          "tetorica.spc.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Independent SPC700 and accurate S-DSP player with native_spc_* ABI, copied SPC files, control-only load and incremental seek blocks up to 16000 native frames, pause/resume, future-source mute, snapshots and fixed-capacity borrowed raw DSP events with overflow accounting. Fixed 32 kHz synthesis, 128-native-frame lookahead and integer-phase output interpolation. Load failures latch an error until successful reload; hosts retain original file bytes and prepare cores for Stop or absolute seeks outside rendering. Native lifecycle/allocation tests and deployed Worklet/WASM PCM, selected-state, RAM-hash, DSP-register and ordered-event comparisons; no complete IPL ROM, metadata end/fade, host lifetime queue, device, portable checkpoint or playback-deadline guarantee."
       },
       "sourceFiles": [
+        "native/include/tetorica/spc.hpp",
         "native/reference/tauri/native_genesis_spc.cpp",
         "native/reference/tauri/native_genesis_spc.h",
         "vendor/snes-spc/snes_spc/SNES_SPC.cpp",
@@ -2010,7 +2023,7 @@
     }
   ],
   "notes": [
-    "Source collection is complete for these 22 Playground IDs; independent Native targets are being migrated one by one.",
+    "Source collection is complete for these 22 Playground IDs; each Native verificationScope records its supported API and tested configurations.",
     "A WASM recipe is not a claim of runtime verification; release build-info and tests report the verified scope.",
     "snes (DSP/RAM access) and spc (SPC CPU/file player) share the SNES-SPC sources but remain separate APIs.",
     "JavaScript references are separate from the 22 Playground IDs and 27 WASM recipes; their Native/WASM ports are not implemented.",

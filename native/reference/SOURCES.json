@@ -605,6 +605,14 @@
       "originSha256": "37a61a69a0bd1022fc20841d062b00e95ec121a9fbad238ac9c00304845db5a5",
       "sha256": "f7f5416ca36af165ed5035123095a00e86ddcc12c9847b92f1f09974455c102c",
       "adaptation": "Include the public SDK header; preserve the original PCM event CLI and both self-test modes. Extend output-rate boundaries, copied/bounded RAM and rejected-load rollback, stable views and all-RAM reset, all eight same-frame BRR key-ons with explicitly authored global/voice controls and release, protected gates and ignored invalid registers/channels, echo-disabled Stop silence with retained authored settings, borrowed timeline replay/completion/detach and zero runtime C++ allocation/free checks. Native wrapper and vendor synthesis bytes remain unchanged."
+    },
+    {
+      "file": "native/tests/spc_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_spc_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "2e36e829e90844f2b1c53a08f475cbcb0610798fe008625c49a7ef5d8e68620d",
+      "sha256": "5c0ef0614ad24cfb8770f3e7856ba205b812bb07d08e299e7aa20e394ca2dc4b",
+      "adaptation": "Include the public SDK header; preserve the original synthetic/optional-file self-test and PCM event/diagnostic CLI. Extend constructor/rate limits, copied file lifetime and malformed-load error/reload behavior, bounded incremental control seeking and prefetched CPU position, pause/resume and cached mute continuity, observer capacity/borrowed storage/clear/overflow contracts, DSP and analysis snapshot purity/size/lifetime, independent instances and zero callback C++ allocation/free. Native wrapper and vendor synthesis bytes remain unchanged."
     }
   ]
 }
