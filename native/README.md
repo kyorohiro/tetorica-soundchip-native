@@ -29,8 +29,8 @@ translation-unit constraints.
 ## Build support
 
 The independently buildable Native components are **ymfm YM2612, YM2151,
-YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG and AY-3-8910**.
-These nine chip IDs use eight static libraries; YM2610 and YM2610B share one
+YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910 and OKIM6258**.
+These ten chip IDs use nine static libraries; YM2610 and YM2610B share one
 library and select an immutable per-handle variant:
 
 ```sh
@@ -52,6 +52,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::ym2203` | `tetorica_native_ym2203` | `<tetorica/ym2203.hpp>` | `native_ym2203_*`, `NativeYm2203State` |
 | `tetorica::ym2608` | `tetorica_native_ym2608` | `<tetorica/ym2608.hpp>` | `native_ym2608_*`, `NativeYm2608State`, `NativeYm2608ExtraState` |
 | `tetorica::ym2610`, `tetorica::ym2610b` | `tetorica_native_ym2610` | `<tetorica/ym2610.hpp>`, `<tetorica/ym2610b.hpp>` | `native_ym2610b_*`, `NativeYm2610BState`, `NativeYm2610BExtraState` |
+| `tetorica::okim6258` | `tetorica_native_okim6258` | `<tetorica/okim6258.hpp>` | `native_extra_okim6258_*`, `NativeExtraOkim6258State` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -84,7 +85,9 @@ cancellation, observation and its distinct primary/additional output profiles.
 The YM2610 fixture covers both immutable FM variants and both constructor
 profiles, FM/SSG/ADPCM-A/B, dense ROM boundaries/copies, sparse-page ownership,
 retained controls, Stop/reset, cancellation, timers/status/IRQ and observation.
-All eight fixtures run through CTest with assertions enabled in Release builds.
+The OKIM6258 fixture covers sample borrowing/replacement, nibble/FIFO timing,
+clock/divider guards, pan, repeat, retained Stop/reset and observation.
+All nine fixtures run through CTest with assertions enabled in Release builds.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
@@ -358,6 +361,51 @@ in variant 0. Both status reads and state snapshots are observational, unlike
 YM2608's extended-status IRQ propagation. They do not advance audio or expose
 a transferable WASM save state. The host supplies all scheduling and output.
 
+## Embed OKIM6258
+
+Link `tetorica::okim6258` and include `<tetorica/okim6258.hpp>` for the unchanged
+`native_extra_okim6258_*` ABI and `NativeExtraOkim6258State`. The target owns one
+OKI decoder, independently of YM2151. It uses the existing additional-instance
+adapter rather than the X68000 primary path's two sample staging banks. The
+fixed format is **4-bit OKI ADPCM with 12-bit decoder output** (flags 12), packed
+**low nibble first**, unlike Yamaha ADPCM-A/B. The default clock is 8 MHz,
+divider 512, and pan 0 enables both outputs. Three-bit ADPCM, recording and a
+Native 10/12-bit format selector are not provided.
+
+`load_sample(chip, bytes, size)` accepts 1 byte through 16 MiB, stops playback
+and **borrows the input without copying or taking ownership**. Keep the bytes
+immutable and alive until a successful replacement or destruction of the core.
+Stop and reset retain this pointer; neither ends the lifetime requirement.
+Serialize binding, playback and rendering, and retire replaced buffers only
+after no rendering call can still use them. The SDK supplies no callback
+fence, ownership queue or reclamation. A C++ owner should declare the sample
+buffer before the core's RAII handle so reverse destruction releases the core
+first, including during exceptions. The X68000 example demonstrates this order.
+
+`play(chip, repeat)` requires a bound sample and repeat 0/1. It resets the
+decoder/FIFO and feed position, then streams the borrowed bytes at
+`clock / divider` decoded samples per second, with two samples per byte.
+Repetition restarts the complete sample. Register `12` low bits select
+1024/768/512/512; there is no musical pitch register. Changing the rate changes
+sample pitch and duration. Register `2` holds mute bits: bit 0 disables right,
+bit 1 disables left. `set_clock()` validates 100 kHz–100 MHz and limits the
+VCLK/output-rate ratio to at most 14, both at the selected divider and at the
+reset divider 512. Check failure returns; creation accepts output rates
+8–384 kHz. Raw clock bytes use registers 8–11, applying the assembled clock on
+the final byte.
+
+For a raw FIFO host, control register `0` selects play/stop and data register
+`1` feeds encoded bytes. Writing register `0` leaves the convenience sample
+streaming path, so the host then owns feed timing. The core has a bounded
+eight-byte FIFO; this is not an unbounded PCM stream or a file loader. With no
+new nibble, the raw decoder retains its last generated sample. Stop clears the
+held output immediately and ends playback/streaming while retaining the sample,
+clock, divider, pan and repeat setting. Reset also clears decoder/FIFO phase,
+restores divider 512 and pan 0, and retains the edited clock and bound sample.
+The next `play()` resets wrapper feed counters. `get_state()` is observational;
+its progress fields are not a transferable WASM save state. Allocate/free
+outside the callback and keep all chip access serialized.
+
 ## Offline WAV examples
 
 `examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in
@@ -380,11 +428,17 @@ It creates the four-FM primary variant, uses all four physical FM slots and
 three SSG voices, and uploads original synthetic ADPCM-A percussion and an
 ADPCM-B pluck into the two dense ROM banks. These are programmable sample
 ranges rather than OPNA's fixed rhythm layout.
+`examples/x68000_wav.cpp` links `tetorica::ym2151` and `tetorica::okim6258` in
+`tetorica_x68000_wav`. It compensates OPM KC/KF pitch for the selected 4 MHz
+clock and plays a locally encoded percussion sample through OKI at
+8 MHz/divider 512 (15,625 decoded samples/s). Its immutable sample vector
+outlives both core handles, including on errors. This is an offline sound
+configuration, without device drivers or a complete X68000 emulation.
 From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav
+cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
 ./build/native/native/tetorica_master_system_wav "master system demo.wav"
@@ -392,6 +446,7 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/tetorica_pc98_ym2203_wav "pc98 ym2203 demo.wav"
 ./build/native/native/tetorica_pc98_ym2608_wav "pc98 ym2608 demo.wav"
 ./build/native/native/tetorica_neogeo_wav "neogeo demo.wav"
+./build/native/native/tetorica_x68000_wav "x68000 demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
 ./build/native/native/Release/tetorica_master_system_wav.exe "master system demo.wav"
@@ -399,6 +454,7 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/Release/tetorica_pc98_ym2203_wav.exe "pc98 ym2203 demo.wav"
 ./build/native/native/Release/tetorica_pc98_ym2608_wav.exe "pc98 ym2608 demo.wav"
 ./build/native/native/Release/tetorica_neogeo_wav.exe "neogeo demo.wav"
+./build/native/native/Release/tetorica_x68000_wav.exe "x68000 demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
@@ -423,12 +479,12 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | YM2203 | `native_genesis_ym2203.cpp` | Standalone OPN+SSG target and fixture; both constructor profiles |
 | YM2608 | `native_genesis_ym2608.cpp` | Standalone OPNA target and fixture; both constructor profiles |
 | YM2610 / YM2610B | `native_genesis_ym2610b.cpp`, selected immutable variant | One standalone OPNB library and fixture; both constructor profiles |
-| YM2151 | `native_genesis_ym2151.cpp` | Standalone OPM target and fixture; X68000 OKI remains reference-only |
+| YM2151 | `native_genesis_ym2151.cpp` | Standalone OPM target and fixture; separate from the OKI handle |
 | YM2413 | `native_genesis_ym2413.cpp`, `native_genesis_opll.h` | Standalone OPLL target and fixture |
 | AY-3-8910 | `native_genesis_ay8910.cpp` | Standalone AY target and fixture; fixed Native type/flags |
 | YM3526 / YM3812 / Y8950 / YMF262 | `native_genesis_opl.cpp`, `native_genesis_extra_opl.cpp` | Not yet connected |
 | RF5C164 | `native_genesis_rf5c164.cpp`, `native_genesis_extra_rf5c164.cpp` | Not yet connected |
-| OKIM6258 | `native_genesis_extra_okim6258.cpp` | Not yet connected |
+| OKIM6258 | `native_genesis_extra_okim6258.cpp` | Standalone ADPCM target and fixture; borrowed immutable sample |
 | Game Boy | `native_genesis_gameboy.cpp` | Not yet connected |
 | NES + optional FDS | `native_genesis_nes.cpp` | Not yet connected |
 | PC Engine / HuC6280 | `native_genesis_huc6280.cpp` | Not yet connected |

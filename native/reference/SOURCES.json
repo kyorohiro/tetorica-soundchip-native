@@ -507,6 +507,14 @@
       "originSha256": "b3cc0a2e1b80738560bfe31a4186c598e9e8481c8a8d2c85a3b43d0a7f8868a1",
       "sha256": "f2b240c8da5696cb9c27f5bebd2c2e209c8924da908d16e034da43b1ddac1576",
       "adaptation": "Include both SDK public headers; run both immutable variants with both constructor profiles from the default self-test. Parameterize the existing deep sparse-page/CSM/foreign-bus suite by variant and add finite PCM, all six physical FM slots/pan gates, both-profile reset-history boundaries, dense upload-copy ownership, empty/null/overflow/rejected-copy rollback, independent dense instances, sparse unmapped/page/bank ownership and ROM Stop retention. Retain the optional --extra PCM CLI and nine-plane observation layout."
+    },
+    {
+      "file": "native/tests/okim6258_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_okim6258_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "68a1c3a93b4dd3cfa7ee7f0e1e216fe4a91cd8e164a54910b15392a2cf47dd04",
+      "sha256": "05cc429d155d1cb31efa1a47d695e3c03509a3dc739fbadc2e274f89009faef5",
+      "adaptation": "Include the SDK public header; extend the existing nine rate/clock isolation cases with maximum-size borrowed-buffer binding/replacement/retention and caller storage surviving destruction, paired PCM with observations on only one instance, rejected-state/PCM rollback, exact low-nibble-first output, FIFO overflow/underflow, one-byte repeat/predictor restart/end silence, slow-clock immediate Stop and staged clock-buffer rejection rollback. Retain the interleaved twelve-float PCM/state CLI and callback allocation/free audit."
     }
   ]
 }

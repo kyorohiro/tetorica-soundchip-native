@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "notes": [
     "Reference C++/C ABI sources are collected for 22 public chips. source-only does not claim an independent SDK Native build.",
-    "Standalone CMake targets build YM2612/ymfm, YM2203/ymfm, YM2608/ymfm, YM2610/YM2610B through one ymfm library, YM2151/ymfm, YM2413/ymfm, Sega PSG and AY-3-8910. YM2612 Nuked sources remain reference-only.",
+    "Standalone CMake targets build YM2612/ymfm, YM2203/ymfm, YM2608/ymfm, YM2610/YM2610B through one ymfm library, YM2151/ymfm, YM2413/ymfm, Sega PSG, AY-3-8910 and OKIM6258. YM2612 Nuked sources remain reference-only.",
     "Vendor component origins and license files are recorded by the shared source inventory, rather than copied again here."
   ],
   "chips": [
@@ -430,19 +430,32 @@
       "id": "okim6258",
       "sourceFiles": [
         "native/reference/tauri/native_genesis_extra_okim6258.cpp",
-        "native/reference/tauri/native_genesis_extra_okim6258.h"
+        "native/reference/tauri/native_genesis_extra_okim6258.h",
+        "native/include/tetorica/okim6258.hpp"
       ],
-      "status": "source-only",
+      "status": "verified",
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/mame-okim6258/LICENSE",
+        "vendor/ymfm/LICENSE"
       ],
       "declaredFileLicenses": {},
       "defaultLicensedFiles": [
         "native/reference/tauri/native_genesis_extra_okim6258.cpp",
-        "native/reference/tauri/native_genesis_extra_okim6258.h"
+        "native/reference/tauri/native_genesis_extra_okim6258.h",
+        "native/include/tetorica/okim6258.hpp"
+      ],
+      "target": "tetorica_native_okim6258",
+      "verificationScope": "Independent pinned MAME-derived OKIM6258 adapter with native_extra_okim6258_* ABI. Raw FIFO and retained immutable borrowed sample playback, low-nibble-first ADPCM, repeat/end, pan, clock/divider/rate guards, Stop/reset and observational state. Host owns and serializes sample buffers and rendering; no audio device, scheduler or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.okim6258.self_test"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {

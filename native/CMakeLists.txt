@@ -166,6 +166,24 @@ if(MSVC)
   target_compile_options(tetorica_native_ym2610 PRIVATE /EHsc)
 endif()
 
+add_library(tetorica_native_okim6258 STATIC
+  reference/tauri/native_genesis_extra_okim6258.cpp
+  "${TETORICA_SDK_ROOT}/vendor/mame-okim6258/okim6258.cpp"
+)
+add_library(tetorica::okim6258 ALIAS tetorica_native_okim6258)
+target_compile_features(tetorica_native_okim6258 PUBLIC cxx_std_14)
+target_include_directories(tetorica_native_okim6258
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/mame-okim6258"
+    "${TETORICA_SDK_ROOT}/vendor/ymfm"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_okim6258 PRIVATE /EHsc)
+endif()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
   add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
   target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
@@ -186,6 +204,11 @@ if(TETORICA_NATIVE_BUILD_EXAMPLES)
   target_link_libraries(tetorica_pc98_ym2203_wav PRIVATE tetorica::ym2203)
   if(MSVC)
     target_compile_options(tetorica_pc98_ym2203_wav PRIVATE /EHsc)
+  endif()
+  add_executable(tetorica_x68000_wav examples/x68000_wav.cpp)
+  target_link_libraries(tetorica_x68000_wav PRIVATE tetorica::ym2151 tetorica::okim6258)
+  if(MSVC)
+    target_compile_options(tetorica_x68000_wav PRIVATE /EHsc)
   endif()
   add_executable(tetorica_neogeo_wav examples/neogeo_wav.cpp)
   target_link_libraries(tetorica_neogeo_wav PRIVATE tetorica::ym2610)
@@ -280,4 +303,13 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.ym2610.self_test
     COMMAND tetorica_ym2610_fixture --self-test)
+  add_executable(tetorica_okim6258_fixture tests/okim6258_fixture.cpp)
+  target_link_libraries(tetorica_okim6258_fixture PRIVATE tetorica::okim6258)
+  if(MSVC)
+    target_compile_options(tetorica_okim6258_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_okim6258_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.okim6258.self_test
+    COMMAND tetorica_okim6258_fixture --self-test)
 endif()
