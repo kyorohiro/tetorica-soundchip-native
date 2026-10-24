@@ -16,7 +16,7 @@ The original C/C++ and WASM import commit is `0fff93d46ab3e9227ecffcacdf96f3ca11
 
 | Area | Inspection result |
 | --- | --- |
-| Original shared cores, WASM wrappers and accompanying documents | All 170 files across the original 15 components match their `originPath` sources byte for byte. MSFA's actual source comes from the standalone package checkout |
+| Original shared cores, WASM wrappers and accompanying documents | The original snapshot contains 170 files across 15 components. All retain their imported bytes except `mame-gameboy/gameboy_apu.h`, whose recorded SDK amendment adds only the Native access friend declaration. MSFA's actual source comes from the standalone package checkout |
 | JavaScript ADPCM references | Both engines and their license texts remain byte-identical to the imported Tetorica files. Component READMEs now describe independently collected upstream references and license omissions. These references are separate from the 22 Playground IDs and 27 WASM artifacts |
 | Native reference sources | Original and packaged hashes record include relocations and the YM2612/YM2151/YM2203/YM2608/YM2610B template-ownership amendments; the exported ABI and DSP behavior are preserved |
 | HuC6280 Native | `native_genesis_huc6280.cpp`: changes `../native-huc6280/snapshot/third_party/mame-huc6280/huc6280.{h,cpp}` to `huc6280.{h,cpp}` |
@@ -33,6 +33,7 @@ The original C/C++ and WASM import commit is `0fff93d46ab3e9227ecffcacdf96f3ca11
 | OKIM6258 standalone build | Adds `tetorica::okim6258` and `<tetorica/okim6258.hpp>` using the unchanged additional-instance adapter, existing `native_extra_okim6258_*` ABI and shared vendor core. Samples remain borrowed immutable bytes, not copied banks. The offline X68000 example links a separate YM2151 and keeps its original encoded percussion buffer alive until the decoder is destroyed |
 | RF5C164 standalone build | Adds `tetorica::rf5c164` and `<tetorica/rf5c164.hpp>` exposing both unchanged ABIs. Primary uses the shared vendor core with outer clock averaging/hold; extra uses independent per-voice held contributions for source cancellation. Their validation/readback contracts remain distinct. The offline Mega-CD example combines primary PCM with YM2612 and Sega PSG using original looping sample data |
 | OPL-family standalone build | Adds one `tetorica_native_opl` library with generic `opl` and four chip aliases/forwarders, preserving primary/additional ABIs. Constructors explicitly select kind 0/1/2/3 for YM3526/YM3812/YMF262/Y8950; alias/header choice does not select a core. The common template provider owns additional debug/helper definitions without changing vendor DSP. Three fixtures cover primary, additional and writable Y8950 memory; DOS and MSX-AUDIO WAV hosts use original notes/sample data |
+| Game Boy standalone build | Adds `tetorica::gameboy`, `<tetorica/gameboy.hpp>` and an independent four-channel fixture using the unchanged `native_gameboy_*` wrapper. Applies the access-only `NativeGameboyAccess` friend declaration to the shared header, with original/amended hashes; the synthesis `.cpp`, Native wrapper and WASM bridge remain unchanged. The WAV host uses both pulses, original wave RAM, noise and left/right routing |
 | Build procedures | Relocates `src/`, `third_party/` and related references into the SDK's `vendor/` / `wasm/` layout; adds standalone build entry points and source / output hash records |
 
 An unchanged import can still contain earlier upstream adaptations. It also does not imply identical Native and WASM APIs or output settings.
@@ -43,7 +44,7 @@ An unchanged import can still contain earlier upstream adaptations. It also does
 - Native `get_state` / snapshots do not advance audio or consume sample data. Some include status reads with flag/IRQ propagation, as documented for Y8950 below. A chip's opaque WASM save / load format is not necessarily interchangeable with a Native snapshot. Follow each header's contract.
 - Native source cancellation is called by host ownership management. The SDK does not include the Tauri Rust queue, voice leases, copy-on-write memory lifetimes, 16-device / 64 MiB budgets, retirement or CPAL integration.
 - The reference JavaScript Synth, AudioWorklet, Keyboard, sample editor, Mixer defaults, master volume and FX are outside this SDK. Applications must configure their own mixing and output levels.
-- The standalone Native CMake targets cover **YM2612/YM2151/YM2413/YM2203/YM2608/YM2610/YM2610B and YM3526/YM3812/YMF262/Y8950 using ymfm, plus Sega PSG, AY-3-8910, OKIM6258 and RF5C164**: fifteen chip IDs in eleven static libraries. Other Native entries below describe included reference sources. Included WASM recipes, completed SDK builds and platform results are recorded separately in [verification.md](verification.md).
+- The standalone Native CMake targets cover **YM2612/YM2151/YM2413/YM2203/YM2608/YM2610/YM2610B and YM3526/YM3812/YMF262/Y8950 using ymfm, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164 and Game Boy**: sixteen chip IDs in twelve static libraries. Other Native entries below describe included reference sources. Included WASM recipes, completed SDK builds and platform results are recorded separately in [verification.md](verification.md).
 
 ## Native / WASM differences for the 22 public chip IDs
 
@@ -64,7 +65,7 @@ These differences mainly originate in the reference applications. Importing the 
 | `y8950` | [ymfm](../vendor/ymfm/ymfm_opl.cpp) / [WASM](../wasm/y8950_wasm.cpp) | Kind 3 in the shared standalone library, FM plus mono ADPCM-B. WASM owns a vector up to 2 MiB; Native borrows [512 writable 4 KiB pages plus logical length/revisions](../native/reference/tauri/native_genesis_y8950_memory.h). CPU writes modify mapped bytes and increment memory revision; publishing length sets upload revision to the newly incremented memory revision. Stop/reset retain pages/metadata; destruction does not free them. Hosts own serialization and retirement, without the reference Rust COW manager/queues/budgets. Snapshots do not consume data or advance PCM, but Y8950 status inspection can propagate ADPCM flags into IRQ; raw CPU data reads have transfer side effects |
 | `ymf262` | [ymfm](../vendor/ymfm/ymfm_opl.cpp) / [WASM](../wasm/ymf262_wasm.cpp) | Kind 2 in the shared standalone library. Both paths fold A+C / B+D into stereo. The [additional Native wrapper](../native/reference/tauri/native_genesis_extra_opl.cpp) retains NEW mode authored/effective views, physical four-operator pairs and source cancellation without advancing foreign voices. Primary reset uses core reset; additional reset restores the captured power-on state and clears cached history. Preview and runtime release semantics remain distinct |
 | `segapsg` | [Tetorica SegaPSG](../vendor/ymfm/segapsg.cpp) / [WASM](../wasm/segapsg_wasm.cpp) | [Native](../native/reference/tauri/native_genesis_psg.h) adds outer averaging / hold at a retained reference clock, level retention and Stop; mute / stereo connect to the shared core. The standalone `tetorica::segapsg` target uses the independent Game Gear wrapper and keeps its `native_game_gear_*` ABI. Stereo `0xff` retains Genesis/Master System mono output on both channels; optional masks provide Game Gear routing. No OPLL core is included. Its location under `vendor/ymfm/` reflects the source layout: SegaPSG is a Tetorica addition absent from the historical ymfm comparison below |
-| `gameboy` | [MAME adaptation](../vendor/mame-gameboy/README.md) / [WASM](../wasm/gameboy_apu_wasm.cpp) | [Native](../native/reference/tauri/native_genesis_gameboy.cpp) keeps an internal 4,194,304 Hz reference with outer clock conversion, gate-only Stop and observation. **One Tauri-specific friend declaration is not applied to the shared header.** See the header requirement below |
+| `gameboy` | [MAME adaptation](../vendor/mame-gameboy/README.md) / [WASM](../wasm/gameboy_apu_wasm.cpp) | Standalone `tetorica::gameboy` preserves the [Native wrapper](../native/reference/tauri/native_genesis_gameboy.cpp): internal 4,194,304 Hz reference, outer clock conversion, two pulses, owned 16-byte wave RAM, noise, gate-only Stop and observation. NR51 high/low nibbles route left/right; the retained NR50 interpretation uses low bits for left gain and high bits for right. Per-channel Stop clears core contributions but can retain an outer mixed sample below the reference clock until the next source frame; global Stop clears outer PCM immediately. Reset powers off and restores the DMG wave startup pattern, retaining clock/mute. The access-only friend amendment below enables the unchanged wrapper; it does not alter synthesis or add hardware readback |
 | `nes` | [Tetorica C++ port](../vendor/tetorica-nes/README.md) / [WASM](../wasm/nesapu_wasm.cpp) | The [Native core](../native/reference/tauri/native_genesis_nes.cpp) and vendor core differ only in an include name. WASM adds block generation and state-field descriptors. The 400-byte state is observational. Full reset differs from gate-only Stop that retains RAM / wave data. Do not link both core implementations |
 | `snes` | [SNES-SPC](../vendor/snes-spc/README.md) / [shared WASM wrapper](../wasm/spc_wasm.cpp) | [Native](../native/reference/tauri/native_genesis_snes.cpp) runs S-DSP only, with 32 kHz interpolation, KON / KOFF protection and a timeline; it does not execute SPC700. [Timeline RAM / DSP / event data](../native/reference/tauri/native_genesis_snes.h) is borrowed immutably and needs host-managed lifetimes |
 | `spc` | [SNES-SPC](../vendor/snes-spc/README.md) / [shared WASM wrapper](../wasm/spc_wasm.cpp) | [Native](../native/reference/tauri/native_genesis_spc.cpp) is an SPC700 + S-DSP player, using 128-native-frame blocks and 32 kHz interpolation. Load / seek belong on the control side. It does not expose every WASM analysis API, such as trace / RAM discovery. The host retains the original file and synchronizes seek reconstruction / event draining |
@@ -74,15 +75,24 @@ These differences mainly originate in the reference applications. Importing the 
 | `pwm` | [32X extraction](../vendor/mame-32x-pwm/README.md) / [WASM](../wasm/pwm32x_wasm.cpp) | [Native](../native/reference/tauri/native_genesis_pwm.cpp) uses 23,011,361 Hz / gain 1 / duty mode, adding owner tags to FIFO / DAC latches, cancellation and Stop. The reference standalone JavaScript defaults to dac mode / gain 0.4; the VGM comparison path uses duty / 1 |
 | `dx7` | [Shared MSFA core](../vendor/msfa/UPSTREAM.md) / [WASM](../wasm/dx7/dx7.cc) | [Native](../native/reference/tauri/native_genesis_dx7.cpp) uses six shared-core overrides, slot lease APIs, panic without reallocation and output conversion from a fixed internal 44.1 kHz rate. [MSFA details](research.md) describe each file |
 
-### Game Boy Native header requirement
+### Game Boy Native header amendment
 
-The reference Web / SDK [gameboy_apu.h](../vendor/mame-gameboy/gameboy_apu.h) differs from Tauri's `src-tauri/native-gameboy/snapshot/third_party/mame-gameboy/gameboy_apu.h` by this declaration inside `class GameboyApu`:
+The reference Web header originally lacked the following declaration from
+Tauri's `src-tauri/native-gameboy/snapshot/third_party/mame-gameboy/gameboy_apu.h`.
+The SDK now applies it inside `class GameboyApu` in the shared
+[gameboy_apu.h](../vendor/mame-gameboy/gameboy_apu.h):
 
 ```cpp
 friend struct NativeGameboyAccess; // Native state observation / gate-only Stop; DSP unchanged.
 ```
 
-The Native wrapper uses it to observe and stop private counters / gates. The shared `.cpp` files match byte for byte. This friend declaration is currently absent from the SDK's shared vendor header. Apply the Native header difference when creating a Native Game Boy target; adding the reference wrapper alone is insufficient to build it.
+The Native wrapper uses it to observe and stop private counters/gates. It grants
+access without changing layout, DSP, register semantics or the WASM API. The
+vendor synthesis `.cpp`, Native `.cpp`/`.h` and WASM bridge remain byte-identical
+to their imports. Source inventories retain the original Web header hash and
+the amended SDK header hash rather than claiming a byte-identical header
+import. The standalone target uses this same canonical vendor header; it does
+not introduce a second core or redefine private access.
 
 ### NES / HuC6280 translation units
 

@@ -549,6 +549,14 @@
       "originSha256": "1d3293d46597a34fbb4e75dddc94047ede37d1ca9092572dcc5c8080e61aa0fd",
       "sha256": "cbba9afaf6b63a7540760e7a3f5eb74a1dd74ba23d1a6cca307ce61391df3dd0",
       "adaptation": "Include public opl.hpp/y8950.hpp headers; preserve the existing primary/extra ten-plane memory-event CLI and add a profile-neutral --self-test for caller-owned writable pages, bounds/length/revisions, CPU writes, sparse reads, replacement/clear, Stop/reset retention, observation PCM/revision continuity and low-clock ADPCM/FM cancellation. Audit callback C++ allocation/free counts without importing Rust COW or lifecycle infrastructure."
+    },
+    {
+      "file": "native/tests/gameboy_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_gameboy_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "9553af91e81724f1430d5976cd772690075d2d9d55e15e22bd83a7438f0ff430",
+      "sha256": "0b5b07c6dcb3ce498fd8cf914239426844f12d1368e1d6484071b5d13669c92e",
+      "adaptation": "Include the public SDK header; retain the interleaved two-float PCM event CLI and original control/observation/allocation audit. Extend self-test coverage for all four isolated voices and stereo, per-voice foreign-source isolation at three rates and three clocks, exact low-clock held-output channel Stop versus immediate global Stop, state observations, invalid-input rollback, constructor/clock bounds, reset and retained mute/clock behavior. Rendering and exported C ABI remain unchanged."
     }
   ]
 }

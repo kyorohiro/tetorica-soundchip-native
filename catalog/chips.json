@@ -376,28 +376,39 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {
           "native/reference/tauri/native_genesis_gameboy.cpp": "BSD-3-Clause",
           "native/reference/tauri/native_genesis_gameboy.h": "BSD-3-Clause"
         },
-        "defaultLicensedFiles": [],
-        "id": "gameboy",
-        "knownRequirements": [
-          "The Tauri snapshot adds friend struct NativeGameboyAccess to GameboyApu. This Native-only header change is not applied to the SDK common vendor header yet; it is required before compiling the Native reference wrapper. See docs/chip-differences.md."
+        "defaultLicensedFiles": [
+          "native/include/tetorica/gameboy.hpp"
         ],
+        "id": "gameboy",
         "licenseFiles": [
-          "LICENSE"
+          "LICENSE",
+          "vendor/mame-gameboy/LICENSE"
         ],
         "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_gameboy.cpp",
-          "native/reference/tauri/native_genesis_gameboy.h"
+          "native/reference/tauri/native_genesis_gameboy.h",
+          "native/include/tetorica/gameboy.hpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_gameboy",
+        "tests": [
+          "tetorica.gameboy.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Independent pinned DMG APU renderer exposing native_gameboy_*: two pulse channels, wave RAM, noise, stereo routing, power, mute, clock resampling, per-channel gate stop, immediate global Stop, reset and observational state. Per-channel stop retains the outer held mix until the next source interval. Existing Native-only friend accessor is applied without changing DSP. Offline Worklet/WASM PCM comparison; no machine emulator, audio device, scheduler or playback-deadline guarantee."
       },
       "sourceFiles": [
+        "native/include/tetorica/gameboy.hpp",
         "native/reference/tauri/native_genesis_gameboy.cpp",
         "native/reference/tauri/native_genesis_gameboy.h",
         "vendor/mame-gameboy/gameboy_apu.cpp",

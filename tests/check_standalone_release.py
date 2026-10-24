@@ -33,12 +33,14 @@ REQUIRED_NATIVE_FIXTURES = frozenset(("tetorica_ym2612_fixture", "tetorica_ym215
                                       "tetorica_segapsg_fixture", "tetorica_ym2413_fixture", "tetorica_ay8910_fixture",
                                       "tetorica_ym2203_fixture", "tetorica_ym2608_fixture", "tetorica_ym2610_fixture",
                                       "tetorica_okim6258_fixture", "tetorica_rf5c164_fixture",
-                                      "tetorica_opl_fixture", "tetorica_extra_opl_fixture", "tetorica_y8950_memory_fixture"))
+                                      "tetorica_opl_fixture", "tetorica_extra_opl_fixture", "tetorica_y8950_memory_fixture",
+                                      "tetorica_gameboy_fixture"))
 REQUIRED_NATIVE_EXAMPLES = {"tetorica_genesis_wav": "Genesis", "tetorica_master_system_wav": "Master System",
                             "tetorica_msx_wav": "MSX", "tetorica_pc98_ym2203_wav": "PC-98 YM2203",
                             "tetorica_pc98_ym2608_wav": "PC-98 YM2608", "tetorica_neogeo_wav": "NeoGeo",
                             "tetorica_x68000_wav": "X68000", "tetorica_megacd_wav": "Mega-CD",
-                            "tetorica_dos_opl_wav": "DOS PC OPL", "tetorica_msx_audio_wav": "MSX-AUDIO"}
+                            "tetorica_dos_opl_wav": "DOS PC OPL", "tetorica_msx_audio_wav": "MSX-AUDIO",
+                            "tetorica_gameboy_wav": "Game Boy"}
 REQUIRED_NATIVE_EXECUTABLES = REQUIRED_NATIVE_FIXTURES | frozenset(REQUIRED_NATIVE_EXAMPLES)
 REQUIRED_UPSTREAM_REFERENCES = frozenset((
     "libvgm-msm5205-upstream", "libvgm-okim6295-upstream", "mame-okim6295-upstream",

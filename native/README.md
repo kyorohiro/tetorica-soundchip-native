@@ -18,21 +18,20 @@ adaptations, SDK relocation, and existing Native/WASM API or rendering
 differences. [MSFA details](../docs/research.md) describe all six Native
 overrides, including slot-control APIs and panic behavior, not just portability.
 
-One known prerequisite is not yet applied to the common vendor tree: the Tauri
-Game Boy header adds `friend struct NativeGameboyAccess` to `GameboyApu`.
-The Native reference wrapper requires this access for observation and gate-only
-Stop. The common SDK header retains the Browser version. A future Native
-Game Boy target must include the Native header adaptation; adding the wrapper
-alone is insufficient. See the per-chip document for this and the NES/HuC6280
+The shared Game Boy header includes Tauri's
+`friend struct NativeGameboyAccess` declaration for state observation and
+gate-only Stop. This recorded SDK amendment changes access only; the shared
+implementation, Native wrapper and WASM bridge remain unchanged. See the
+per-chip document for the original/amended hashes and the NES/HuC6280
 translation-unit constraints.
 
 ## Build support
 
 The independently buildable Native components are **ymfm YM2612, YM2151,
-YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164 and YM3526/YM3812/YMF262/Y8950**.
-These fifteen chip IDs use eleven static libraries; YM2610/YM2610B share one
+YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy and YM3526/YM3812/YMF262/Y8950**.
+These sixteen chip IDs use twelve static libraries; YM2610/YM2610B share one
 library, and four OPL-family chips share another. Constructors explicitly select
-the per-handle variant/kind. Sixteen aliases/headers include the generic OPL entry:
+the per-handle variant/kind. Seventeen aliases/headers include the generic OPL entry:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -56,6 +55,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::okim6258` | `tetorica_native_okim6258` | `<tetorica/okim6258.hpp>` | `native_extra_okim6258_*`, `NativeExtraOkim6258State` |
 | `tetorica::rf5c164` | `tetorica_native_rf5c164` | `<tetorica/rf5c164.hpp>` | `native_rf5c164_*`, `native_extra_rf5c164_*`, `NativeExtraRf5c164State` |
 | `tetorica::opl`, `tetorica::ym3526`, `tetorica::ym3812`, `tetorica::ymf262`, `tetorica::y8950` | `tetorica_native_opl` | `<tetorica/opl.hpp>` and matching chip forwarders | `native_opl_*`, `native_extra_opl_*`, `NativeOplState`, `NativeExtraOplState` |
+| `tetorica::gameboy` | `tetorica_native_gameboy` | `<tetorica/gameboy.hpp>` | `native_gameboy_*`, `NativeGameboyState` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -93,10 +93,16 @@ clock/divider guards, pan, repeat, retained Stop/reset and observation.
 The RF5C164 fixture covers both profiles, eight voices, sign-magnitude PCM,
 loop markers, RAM/bank access, clock conversion, reset retention and the
 additional profile's immediate source cancellation and observation.
-All thirteen fixtures run through CTest with assertions enabled in Release builds.
+All fourteen fixtures run through CTest with assertions enabled in Release builds.
 The three OPL-family fixtures exercise primary controls/PCM, additional source
 ownership/held output, and Y8950 writable-page memory separately. The shared OPL
 library covers four selected chip kinds; each handle constructs only one kind.
+The Game Boy fixture covers both pulses, wave RAM and noise, asymmetric stereo
+gains/routing, clock conversion, mute progression, retained Stop, per-channel
+Stop, reset and repeated non-advancing state observations. It checks every
+channel's Stop against foreign-voice reference PCM at 44.1/48/96 kHz and
+100 kHz/base/100 MHz clocks, including retained outer samples below the base
+clock, along with invalid controls, ABI layout and allocation-free rendering.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
@@ -551,6 +557,88 @@ consume ADPCM data or advance audio, but their Y8950 status read can propagate
 ADPCM flags into IRQ state; they are not universally IRQ-neutral observations.
 No Native snapshot is a transferable WASM save state.
 
+## Embed Game Boy DMG audio
+
+Link `tetorica::gameboy` and include `<tetorica/gameboy.hpp>`. The header forwards
+the unchanged `native_genesis_gameboy.h` ABI, including `NativeGameboyState`.
+Each handle owns one DMG APU: pulse channels 0/1 (sweep on channel 0), wave
+channel 2 with 16 bytes of owned RAM, and noise channel 3. There is no borrowed
+sample storage or external ROM dependency. This is the existing MAME-derived
+DMG adaptation; CGB/AGB variants, CPU execution, hardware register reads and
+the wave-RAM corruption glitch are outside its scope.
+
+```cmake
+add_subdirectory(vendor/tetorica-soundchip-native)
+target_link_libraries(your_application PRIVATE tetorica::gameboy)
+```
+
+```cpp
+#include <tetorica/gameboy.hpp>
+
+int main() {
+    void* chip = native_gameboy_create(48000);
+    if (!chip) return 1;
+    native_gameboy_write(chip, 0x16, 0x80); // NR52: power on.
+    native_gameboy_write(chip, 0x14, 0x77); // NR50: equal output gains.
+    native_gameboy_write(chip, 0x15, 0x11); // NR51: pulse 1 to both sides.
+    native_gameboy_write(chip, 0x01, 0x80); // NR11: 50% duty.
+    native_gameboy_write(chip, 0x02, 0xf0); // NR12: constant envelope, DAC on.
+    native_gameboy_write(chip, 0x03, 0xd6); // NR13/14: approximately 440 Hz.
+    native_gameboy_write(chip, 0x04, 0x86); // Trigger, length disabled.
+    float left[512], right[512];
+    for (unsigned i = 0; i < 512; ++i)
+        native_gameboy_sample(chip, &left[i], &right[i]);
+    // Send these buffers to your audio output or file renderer.
+    native_gameboy_stop(chip);
+    native_gameboy_destroy(chip);
+}
+```
+
+Creation accepts output rates **1–384,000 Hz**, rejecting zero and higher rates.
+The reference input clock is **4,194,304 Hz**. `set_clock()` accepts
+100 kHz–100 MHz and reports rejection without changing the clock. The shared
+core remains at its reference clock; the Native wrapper adds fractional
+averaging/hold for edits. The first accepted edit initializes outer held PCM
+and phase; later edits preserve them. Pulse frequency is
+`clock / (32 * (2048-N))`; the 32-nibble wave frequency is
+`clock / (64 * (2048-N))`, with eleven-bit N. Noise uses a 15-bit or short
+7-bit LFSR with period `{8,16,32,48,64,80,96,112}[divisor] << shift` CPU cycles.
+
+`write()` takes offsets **0x00–0x2f from CPU I/O 0xFF10**. For example, NR52 is
+offset `0x16`, and wave RAM is `0x20–0x2f`; absolute CPU addresses are not this
+ABI's address format. Unused offsets are inert. NR51 low bits route channels
+0–3 right and high bits route them left. Preserve the existing NR50 convention:
+**low three bits control left, bits 4–6 control right**; each scale is
+`(1 + volume) / 480`, so volume zero is the minimum gain rather than silence.
+VIN bits are unused. The core adds the centered DAC values and integrates
+native ticks without a motherboard filter or automatic peak normalization.
+
+Power NR52 on before normal configuration writes. While powered off, only
+NR52 and length registers NR11/NR21/NR31/NR41 accept sound-register writes.
+Wave RAM remains writable while the wave channel is off, including with APU
+power off. During active wave playback, writes follow the existing narrow
+sample-read access window and target the currently read byte. Disable the wave
+DAC or Stop its channel before replacing a complete waveform.
+
+`set_mute_mask()` bits 0–3 suppress presentation while synthesis, envelopes,
+length/sweep and the noise LFSR keep progressing. `stop_channel()` clears only
+that channel's gate and core contribution, retaining its registers and foreign
+voices. At clocks below the reference, an already held outer mixed frame can
+remain until the next source frame. `stop()` gates all four channels and clears
+both core and outer held output immediately. Both retain wave RAM, registers,
+power, routing, output gains, clock and mute. Reset instead powers off the APU,
+clears gates/register controls and output phase, and restores the documented
+16-byte DMG wave-RAM startup pattern; the edited clock and source mute survive.
+
+`get_state()` copies the 48-byte register/wave view, active gate mask, clock and
+source mute mask without ticking audio or triggering voices. Trigger bits are
+stripped from NRx4 views; NR52 reconstructs power and active gates. Active gates
+do not imply audible output when routing, DAC or mute suppresses a source.
+This is an observational snapshot, not hardware readback or a transferable
+WASM save state. The access-only friend declaration is recorded in the vendor
+inventory; no synthesis algorithm is amended. Create/destroy outside the audio
+callback, keep valid handles/output pointers, and serialize all chip access.
+
 ## Offline WAV examples
 
 `examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in
@@ -589,11 +677,17 @@ sections, exercising sine/half-sine waveforms, rhythm, an OPL3 four-operator pai
 and left/right routing. `examples/msx_audio_wav.cpp` combines one Y8950's FM and
 original ADPCM-B with AY8910 and YM2413. The writable sample page is declared
 before the Y8950 handle so the decoder never outlives its RAM.
+`examples/gameboy_wav.cpp` links only `tetorica::gameboy` in
+`tetorica_gameboy_wav`. The first second isolates pulse 1 left and pulse 2
+right; the second isolates an original triangle in wave RAM left and short
+noise hits right; the last combines all four with pulse sides reversed.
+It derives musical pitches from the 4,194,304 Hz clock and uses equal NR50
+gains, fixed output headroom and short per-note fades.
 From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav
+cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
 ./build/native/native/tetorica_master_system_wav "master system demo.wav"
@@ -605,6 +699,7 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/tetorica_megacd_wav "megacd demo.wav"
 ./build/native/native/tetorica_dos_opl_wav "dos opl demo.wav"
 ./build/native/native/tetorica_msx_audio_wav "msx audio demo.wav"
+./build/native/native/tetorica_gameboy_wav "gameboy demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
 ./build/native/native/Release/tetorica_master_system_wav.exe "master system demo.wav"
@@ -616,6 +711,7 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/Release/tetorica_megacd_wav.exe "megacd demo.wav"
 ./build/native/native/Release/tetorica_dos_opl_wav.exe "dos opl demo.wav"
 ./build/native/native/Release/tetorica_msx_audio_wav.exe "msx audio demo.wav"
+./build/native/native/Release/tetorica_gameboy_wav.exe "gameboy demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
@@ -646,7 +742,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | YM3526 / YM3812 / Y8950 / YMF262 | `native_genesis_opl.cpp`, `native_genesis_extra_opl.cpp` | One kind-selected library; primary, additional and Y8950 memory fixtures |
 | RF5C164 | `native_genesis_rf5c164.cpp`, `native_genesis_extra_rf5c164.cpp` | One standalone library and fixture; distinct primary/additional profiles |
 | OKIM6258 | `native_genesis_extra_okim6258.cpp` | Standalone ADPCM target and fixture; borrowed immutable sample |
-| Game Boy | `native_genesis_gameboy.cpp` | Not yet connected |
+| Game Boy | `native_genesis_gameboy.cpp` | Standalone DMG APU target and fixture; owned wave RAM, gate-only Stop and observation |
 | NES + optional FDS | `native_genesis_nes.cpp` | Not yet connected |
 | PC Engine / HuC6280 | `native_genesis_huc6280.cpp` | Not yet connected |
 | DX7 | `native_genesis_dx7.cpp` | Not yet connected |

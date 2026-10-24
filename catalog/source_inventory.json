@@ -307,7 +307,12 @@
         {
           "path": "vendor/mame-gameboy/gameboy_apu.h",
           "originPath": "third_party/mame-gameboy/gameboy_apu.h",
-          "sha256": "1d0d70f8d716dd62f67cc4d4a31d3d5df85c602711fb0595ea754c50249475a8"
+          "sha256": "3f464c0874e12995ddc3403587ab4bed0538c57e49d3179c7a0c50e6a1d96a12",
+          "originSha256": "1d0d70f8d716dd62f67cc4d4a31d3d5df85c602711fb0595ea754c50249475a8",
+          "adaptation": "Add only the existing NativeGameboyAccess friend declaration for non-advancing state observation and gate-only Stop. Rendering, layout and public core methods are unchanged; original imported digest retained in originSha256.",
+          "amendmentOriginPath": "w/tetorica-fm2612-playground-tauri/src-tauri/native-gameboy/snapshot/third_party/mame-gameboy/gameboy_apu.h",
+          "amendmentOriginCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+          "amendmentOriginSha256": "3f464c0874e12995ddc3403587ab4bed0538c57e49d3179c7a0c50e6a1d96a12"
         },
         {
           "path": "vendor/mame-gameboy/upstream/gb.cpp",

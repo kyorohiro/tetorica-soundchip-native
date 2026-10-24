@@ -228,6 +228,23 @@ if(MSVC)
   target_compile_options(tetorica_native_opl PRIVATE /EHsc)
 endif()
 
+add_library(tetorica_native_gameboy STATIC
+  reference/tauri/native_genesis_gameboy.cpp
+  "${TETORICA_SDK_ROOT}/vendor/mame-gameboy/gameboy_apu.cpp"
+)
+add_library(tetorica::gameboy ALIAS tetorica_native_gameboy)
+target_compile_features(tetorica_native_gameboy PUBLIC cxx_std_14)
+target_include_directories(tetorica_native_gameboy
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/mame-gameboy"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_gameboy PRIVATE /EHsc)
+endif()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
   add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
   target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
@@ -278,6 +295,11 @@ if(TETORICA_NATIVE_BUILD_EXAMPLES)
   target_link_libraries(tetorica_pc98_ym2608_wav PRIVATE tetorica::ym2608)
   if(MSVC)
     target_compile_options(tetorica_pc98_ym2608_wav PRIVATE /EHsc)
+  endif()
+  add_executable(tetorica_gameboy_wav examples/gameboy_wav.cpp)
+  target_link_libraries(tetorica_gameboy_wav PRIVATE tetorica::gameboy)
+  if(MSVC)
+    target_compile_options(tetorica_gameboy_wav PRIVATE /EHsc)
   endif()
 endif()
 
@@ -407,4 +429,13 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.y8950_memory.self_test
     COMMAND tetorica_y8950_memory_fixture --self-test)
+  add_executable(tetorica_gameboy_fixture tests/gameboy_fixture.cpp)
+  target_link_libraries(tetorica_gameboy_fixture PRIVATE tetorica::gameboy)
+  if(MSVC)
+    target_compile_options(tetorica_gameboy_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_gameboy_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.gameboy.self_test
+    COMMAND tetorica_gameboy_fixture --self-test)
 endif()

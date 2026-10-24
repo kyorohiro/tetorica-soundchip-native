@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <array>
 class GameboyApu {
+    friend struct NativeGameboyAccess; // Native state observation / gate-only Stop; DSP unchanged.
 public:
     GameboyApu(uint32_t rate, uint32_t clock);
     void reset();
