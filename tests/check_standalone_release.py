@@ -15,8 +15,10 @@ import re
 import shlex
 import shutil
 import stat
+import struct
 import subprocess
 import tempfile
+import wave
 import zipfile
 
 
@@ -27,7 +29,8 @@ class AuditError(RuntimeError):
 REQUIRED_CHIPS = frozenset("ym2612 ym2203 ym2610 ym2610b rf5c164 ym2608 gameboy segapsg ym2151 pwm nes dx7 snes spc huc6280 okim6258 ym3526 ym3812 y8950 ymf262 ym2413 ay8910".split())
 REQUIRED_ARTIFACTS = frozenset("ay8910 gameboy_apu huc6280 k051649 nesapu nuked_opn2 okim6258 pwm32x rf5c164 segapcm segapsg spc y8950 ym2151 ym2203 ym2413 ym2608 ym2610b ym2612 ym3438 ym3526 ym3812 ymf262 ymf276 ymf278b ymf288 dx7".split())
 REQUIRED_JAVASCRIPT_REFERENCES = frozenset(("msm5205", "okim6295"))
-REQUIRED_NATIVE_FIXTURES = frozenset(("tetorica_ym2612_fixture", "tetorica_ym2151_fixture"))
+REQUIRED_NATIVE_FIXTURES = frozenset(("tetorica_ym2612_fixture", "tetorica_ym2151_fixture", "tetorica_segapsg_fixture"))
+REQUIRED_NATIVE_EXECUTABLES = REQUIRED_NATIVE_FIXTURES | {"tetorica_genesis_wav"}
 REQUIRED_UPSTREAM_REFERENCES = frozenset((
     "libvgm-msm5205-upstream", "libvgm-okim6295-upstream", "mame-okim6295-upstream",
 ))
@@ -438,22 +441,47 @@ def audit_native_file_api(root, build, configuration="Release"):
                 path = build_path(include["path"], root)
                 require(within(path, root) or within(path, build), f"Native target borrows an outside include directory: {path}")
         name = detail.get("name")
-        if name in REQUIRED_NATIVE_FIXTURES:
-            require(name not in fixtures, f"Duplicate Native fixture target: {name}")
-            require(detail.get("type") == "EXECUTABLE", f"Native fixture target is not executable: {name}")
+        if name in REQUIRED_NATIVE_EXECUTABLES:
+            require(name not in fixtures, f"Duplicate Native executable target: {name}")
+            require(detail.get("type") == "EXECUTABLE", f"Native target is not executable: {name}")
             artifacts = []
             for artifact in detail.get("artifacts", []):
                 path = build_path(artifact["path"], build)
-                require(within(path, build), f"Native fixture executable escapes the build tree: {path}")
+                require(within(path, build), f"Native executable escapes the build tree: {path}")
                 if path.name == detail.get("nameOnDisk"):
                     artifacts.append(path)
-            require(len(artifacts) == 1, f"Native CMake build has no unique fixture executable artifact: {name}")
+            require(len(artifacts) == 1, f"Native CMake build has no unique executable artifact: {name}")
             fixtures[name] = artifacts[0]
-    require(set(fixtures) == REQUIRED_NATIVE_FIXTURES,
-            f"Native CMake build is missing required fixture targets: {sorted(REQUIRED_NATIVE_FIXTURES-set(fixtures))}")
+    require(set(fixtures) == REQUIRED_NATIVE_EXECUTABLES,
+            f"Native CMake build is missing required executable targets: {sorted(REQUIRED_NATIVE_EXECUTABLES-set(fixtures))}")
     require(len({path.resolve() for path in fixtures.values()}) == len(fixtures),
-            "Native fixture targets share an executable artifact")
+            "Native targets share an executable artifact")
     return fixtures
+
+
+def audit_genesis_wav(path):
+    require(path.is_file(), f"Genesis example did not write its WAV: {path}")
+    frames, peaks = 0, [0, 0]
+    try:
+        with wave.open(str(path), "rb") as audio:
+            require(audio.getnchannels() == 2 and audio.getsampwidth() == 2
+                    and audio.getframerate() == 48000 and audio.getcomptype() == "NONE",
+                    "Genesis example must produce uncompressed PCM16 stereo at 48000 Hz")
+            expected = audio.getnframes()
+            require(expected >= 48000, "Genesis example WAV must contain at least one second")
+            while data := audio.readframes(4096):
+                require(len(data) % 4 == 0, "Genesis example WAV has a truncated stereo payload")
+                for left, right in struct.iter_unpack("<hh", data):
+                    peaks[0] = max(peaks[0], abs(left))
+                    peaks[1] = max(peaks[1], abs(right))
+                frames += len(data) // 4
+            require(frames == expected, "Genesis example WAV payload is truncated")
+    except (wave.Error, EOFError) as error:
+        raise AuditError(f"Invalid Genesis example WAV: {error}") from error
+    require(all(peak > 0 for peak in peaks), "Genesis example WAV must have nonzero PCM in both channels")
+    require(max(peaks) < 32767, "Genesis example WAV reaches clipped PCM16 full scale")
+    return {"sampleRate": 48000, "channels": 2, "bitsPerSample": 16,
+            "frames": frames, "channelPeaks": [peak / 32768 for peak in peaks]}
 
 
 def build_native(root, build, environment):
@@ -463,7 +491,7 @@ def build_native(root, build, environment):
     query.mkdir(parents=True)
     (query / "codemodel-v2").touch()
     command(["cmake", "-S", root, "-B", build, f"-DCMAKE_BUILD_TYPE={configuration}",
-             "-DBUILD_TESTING=ON", "-DTETORICA_NATIVE_BUILD_TESTS=ON",
+             "-DBUILD_TESTING=ON", "-DTETORICA_NATIVE_BUILD_TESTS=ON", "-DTETORICA_NATIVE_BUILD_EXAMPLES=ON",
              "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DFETCHCONTENT_FULLY_DISCONNECTED=ON",
              "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF", "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"], root, environment)
     fixtures = audit_native_file_api(root, build, configuration)
@@ -471,8 +499,11 @@ def build_native(root, build, environment):
     audit_compile_commands(root, build, entries)
     command(["cmake", "--build", build, "--config", configuration, "--parallel", "2"], root, environment)
     for name, fixture in fixtures.items():
-        require(fixture.is_file(), f"Native fixture executable was not built ({name}): {fixture}")
+        require(fixture.is_file(), f"Native executable was not built ({name}): {fixture}")
     command(["ctest", "--test-dir", build, "-C", configuration, "--output-on-failure", "--no-tests=error"], root, environment)
+    wav = build / "genesis example output.wav"
+    command([fixtures["tetorica_genesis_wav"], wav], build, environment)
+    print("Genesis WAV: " + json.dumps(audit_genesis_wav(wav), sort_keys=True), flush=True)
 
 
 def main():

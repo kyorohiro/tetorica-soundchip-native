@@ -26,7 +26,7 @@ The upstream references include files explicitly marked BSD-3-Clause. libvgm sup
 
 | Deliverable | Current status |
 | --- | --- |
-| Standalone native CMake targets | **YM2612 and YM2151 using ymfm**, with offline test fixtures |
+| Standalone native CMake targets | **YM2612 and YM2151 using ymfm, plus Sega PSG**, with offline test fixtures |
 | Other native adapters | Reference sources included; standalone targets are being added |
 | WASM build recipes | 27 artifacts; independent builds verified for YM2612 and DX7 |
 | Initial compiled WASM archive | YM2612, with its matching source archive embedded |
@@ -34,7 +34,7 @@ The upstream references include files explicitly marked BSD-3-Clause. libvgm sup
 
 Source availability does not imply that every adapter is ready to link unchanged. The [chip differences](docs/chip-differences.md) document records required combinations and known prerequisites, including the Game Boy native header adjustment. See the [machine-readable catalog](catalog/chips.json) and [verification record](docs/verification.md) for details.
 
-[Verify SDK](.github/workflows/verify-sdk.yml) runs on pushes, pull requests, and manual dispatch. Its Native matrix is configured for Windows x64, Linux x64/ARM64, and macOS Intel/Apple Silicon. Each job builds both YM2612 and YM2151 in Release mode from an independently extracted source ZIP, runs CTest, and checks the JavaScript references. A separate Ubuntu job compiles YM2612 WASM, verifies the matching source archive and synchronous ABI, and rebuilds from the extracted archive. See the [verification record](docs/verification.md) for completed runs; the earlier YM2612-only matrix does not establish YM2151 platform coverage.
+[Verify SDK](.github/workflows/verify-sdk.yml) runs on pushes, pull requests, and manual dispatch. Its Native matrix is configured for Windows x64, Linux x64/ARM64, and macOS Intel/Apple Silicon. Each job builds YM2612, YM2151 and Sega PSG in Release mode from an independently extracted source ZIP, runs three CTest fixtures, renders the offline FM+PSG WAV example, and checks the JavaScript references. A separate Ubuntu job compiles YM2612 WASM, verifies the matching source archive and synchronous ABI, and rebuilds from the extracted archive. See the [verification record](docs/verification.md) for completed runs; the earlier YM2612-only matrix does not establish YM2151 or Sega PSG platform coverage.
 
 ## Build the native libraries
 
@@ -52,9 +52,10 @@ To embed a source distribution in your project:
 add_subdirectory(vendor/tetorica-soundchip-native)
 target_link_libraries(your_application PRIVATE tetorica::ym2612)
 # For the eight-channel OPM chip, select tetorica::ym2151 instead.
+# For the independent Sega PSG, select tetorica::segapsg.
 ```
 
-The public headers are `<tetorica/ym2612.hpp>` and `<tetorica/ym2151.hpp>`, exposing the existing `native_ym2612_*` and `native_ym2151_*` C ABIs to C++ hosts. YM2151 covers the OPM chip itself; X68000's OKIM6258 integration remains reference-only. The [native guide](native/README.md) includes a YM2151 integration example.
+The public headers are `<tetorica/ym2612.hpp>`, `<tetorica/ym2151.hpp>` and `<tetorica/segapsg.hpp>`. They expose the existing `native_ym2612_*`, `native_ym2151_*` and compatibility-named `native_game_gear_*` C ABIs to C++ hosts. Sega PSG supplies three tone channels, noise and optional Game Gear stereo; it owns no FM or OPLL core. YM2151 covers the OPM chip itself; X68000's OKIM6258 integration remains reference-only. See the [native guide](native/README.md) for integration examples.
 
 This YM2612 example configures a simple voice and generates a stereo buffer:
 
@@ -92,6 +93,19 @@ int main() {
 ```
 
 In a real-time application, create and configure the chip before the audio callback, retain it between callbacks, and destroy it after playback has stopped. Your host supplies audio output, scheduling, and synchronization. The [native API notes](native/README.md) describe state access, lifetime requirements, and the current ABI.
+
+## Render a Genesis-style WAV
+
+The default build also produces `tetorica_genesis_wav`, using the actual YM2612 and Sega PSG libraries. It writes three seconds of synthetic FM melody, PSG tones and short noise percussion to a 48 kHz stereo PCM16 WAV. No audio device, sample ROM, asset or npm dependency is needed.
+
+```sh
+# After the root CMake build above, with a single-configuration generator:
+./build/native/native/tetorica_genesis_wav "genesis demo.wav"
+# With Visual Studio on Windows:
+./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
+```
+
+The single required argument selects the output file; its parent directory must exist. The example uses fixed mix headroom and chip-clock pitch conversion, with PSG stereo `0xff` to retain Genesis/Master System mono output on both channels. It is an offline sound example, not a console emulator. Set `-DTETORICA_NATIVE_BUILD_EXAMPLES=OFF` to omit it when embedding the libraries.
 
 ## Build WebAssembly
 

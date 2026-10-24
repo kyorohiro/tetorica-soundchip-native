@@ -8,6 +8,7 @@ endif()
 
 get_filename_component(TETORICA_SDK_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
 option(TETORICA_NATIVE_BUILD_TESTS "Build the standalone Native core tests" ON)
+option(TETORICA_NATIVE_BUILD_EXAMPLES "Build the standalone Native examples" ON)
 
 # First independently buildable component. The Native-owned provider explicitly
 # instantiates adapter templates without changing the pinned ymfm source bytes.
@@ -50,6 +51,31 @@ if(MSVC)
   target_compile_options(tetorica_native_ym2151 PRIVATE /EHsc)
 endif()
 
+add_library(tetorica_native_segapsg STATIC
+  reference/tauri/native_genesis_game_gear.cpp
+  "${TETORICA_SDK_ROOT}/vendor/ymfm/segapsg.cpp"
+)
+add_library(tetorica::segapsg ALIAS tetorica_native_segapsg)
+target_compile_features(tetorica_native_segapsg PUBLIC cxx_std_14)
+target_include_directories(tetorica_native_segapsg
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/vendor/ymfm"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_segapsg PRIVATE /EHsc)
+endif()
+
+if(TETORICA_NATIVE_BUILD_EXAMPLES)
+  add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
+  target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
+  if(MSVC)
+    target_compile_options(tetorica_genesis_wav PRIVATE /EHsc)
+  endif()
+endif()
+
 if(TETORICA_NATIVE_BUILD_TESTS)
   # A Release configuration must execute the fixture's assertions as well.
   enable_testing()
@@ -72,4 +98,14 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.ym2151.self_test
     COMMAND tetorica_ym2151_fixture --self-test)
+
+  add_executable(tetorica_segapsg_fixture tests/segapsg_fixture.cpp)
+  target_link_libraries(tetorica_segapsg_fixture PRIVATE tetorica::segapsg)
+  if(MSVC)
+    target_compile_options(tetorica_segapsg_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_segapsg_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.segapsg.self_test
+    COMMAND tetorica_segapsg_fixture --self-test)
 endif()

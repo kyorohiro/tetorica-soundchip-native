@@ -443,6 +443,14 @@
       "originSha256": "7a5fb21790966a29fb6d52809a47b68a04a9e93548a2762bdbf014ea23da49ce",
       "sha256": "b022e92517afd872f6440e41f445a3063b4c3cbe42da509cc161055d932edb0a",
       "adaptation": "SDK public-header include relocation; extend self-test coverage for all eight channels and stereo pan, non-advancing reads/observations, per-instance Stop isolation, and timer-B IRQ/status. Event CLI and observation layout are retained."
+    },
+    {
+      "file": "native/tests/segapsg_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_game_gear_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "43f4f024676fefd10c439387db36beb5745225c0510311c548fd7fd7ba777539",
+      "sha256": "55b69e8c3c553e85e5b30b968a6981a90b02238bba67828b203294763857c20e",
+      "adaptation": "SDK public-header include relocation; extend self-test coverage for all eight noise modes, tone/noise/volume continuation latches, exact noise phase across mute/unmute, and upper clock-bound acceptance. Event CLI and PCM layout are retained."
     }
   ]
 }

@@ -21,13 +21,15 @@ The SDK is the distribution source for these snapshots. Moving shared-core devel
 ## Adoption stages
 
 1. Collect the chip sources, component licenses and existing bridges while preserving the dependency paths used by current applications.
-2. Build the YM2612 and YM2151 Native targets and representative WASM recipes using only a source ZIP extracted outside the original repositories, then verify PCM, observation and state operations appropriate to each ABI.
+2. Build the YM2612, YM2151 and Sega PSG Native targets and representative WASM recipes using only a source ZIP extracted outside the original repositories, then verify PCM, observation and state operations appropriate to each ABI. Render the offline FM+PSG example to check a small multi-core host.
 3. Switch one application's YM2612 dependency to a release pinned by version and archive hash, and compare its build and output with the existing implementation.
 4. Add standalone targets for other cores incrementally. Document Native/WASM differences and integration requirements before adopting each target.
 
-`native/reference/tauri/` contains captured Native provider implementations. These sources retain backend-specific resampling, mute, audition and cancellation behavior. Their presence does not establish a stable SDK API or a completed standalone build for every chip. DX7's Native-specific changes are also retained separately. The standalone Native CMake targets are YM2612/ymfm and YM2151/ymfm; see the [verification record](verification.md) for completed checks and platform coverage.
+`native/reference/tauri/` contains captured Native provider implementations. These sources retain backend-specific resampling, mute, audition and cancellation behavior. Their presence does not establish a stable SDK API or a completed standalone build for every chip. DX7's Native-specific changes are also retained separately. The standalone Native CMake targets are YM2612/ymfm, YM2151/ymfm and Sega PSG; see the [verification record](verification.md) for completed checks and platform coverage.
 
 The Native-owned OPN and OPM providers under `native/src/` explicitly instantiate the templates used by those adapters. They incorporate the Tauri linkage fix while preserving the shared vendor bytes and existing chip ABI. YM2151 is an independent eight-channel OPM target; the X68000 OKIM6258 path remains a reference implementation. Adding a chip target does not import the Tauri scheduler, device output or ownership system.
+
+Sega PSG uses the independent Game Gear wrapper and the existing Tetorica SegaPSG core. Its `native_game_gear_*` ABI is preserved rather than renamed; the target owns no FM or OPLL core. Stereo `0xff` retains Genesis/Master System PSG output on both channels, while Game Gear hosts can select per-channel stereo. The small `tetorica_genesis_wav` host mixes YM2612 and PSG into a synthetic WAV using fixed example gains; it does not define SDK-wide mixing defaults or emulate a console.
 
 `reference/javascript/` preserves the Analyzer's MSM5205 and OKIM6295 engines as synchronous JavaScript references, with their own provenance, component notices and offline example. SDK Native/WASM integrations are not provided for these engines. Separately pinned, explicitly BSD-licensed upstream C/C++ references live in their vendor directories and are cataloged as `upstreamReferences`. Their manifests document omitted framework dependencies; they are not part of the existing build targets.
 

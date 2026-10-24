@@ -28,7 +28,8 @@ translation-unit constraints.
 
 ## Build support
 
-The independently buildable Native components are **ymfm YM2612 and YM2151**:
+The independently buildable Native components are **ymfm YM2612 and YM2151,
+plus Sega PSG**:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -43,6 +44,7 @@ build/native`. Neither build downloads dependencies.
 | --- | --- | --- | --- |
 | `tetorica::ym2612` | `tetorica_native_ym2612` | `<tetorica/ym2612.hpp>` | `native_ym2612_*`, `NativeYm2612State` |
 | `tetorica::ym2151` | `tetorica_native_ym2151` | `<tetorica/ym2151.hpp>` | `native_ym2151_*`, `NativeYm2151State` |
+| `tetorica::segapsg` | `tetorica_native_segapsg` | `<tetorica/segapsg.hpp>` | `native_game_gear_*`, `NativeGameGearState` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -57,8 +59,12 @@ no audio device.
 The YM2151 fixture covers eight FM channels, left/right pan, independent
 instances, timers/status/IRQ, clock changes, non-advancing observations, separate
 FM/CSM cancellation, audition, retained Stop and reset. Its rendering checks also
-reject C++ allocation/free in the tested paths. Both fixtures run through CTest
-with assertions enabled in Release builds. See the [verification record](../docs/verification.md)
+reject C++ allocation/free in the tested paths.
+
+The Sega PSG fixture covers the independent three-tone/noise renderer, stereo
+routing, mute, retained controls, Stop/reset, clock changes and observation.
+All three fixtures run through CTest with assertions enabled in Release builds.
+See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
 
@@ -120,11 +126,59 @@ callback, serialize register writes with rendering, and schedule events in the
 host. `native_ym2151_get_state()` observes authored registers, key gates and
 status without advancing audio; it is not a transferable WASM save state.
 
+## Embed Sega PSG
+
+Link `tetorica::segapsg` and include `<tetorica/segapsg.hpp>`. The public ABI keeps
+its existing `native_game_gear_*` names for compatibility. Despite those names,
+this target owns only one Sega PSG: three tone channels and one noise channel,
+without a Genesis FM or Master System OPLL core. The core is the Tetorica
+SegaPSG implementation stored under `vendor/ymfm/`; it is not a Yamaha FM chip.
+
+`native_game_gear_create(output_rate)` defaults to a 3,579,545 Hz chip clock and
+stereo mask `0xff`. Retain that mask for Genesis/Master System PSG output on
+both channels. Game Gear hosts can use `native_game_gear_set_stereo()` for
+per-channel routing: bits 0–3 enable right output and bits 4–7 enable left output.
+
+For a tone, calculate the 10-bit period as `round(clock / (32 * frequency_hz))`,
+then write its latch low nibble, six high bits, and attenuation byte through
+`native_game_gear_write()`. Periods 0/1 have constant-output behavior, so a
+musical tone should use 2–1023. Attenuation 0 is loudest and 15 is silent.
+`native_game_gear_sample()` renders one stereo frame at the requested output
+rate. Stop, mute, audition, reset and observational state access retain their
+existing Native semantics; host scheduling and synchronization stay outside
+the library.
+
+## Offline FM + PSG example
+
+`examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in the
+`tetorica_genesis_wav` executable. From the SDK root:
+
+```sh
+cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
+cmake --build build/native --config Release --target tetorica_genesis_wav
+# Single-configuration generators:
+./build/native/native/tetorica_genesis_wav "genesis demo.wav"
+# Visual Studio on Windows:
+./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
+```
+
+The one required argument selects the output WAV; the parent directory must
+exist. The example generates exactly 144,000 frames of stereo PCM16 at 48 kHz
+from synthetic notes and noise, with no audio device or external assets. It
+uses the hardware FM BLOCK/F-NUM and PSG period equations, fixed mix headroom
+and short output fades. PSG stereo remains `0xff`; no Game Gear-only routing
+is applied to this Genesis-style sketch. Rendering and file writing happen
+offline, rather than inside an audio callback.
+
+`TETORICA_NATIVE_BUILD_EXAMPLES` defaults to `ON`. Disable it with
+`-DTETORICA_NATIVE_BUILD_EXAMPLES=OFF` for a library-only integration; tests are
+controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
+
 ## Collected component references
 
 | Public component | Reference wrapper or support | Native CMake build |
 | --- | --- | --- |
-| Sega PSG | `native_genesis_psg.h`, Game Gear/Master System wrappers | Not yet connected |
+| Sega PSG | `native_genesis_psg.h`, independent `native_genesis_game_gear.cpp` wrapper | Standalone PSG target and fixture; no OPLL core |
 | YM2612 | `native_genesis_ym2612.cpp`; Nuked alternative in `native_genesis_nuked.cpp` and `.inc` | ymfm built and tested; Nuked reference only |
 | YM2203 | `native_genesis_ym2203.cpp` | Not yet connected |
 | YM2608 | `native_genesis_ym2608.cpp` | Not yet connected |

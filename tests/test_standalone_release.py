@@ -11,12 +11,13 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+import wave
 import zipfile
 
 import check_standalone_release as checker
 from check_standalone_release import (AuditError, REQUIRED_ARTIFACTS, REQUIRED_CHIPS,
                                       REQUIRED_JAVASCRIPT_REFERENCES, REQUIRED_UPSTREAM_REFERENCES, audit_catalog,
-                                      audit_compile_commands, audit_local_sources, audit_manifest, audit_native_file_api,
+                                      audit_compile_commands, audit_genesis_wav, audit_local_sources, audit_manifest, audit_native_file_api,
                                       audit_wasm, relative_path, unpack)
 
 
@@ -430,7 +431,8 @@ class NativeBuildPortabilityTests(unittest.TestCase):
     def file_api_fixture(self, executable="tetorica_ym2612_fixture.exe", multi_config=True):
         reply = self.build / ".cmake/api/v1/reply"
         reply.mkdir(parents=True, exist_ok=True)
-        targets = [{"jsonFile": "fixture-release.json"}, {"jsonFile": "fixture-ym2151-release.json"}]
+        targets = [{"jsonFile": name} for name in ("fixture-release.json", "fixture-ym2151-release.json",
+                                                   "fixture-segapsg-release.json", "example-genesis-release.json")]
         model = {"paths": {"source": str(self.root), "build": str(self.build)}, "configurations": [
             {"name": "Debug", "targets": [{"jsonFile": "fixture-debug.json"}]},
             {"name": "Release", "targets": targets},
@@ -444,15 +446,25 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                               {"path": "generated/source.cpp", "isGenerated": True}],
                   "compileGroups": [{"includes": [{"path": str(self.root / "vendor/include files")},
                                                     {"path": str(self.build / "generated")}]}]}
-        opm = copy.deepcopy(detail)
-        opm["name"] = "tetorica_ym2151_fixture"
-        opm["nameOnDisk"] = executable.replace("ym2612", "ym2151")
-        opm["artifacts"] = [{"path": artifact_directory + opm["nameOnDisk"]}]
-        opm["sources"][0]["path"] = "native/tests/ym2151_fixture.cpp"
+        extra_targets = {}
+        for chip in ("ym2151", "segapsg"):
+            target = copy.deepcopy(detail)
+            target["name"] = f"tetorica_{chip}_fixture"
+            target["nameOnDisk"] = executable.replace("ym2612", chip)
+            target["artifacts"] = [{"path": artifact_directory + target["nameOnDisk"]}]
+            target["sources"][0]["path"] = f"native/tests/{chip}_fixture.cpp"
+            extra_targets[f"fixture-{chip}-release.json"] = target
+        example = copy.deepcopy(detail)
+        example["name"] = "tetorica_genesis_wav"
+        example["nameOnDisk"] = example["name"] + Path(executable).suffix
+        example["artifacts"] = [{"path": artifact_directory + example["nameOnDisk"]}]
+        example["sources"][0]["path"] = "native/examples/genesis_wav.cpp"
+        extra_targets["example-genesis-release.json"] = example
         (reply / "index-test.json").write_text(json.dumps({"reply": {"codemodel-v2": {"jsonFile": "model.json"}}}))
         (reply / "model.json").write_text(json.dumps(model))
         (reply / "fixture-release.json").write_text(json.dumps(detail))
-        (reply / "fixture-ym2151-release.json").write_text(json.dumps(opm))
+        for name, target in extra_targets.items():
+            (reply / name).write_text(json.dumps(target))
         # No Debug detail is needed: only the requested Release configuration is built.
         return reply, model, detail
 
@@ -489,15 +501,28 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                     self.file_api_fixture("tetorica_ym2612_fixture" + extension, multi_config)
                     directory = "native/Release" if multi_config else "native"
                     self.assertEqual(audit_native_file_api(self.root, self.build), {
-                        name: self.build / directory / (name + extension) for name in checker.REQUIRED_NATIVE_FIXTURES
+                        name: self.build / directory / (name + extension) for name in checker.REQUIRED_NATIVE_EXECUTABLES
                     })
 
     def test_file_api_requires_ym2151_even_when_ym2612_remains_complete(self):
         reply, model, _ = self.file_api_fixture()
-        model["configurations"][1]["targets"] = [{"jsonFile": "fixture-release.json"}]
+        model["configurations"][1]["targets"] = [target for target in model["configurations"][1]["targets"]
+                                                   if target["jsonFile"] != "fixture-ym2151-release.json"]
         (reply / "model.json").write_text(json.dumps(model))
-        with self.assertRaisesRegex(AuditError, "missing required fixture targets.*tetorica_ym2151_fixture"):
+        with self.assertRaisesRegex(AuditError, "missing required executable targets.*tetorica_ym2151_fixture"):
             audit_native_file_api(self.root, self.build)
+
+    def test_file_api_requires_segapsg_and_genesis_example_in_single_and_multi_config_builds(self):
+        for multi_config in (False, True):
+            for filename, target_name in (("fixture-segapsg-release.json", "tetorica_segapsg_fixture"),
+                                          ("example-genesis-release.json", "tetorica_genesis_wav")):
+                with self.subTest(multi_config=multi_config, target=target_name):
+                    reply, model, _ = self.file_api_fixture(multi_config=multi_config)
+                    release = next(item for item in model["configurations"] if item["name"] == "Release")
+                    release["targets"] = [target for target in release["targets"] if target["jsonFile"] != filename]
+                    (reply / "model.json").write_text(json.dumps(model))
+                    with self.assertRaisesRegex(AuditError, "missing required executable targets.*" + target_name):
+                        audit_native_file_api(self.root, self.build)
 
     def test_ym2151_requires_a_unique_executable_artifact_and_target(self):
         for error in ("missing artifact", "duplicate artifact", "duplicate target", "outside artifact"):
@@ -558,19 +583,24 @@ class NativeBuildPortabilityTests(unittest.TestCase):
 
         def execute(arguments, cwd, environment):
             commands.append(list(map(str, arguments)))
-            self.assertEqual(cwd, self.root.resolve())
+            self.assertEqual(cwd, self.build.resolve() if len(commands) == 4 else self.root.resolve())
             if arguments[0:2] == ["cmake", "-S"]:
                 self.file_api_fixture()
             elif arguments[0:2] == ["cmake", "--build"]:
-                for name in checker.REQUIRED_NATIVE_FIXTURES:
+                for name in checker.REQUIRED_NATIVE_EXECUTABLES:
                     fixture = self.build / "native/Release" / (name + ".exe")
                     fixture.parent.mkdir(parents=True, exist_ok=True)
                     fixture.write_bytes(b"fixture executable")
+            elif len(commands) == 4:
+                self.write_wav(Path(arguments[1]))
 
         with patch.object(checker, "command", side_effect=execute):
             checker.build_native(self.root, self.build, {})
+        self.assertIn("-DTETORICA_NATIVE_BUILD_EXAMPLES=ON", commands[0])
         self.assertEqual(commands[1], ["cmake", "--build", str(self.build.resolve()), "--config", "Release", "--parallel", "2"])
         self.assertEqual(commands[2], ["ctest", "--test-dir", str(self.build.resolve()), "-C", "Release", "--output-on-failure", "--no-tests=error"])
+        self.assertEqual(commands[3], [str(self.build.resolve() / "native/Release/tetorica_genesis_wav.exe"),
+                                       str(self.build.resolve() / "genesis example output.wav")])
 
     def test_native_build_rejects_an_unbuilt_ym2151_fixture_before_running_ctest(self):
         commands = []
@@ -580,14 +610,76 @@ class NativeBuildPortabilityTests(unittest.TestCase):
             if arguments[0:2] == ["cmake", "-S"]:
                 self.file_api_fixture()
             elif arguments[0:2] == ["cmake", "--build"]:
-                fixture = self.build / "native/Release/tetorica_ym2612_fixture.exe"
-                fixture.parent.mkdir(parents=True)
-                fixture.write_bytes(b"fixture executable")
+                for name in checker.REQUIRED_NATIVE_EXECUTABLES - {"tetorica_ym2151_fixture"}:
+                    fixture = self.build / "native/Release" / (name + ".exe")
+                    fixture.parent.mkdir(parents=True, exist_ok=True)
+                    fixture.write_bytes(b"fixture executable")
 
         with patch.object(checker, "command", side_effect=execute):
             with self.assertRaisesRegex(AuditError, "not built.*tetorica_ym2151_fixture"):
                 checker.build_native(self.root, self.build, {})
         self.assertEqual(len(commands), 2)
+
+    def test_native_build_rejects_unbuilt_segapsg_before_ctest_for_both_config_layouts(self):
+        for multi_config in (False, True):
+            with self.subTest(multi_config=multi_config):
+                self.build = self.work / ("multi native build" if multi_config else "single native build")
+                self.build.mkdir()
+                commands = []
+
+                def execute(arguments, cwd, environment):
+                    commands.append(list(map(str, arguments)))
+                    if arguments[0:2] == ["cmake", "-S"]:
+                        self.file_api_fixture(multi_config=multi_config)
+                    elif arguments[0:2] == ["cmake", "--build"]:
+                        directory = "native/Release" if multi_config else "native"
+                        for name in checker.REQUIRED_NATIVE_EXECUTABLES - {"tetorica_segapsg_fixture"}:
+                            fixture = self.build / directory / (name + ".exe")
+                            fixture.parent.mkdir(parents=True, exist_ok=True)
+                            fixture.write_bytes(b"fixture executable")
+
+                with patch.object(checker, "command", side_effect=execute):
+                    with self.assertRaisesRegex(AuditError, "not built.*tetorica_segapsg_fixture"):
+                        checker.build_native(self.root, self.build, {})
+                self.assertEqual(len(commands), 2)
+
+    def write_wav(self, path, *, channels=2, rate=48000, width=2, frames=48000, samples=(1000, -2000)):
+        frame = b"".join(samples[channel].to_bytes(2, "little", signed=True) for channel in range(channels)) if width == 2 else b"\x01" * channels * width
+        with wave.open(str(path), "wb") as audio:
+            audio.setnchannels(channels)
+            audio.setsampwidth(width)
+            audio.setframerate(rate)
+            audio.writeframes(frame * frames)
+
+    def test_genesis_wav_requires_pcm16_stereo_48khz_and_a_full_second(self):
+        path = self.build / "example output.wav"
+        with self.assertRaisesRegex(AuditError, "did not write its WAV"):
+            audit_genesis_wav(path)
+        self.write_wav(path)
+        result = audit_genesis_wav(path)
+        self.assertEqual(result["frames"], 48000)
+        self.assertEqual(result["channelPeaks"], [1000 / 32768, 2000 / 32768])
+        for settings in ({"channels": 1}, {"rate": 44100}, {"width": 1}, {"frames": 47999}):
+            with self.subTest(settings=settings):
+                self.write_wav(path, **settings)
+                with self.assertRaisesRegex(AuditError, "PCM16 stereo|at least one second"):
+                    audit_genesis_wav(path)
+
+    def test_genesis_wav_rejects_silent_channels_clipping_and_truncated_payloads(self):
+        path = self.build / "example output.wav"
+        for samples in ((0, 0), (1000, 0), (32767, -32768)):
+            with self.subTest(samples=samples):
+                self.write_wav(path, samples=samples)
+                with self.assertRaisesRegex(AuditError, "both channels|clipped"):
+                    audit_genesis_wav(path)
+        self.write_wav(path)
+        data = path.read_bytes()
+        path.write_bytes(data[:-4])
+        with self.assertRaisesRegex(AuditError, "truncated"):
+            audit_genesis_wav(path)
+        path.write_bytes(b"not a WAV")
+        with self.assertRaisesRegex(AuditError, "Invalid Genesis example WAV"):
+            audit_genesis_wav(path)
 
     def test_relative_work_directory_is_resolved_before_changing_command_cwd(self):
         previous = Path.cwd()

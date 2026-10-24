@@ -25,13 +25,15 @@ Original Tetorica code uses BSD-3-Clause. Retain the license files, notices and 
    python3 tests/check_standalone_release.py --source-zip <sources.zip>
    ```
 
-   The normal verification builds both standalone Native libraries, YM2612 and YM2151, requires both CTest fixtures, and runs the JavaScript reference smoke using Node.js 22 or newer. Add `--wasm-zip <wasm.zip>` to audit the matching WASM release and run its Node ABI smoke test. See [tests/README.md](../tests/README.md) for tool requirements and optional rebuilds.
+   The normal verification builds the standalone YM2612, YM2151 and Sega PSG libraries, requires all three CTest fixtures, renders and checks the offline FM+PSG WAV example, and runs the JavaScript reference smoke using Node.js 22 or newer. Add `--wasm-zip <wasm.zip>` to audit the matching WASM release and run its Node ABI smoke test. See [tests/README.md](../tests/README.md) for tool requirements and optional rebuilds.
 
 3. Vendor the required contents under a path such as `vendor/tetorica-soundchip-native/`, retaining licenses, notices, catalogs and the manifest. Importing the complete source archive is the simplest starting point for Native integration.
 4. Record the SDK version, original archive SHA-256, selected chip and engine, and any downstream patches.
 5. Build against the vendored files. Import another release only when intentionally updating the dependency.
 
-The Native CMake targets are `tetorica::ym2612` and `tetorica::ym2151`, backed by `tetorica_native_ym2612` and `tetorica_native_ym2151`. Their public C++ headers are `<tetorica/ym2612.hpp>` and `<tetorica/ym2151.hpp>`. Choose the targets your host uses; the source archive contains both and the current reference ABIs. See the [Native guide](../native/README.md) for integration examples and scope.
+The Native CMake targets are `tetorica::ym2612`, `tetorica::ym2151` and `tetorica::segapsg`, backed by the corresponding `tetorica_native_*` static targets. Their public C++ headers are `<tetorica/ym2612.hpp>`, `<tetorica/ym2151.hpp>` and `<tetorica/segapsg.hpp>`. Choose the targets your host uses; the source archive contains all three and the current reference ABIs. Sega PSG deliberately retains the `native_game_gear_*` ABI names and owns no OPLL core. See the [Native guide](../native/README.md) for integration examples and scope.
+
+The default Native build includes `tetorica_genesis_wav <output.wav>`, a three-second 48 kHz stereo PCM16 example linked to YM2612 and Sega PSG. It needs no device or sample assets. Set `TETORICA_NATIVE_BUILD_EXAMPLES=OFF` to omit the executable in an embedded library build; the standalone release checker explicitly enables it to validate a real multi-core rendering host.
 
 Publishing a new SDK release does not update a consumer's pinned version. Normal builds and CI do not need to fetch sound-chip sources from GitHub, npm or an adjacent checkout. Consumers supply their compilers and other development tools.
 
@@ -47,11 +49,11 @@ Keep three verification states distinct: source is included, source works in its
 
 ## Continuous verification
 
-[Verify SDK](../.github/workflows/verify-sdk.yml) runs for every push, pull request, and manual dispatch. It has five Native jobs: Linux GCC on x64 and ARM64, Windows MSVC, and macOS Clang on Intel and Apple Silicon. Each packages a fresh source ZIP, extracts it under the runner's temporary directory, builds both YM2612 and YM2151 in the Release configuration, runs both CTest fixtures, and executes the JavaScript reference smoke. CMake File API and compiler-command checks enforce that project sources and explicit includes come from the extracted SDK. Build diagnostics are retained as per-platform artifacts. Consult the [verification record](verification.md) for completed runs; adding a target to the matrix does not itself establish platform success.
+[Verify SDK](../.github/workflows/verify-sdk.yml) runs for every push, pull request, and manual dispatch. It has five Native jobs: Linux GCC on x64 and ARM64, Windows MSVC, and macOS Clang on Intel and Apple Silicon. Each packages a fresh source ZIP, extracts it under the runner's temporary directory, builds YM2612, YM2151 and Sega PSG in the Release configuration, runs all three CTest fixtures, renders/checks the FM+PSG WAV example, and executes the JavaScript reference smoke. CMake File API and compiler-command checks enforce that project sources and explicit includes come from the extracted SDK. Build diagnostics are retained as per-platform artifacts. Consult the [verification record](verification.md) for completed runs; adding a target to the matrix does not itself establish platform success.
 
 The Ubuntu WASM job installs the fixed Emscripten 6.0.6 toolchain, compiles YM2612, and packages its artifacts with the exact matching source ZIP. It verifies hashes and the synchronous Node ABI, then recompiles YM2612 from the independently extracted source archive and repeats the smoke. Verified archives and compiler/input/output records are uploaded as workflow artifacts; the workflow does not publish GitHub releases.
 
-Compilers, Python 3.12, and Node.js 22 are CI tool dependencies. Chip sources come from the SDK checkout/archive. Native targets beyond YM2612/YM2151, the X68000 OKIM6258 integration, and the remaining WASM recipes are outside this workflow's compilation scope.
+Compilers, Python 3.12, and Node.js 22 are CI tool dependencies. Chip sources come from the SDK checkout/archive. Native targets beyond YM2612/YM2151/Sega PSG, the X68000 OKIM6258 and Master System OPLL integrations, and the remaining WASM recipes are outside this workflow's compilation scope.
 
 The MSM5205 and OKIM6295 entries under `javascriptReferences` are executable JavaScript snapshots, not Native or WASM artifacts. Include `reference/javascript/` and its component notices when selecting these sources. The packager includes them in the source ZIP; archive audits check both their presence and their explicit `not-ported` backend status.
 
