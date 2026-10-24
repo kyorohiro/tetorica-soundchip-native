@@ -436,12 +436,12 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                                                    "fixture-ay8910-release.json", "fixture-ym2203-release.json", "fixture-ym2608-release.json",
                                                    "fixture-ym2610-release.json", "fixture-okim6258-release.json", "fixture-rf5c164-release.json",
                                                    "fixture-opl-release.json", "fixture-extra_opl-release.json", "fixture-y8950_memory-release.json", "fixture-gameboy-release.json", "fixture-huc6280-release.json", "fixture-nes-release.json",
-                                                   "fixture-pwm-release.json", "fixture-extra_pwm-release.json",
+                                                   "fixture-pwm-release.json", "fixture-extra_pwm-release.json", "fixture-dx7-release.json",
                                                    "example-genesis-release.json", "example-master-system-release.json",
                                                    "example-msx-release.json", "example-pc98-ym2203-release.json",
                                                    "example-pc98-ym2608-release.json", "example-neogeo-release.json",
                                                    "example-x68000-release.json", "example-megacd-release.json",
-                                                   "example-dos-opl-release.json", "example-msx-audio-release.json", "example-gameboy-release.json", "example-pcengine-release.json", "example-nes-fds-release.json", "example-32x-release.json")]
+                                                   "example-dos-opl-release.json", "example-msx-audio-release.json", "example-gameboy-release.json", "example-pcengine-release.json", "example-nes-fds-release.json", "example-32x-release.json", "example-dx7-release.json")]
         model = {"paths": {"source": str(self.root), "build": str(self.build)}, "configurations": [
             {"name": "Debug", "targets": [{"jsonFile": "fixture-debug.json"}]},
             {"name": "Release", "targets": targets},
@@ -457,7 +457,7 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                                                     {"path": str(self.build / "generated")}]}]}
         extra_targets = {}
         for chip in ("ym2151", "segapsg", "ym2413", "ay8910", "ym2203", "ym2608", "ym2610", "okim6258", "rf5c164",
-                     "opl", "extra_opl", "y8950_memory", "gameboy", "huc6280", "nes", "pwm", "extra_pwm"):
+                     "opl", "extra_opl", "y8950_memory", "gameboy", "huc6280", "nes", "pwm", "extra_pwm", "dx7"):
             target = copy.deepcopy(detail)
             target["name"] = f"tetorica_{chip}_fixture"
             target["nameOnDisk"] = executable.replace("ym2612", chip)
@@ -465,7 +465,7 @@ class NativeBuildPortabilityTests(unittest.TestCase):
             target["sources"][0]["path"] = f"native/tests/{chip}_fixture.cpp"
             extra_targets[f"fixture-{chip}-release.json"] = target
         for machine in ("genesis", "master_system", "msx", "pc98_ym2203", "pc98_ym2608", "neogeo", "x68000", "megacd",
-                        "dos_opl", "msx_audio", "gameboy", "pcengine", "nes_fds", "32x"):
+                        "dos_opl", "msx_audio", "gameboy", "pcengine", "nes_fds", "32x", "dx7"):
             example = copy.deepcopy(detail)
             example["name"] = f"tetorica_{machine}_wav"
             example["nameOnDisk"] = example["name"] + Path(executable).suffix
@@ -543,6 +543,7 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                                           ("fixture-nes-release.json", "tetorica_nes_fixture"),
                                           ("fixture-pwm-release.json", "tetorica_pwm_fixture"),
                                           ("fixture-extra_pwm-release.json", "tetorica_extra_pwm_fixture"),
+                                          ("fixture-dx7-release.json", "tetorica_dx7_fixture"),
                                           ("example-genesis-release.json", "tetorica_genesis_wav"),
                                           ("example-master-system-release.json", "tetorica_master_system_wav"),
                                           ("example-msx-release.json", "tetorica_msx_wav"),
@@ -556,7 +557,8 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                                           ("example-gameboy-release.json", "tetorica_gameboy_wav"),
                                           ("example-pcengine-release.json", "tetorica_pcengine_wav"),
                                           ("example-nes-fds-release.json", "tetorica_nes_fds_wav"),
-                                          ("example-32x-release.json", "tetorica_32x_wav")):
+                                          ("example-32x-release.json", "tetorica_32x_wav"),
+                                          ("example-dx7-release.json", "tetorica_dx7_wav")):
                 with self.subTest(multi_config=multi_config, target=target_name):
                     reply, model, _ = self.file_api_fixture(multi_config=multi_config)
                     release = next(item for item in model["configurations"] if item["name"] == "Release")
@@ -668,6 +670,8 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                                         str(self.build.resolve() / "nes with fds example output.wav")])
         self.assertEqual(commands[16], [str(self.build.resolve() / "native/Release/tetorica_32x_wav.exe"),
                                         str(self.build.resolve() / "32x example output.wav")])
+        self.assertEqual(commands[17], [str(self.build.resolve() / "native/Release/tetorica_dx7_wav.exe"),
+                                        str(self.build.resolve() / "dx7 example output.wav")])
 
     def test_native_build_rejects_an_unbuilt_ym2151_fixture_before_running_ctest(self):
         commands = []
@@ -693,10 +697,10 @@ class NativeBuildPortabilityTests(unittest.TestCase):
                             "tetorica_ym2203_fixture", "tetorica_ym2608_fixture", "tetorica_ym2610_fixture",
                             "tetorica_okim6258_fixture", "tetorica_rf5c164_fixture",
                             "tetorica_opl_fixture", "tetorica_extra_opl_fixture", "tetorica_y8950_memory_fixture", "tetorica_gameboy_fixture", "tetorica_huc6280_fixture", "tetorica_nes_fixture",
-                            "tetorica_pwm_fixture", "tetorica_extra_pwm_fixture",
+                            "tetorica_pwm_fixture", "tetorica_extra_pwm_fixture", "tetorica_dx7_fixture",
                             "tetorica_master_system_wav", "tetorica_msx_wav", "tetorica_pc98_ym2203_wav",
                             "tetorica_pc98_ym2608_wav", "tetorica_neogeo_wav", "tetorica_x68000_wav", "tetorica_megacd_wav",
-                            "tetorica_dos_opl_wav", "tetorica_msx_audio_wav", "tetorica_gameboy_wav", "tetorica_pcengine_wav", "tetorica_nes_fds_wav", "tetorica_32x_wav"):
+                            "tetorica_dos_opl_wav", "tetorica_msx_audio_wav", "tetorica_gameboy_wav", "tetorica_pcengine_wav", "tetorica_nes_fds_wav", "tetorica_32x_wav", "tetorica_dx7_wav"):
                 with self.subTest(multi_config=multi_config, missing=missing):
                     self.build = self.work / f"native build {multi_config} {missing}"
                     self.build.mkdir()
@@ -722,7 +726,7 @@ class NativeBuildPortabilityTests(unittest.TestCase):
         for label, failing_command in (("Master System", 5), ("MSX", 6), ("PC-98 YM2203", 7), ("PC-98 YM2608", 8),
                                        ("NeoGeo", 9), ("X68000", 10), ("Mega-CD", 11),
                                        ("DOS PC OPL", 12), ("MSX-AUDIO", 13), ("Game Boy", 14), ("PC Engine", 15),
-                                       ("NES with FDS", 16), ("32X", 17)):
+                                       ("NES with FDS", 16), ("32X", 17), ("DX7", 18)):
             with self.subTest(label=label):
                 self.build = self.work / f"invalid {label} example build"
                 self.build.mkdir()

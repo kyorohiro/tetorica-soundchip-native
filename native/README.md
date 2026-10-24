@@ -30,10 +30,10 @@ translation-unit constraints.
 Requirements: CMake 3.20 or newer and a C++17 compiler.
 
 The independently buildable Native components are **ymfm YM2612, YM2151,
-YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280, NES with optional FDS, 32X PWM and YM3526/YM3812/YMF262/Y8950**.
-These nineteen chip IDs use fifteen static libraries; YM2610/YM2610B share one
+YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280, NES with optional FDS, 32X PWM, MSFA DX7 and YM3526/YM3812/YMF262/Y8950**.
+These twenty chip IDs use sixteen static libraries; YM2610/YM2610B share one
 library, and four OPL-family chips share another. Constructors explicitly select
-the per-handle variant/kind. Twenty aliases/headers include the generic OPL entry:
+the per-handle variant/kind. Twenty-one aliases/headers include the generic OPL entry:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -61,6 +61,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::huc6280` | `tetorica_native_huc6280` | `<tetorica/huc6280.hpp>` | `native_huc6280_*`, `NativeHuc6280State` |
 | `tetorica::nes` | `tetorica_native_nes` | `<tetorica/nes.hpp>` | `native_nes_*`, `NativeNesState` |
 | `tetorica::pwm` | `tetorica_native_pwm` | `<tetorica/pwm.hpp>` | `native_pwm_*`, `NativePwmState` |
+| `tetorica::dx7` | `tetorica_native_dx7` | `<tetorica/dx7.hpp>` | `native_dx7_*`; no public state snapshot |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -98,7 +99,7 @@ clock/divider guards, pan, repeat, retained Stop/reset and observation.
 The RF5C164 fixture covers both profiles, eight voices, sign-magnitude PCM,
 loop markers, RAM/bank access, clock conversion, reset retention and the
 additional profile's immediate source cancellation and observation.
-All eighteen fixtures run through CTest with assertions enabled in Release builds.
+All nineteen fixtures run through CTest with assertions enabled in Release builds.
 The three OPL-family fixtures exercise primary controls/PCM, additional source
 ownership/held output, and Y8950 writable-page memory separately. The shared OPL
 library covers four selected chip kinds; each handle constructs only one kind.
@@ -124,6 +125,12 @@ The additional PWM fixture checks independent instances, pure observation,
 64-bit owner-tag FIFO/latch cancellation and isolation, overflow, retained
 Stop/reset and clock guards. Both compare reference PCM and reject C++
 allocation/free on their tested rendering/control paths.
+The DX7 fixture checks rate bounds, all 16 held slots, mask-protected free
+slots and released tails, raw voice loading, matching-identity live edits and
+foreign-identity isolation, invalid-slot no-ops, release/kill buffering,
+independent instances and one-time initialization. Immediate panic silence
+and 96 clean feedback restarts (32 algorithms at 44.1/48/96 kHz) compare with
+fresh instances; tested rendering/control paths allocate/free no C++ memory.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
@@ -995,6 +1002,105 @@ The [32X WAV host](examples/sega32x_wav.cpp) demonstrates bounded FIFO feeding
 with original locally generated PCM/percussion, keeping the default clock
 and adding separate YM2612/PSG handles after a left/right PWM-only audition.
 
+## Embed DX7
+
+Link `tetorica::dx7` and include `<tetorica/dx7.hpp>` to use the unchanged
+`native_dx7_*` ABI. One handle owns a six-operator MSFA synthesizer with 32
+algorithms and 16 preallocated notes. The public header forwards the Native
+declarations; internal `SynthUnit` and `Dx7Note` classes are not public SDK APIs.
+
+```cmake
+add_subdirectory(vendor/tetorica-soundchip-native)
+target_link_libraries(your_application PRIVATE tetorica::dx7)
+```
+
+`native_dx7_create(output_rate)` accepts 8,000–384,000 Hz and returns null for
+invalid rates or allocation failure. Create/destroy outside the audio callback.
+Creation initializes process-wide lookup tables once at **44,100 Hz**; every
+instance keeps that internal rate and generates 64-frame source blocks. At
+44.1 kHz, `native_dx7_sample` directly consumes those source samples. Other
+output rates use stateful linear interpolation, including two-source-sample
+prefetch. There is no clock or output-rate setter. Each call returns one mono
+float converted from the core's filtered, clipped Int16 output; a stereo host
+can copy it to both channels. No extra host gain or normalization is applied.
+
+`native_dx7_voice(chip, voice, identity, live)` requires a nonnull pointer to
+**155 validated, unpacked single-voice bytes**. It copies those bytes immediately;
+the input can expire on return. This API does not accept packed 128-byte bank
+voices, a SysEx header/checksum or a bank. It has no byte count, parser or range
+validation. The six 21-byte operator blocks are ordered **OP6, OP5, …, OP1**.
+Within each block, offsets 0–3 are EG rates, 4–7 EG levels, 8–12 key scaling,
+13 rate scaling, 14 AM sensitivity, 15 velocity sensitivity, 16 output level,
+17 mode, 18 coarse, 19 fine and 20 detune. Global offsets 126–133 hold pitch
+EG rates/levels, 134 the zero-based algorithm 0–31, 135 feedback 0–7,
+136 oscillator sync, 137–142 LFO parameters, 143 pitch-modulation sensitivity,
+144 transpose and 145–154 the name.
+The core does not apply AM sensitivity/depth, transpose or oscillator-key-sync;
+see the [MSFA research notes](../docs/research.md) for retained limitations.
+
+With `live=false`, the call selects the copied voice for subsequent notes and
+updates the shared LFO. Existing notes keep their captured operator parameters.
+With `live=true` and the same identity as the current selection, edits to
+operator output level, mode/coarse/fine/detune and feedback reach all live notes
+with that identity, including released tails, without restarting their phase
+or envelopes. General EG, algorithm, scaling and name edits are future-note
+fields. LFO speed, delay, key-sync and waveform remain shared; note pitch-
+modulation depth/sensitivity are captured for subsequent notes. A different
+identity acts as selection;
+use a new identity when replacing a bank entry and retain an identity when
+reselecting that same entry. The SDK does not allocate or manage identities.
+
+`native_dx7_note_on(chip, midi_note, velocity)` uses MIDI pitch units (60 is C4,
+69 is A4 at 440 Hz) and requires 0–127 note/velocity values from the caller.
+Velocity zero still allocates a Native note; it is not a MIDI Note Off command.
+The return value is the allocated **slot 0–15**, or `-1` when every eligible
+slot is held. Allocation scans round-robin for a slot whose key is no longer
+down; it may reuse a released tail. `native_dx7_note_on_mask` additionally skips
+each set bit in its 16-bit preserve mask, even if that slot is released.
+Maintain slot ownership in the host and protect tails that must not be reused.
+There is no public note-off-by-pitch or active-slot query.
+
+`native_dx7_release_slot(chip, slot)` releases that slot's envelope while
+retaining its tail. `native_dx7_kill_slot` disables future computation for that
+slot, but up to the already mixed 64-source-frame block, interpolation prefetch
+and the shared output-filter tail can remain audible. These are caller-owned
+slot controls, not immediate per-slot silence. Out-of-range slots are ignored.
+`native_dx7_panic` instead clears every gate, source/output buffering, filter,
+controllers and LFO in existing storage, and resets the preallocated
+notes in place to clear feedback history for a clean panic restart. The selected
+voice, output rate and note storage addresses are preserved; subsequent
+samples are immediately silent until another note.
+`native_dx7_core_size` reports owned C++ storage, including the 16 note objects,
+not serialized state. This ABI has no portable snapshot/save/load or
+observational note-state API; reference Tauri observation is host-specific.
+
+Call voice, note, slot and sample functions serially on the caller's thread.
+They run synchronously and use preallocated storage; creation/destruction own
+allocation. The SDK supplies no audio callback, scheduler, ownership queue or
+thread synchronization. Build-time scalar selection and supported
+`-fwrapv`, `-fno-strict-aliasing`, `-ffp-contract=off` flags preserve the Native
+integer/aliasing/floating-point behavior without imposing flags on consumers.
+C++17 remains the SDK minimum.
+
+CMake assembles 13 `.cc` and 17 `.h` files under its binary directory's `msfa/`
+(`build/native/native/msfa/` for a root build into `build/native`). It copies
+24 shared files and selects the same six Native files from
+`reference/overrides/msfa/`: `dx7note.cc`, `env.cc`, `ringbuffer.cc`, `synth.h`,
+`synth_unit.cc` and `synth_unit.h`. Quoted local includes must resolve inside
+this complete Native tree; an include-directory preference alone cannot
+replace a same-directory shared header. Only the selected `.cc` files compile;
+do not add duplicate shared implementations. The vendor tree and WASM recipe
+remain unchanged. The SDK amends only Native `synth_unit.cc` panic to clear
+per-note feedback history in existing storage; original/packaged hashes record
+this correction. Ordinary Note On/release/kill behavior is preserved.
+MSFA and the overrides retain Apache-2.0, and the Native
+wrapper retains its explicit Apache-2.0 notice. The public forwarder and SDK
+integration use the default BSD-3-Clause terms.
+
+`examples/dx7_wav.cpp` is a complete small host with original 155-byte voices,
+explicit note-slot release and mono-to-stereo output; no SysEx or assets are
+needed.
+
 ## Offline WAV examples
 
 `examples/sega32x_wav.cpp` links `tetorica::pwm`, `tetorica::ym2612` and
@@ -1059,11 +1165,17 @@ the next uses an original 64-sample FDS triangle; the last mixes all six.
 It disables modulation for musical pitch conversion and checks timer
 quantization within one percent. The retained mono output is duplicated
 into stereo, using fixed gain and per-note fades.
+`examples/dx7_wav.cpp` links only `tetorica::dx7` in `tetorica_dx7_wav`.
+It constructs three original 155-byte voices with all six operators: algorithm
+1 and a matching-identity live timbre edit, algorithm 5 FM pairs, then an
+algorithm 32 C-major chord. MIDI notes return slots for explicit release,
+leaving envelope tails. Fixed gain and edge fades reserve output headroom;
+the fixed 44.1 kHz core is interpolated to 48 kHz and copied to both channels.
 From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_32x_wav tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav tetorica_nes_fds_wav
+cmake --build build/native --config Release --target tetorica_32x_wav tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav tetorica_nes_fds_wav tetorica_dx7_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_32x_wav "32x demo.wav"
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
@@ -1079,6 +1191,7 @@ cmake --build build/native --config Release --target tetorica_32x_wav tetorica_g
 ./build/native/native/tetorica_gameboy_wav "gameboy demo.wav"
 ./build/native/native/tetorica_pcengine_wav "pcengine demo.wav"
 ./build/native/native/tetorica_nes_fds_wav "nes fds demo.wav"
+./build/native/native/tetorica_dx7_wav "dx7 demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_32x_wav.exe "32x demo.wav"
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
@@ -1094,13 +1207,14 @@ cmake --build build/native --config Release --target tetorica_32x_wav tetorica_g
 ./build/native/native/Release/tetorica_gameboy_wav.exe "gameboy demo.wav"
 ./build/native/native/Release/tetorica_pcengine_wav.exe "pcengine demo.wav"
 ./build/native/native/Release/tetorica_nes_fds_wav.exe "nes fds demo.wav"
+./build/native/native/Release/tetorica_dx7_wav.exe "dx7 demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
 exist. Each example generates exactly 144,000 frames of stereo PCM16 at 48 kHz
 from synthetic notes/percussion, with no audio device or external assets.
-They use their chips' respective hardware pitch equations, fixed mix headroom
-and short output fades. Sega PSG stereo remains `0xff`; AY, OPLL, YM2203 and NES/FDS
+They use MIDI notes for DX7 and their chips' respective pitch equations, fixed mix headroom
+and short output fades. Sega PSG stereo remains `0xff`; AY, OPLL, YM2203, NES/FDS and DX7
 output is mono on both channels. Their fixed example gains are not motherboard mix
 ratios or SDK-wide defaults. Rendering and file writing happen offline,
 rather than inside an audio callback.
@@ -1127,7 +1241,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | Game Boy | `native_genesis_gameboy.cpp` | Standalone DMG APU target and fixture; owned wave RAM, gate-only Stop and observation |
 | NES + optional FDS | `native_genesis_nes.cpp` | Standalone APU/FDS target and fixture; copied DMC RAM, wave/modulation tables and observation |
 | PC Engine / HuC6280 | `native_genesis_huc6280.cpp` | Standalone six-source target and fixture; copied wave RAM, DDA/noise/LFO and observation |
-| DX7 | `native_genesis_dx7.cpp` | Not yet connected |
+| DX7 | `native_genesis_dx7.cpp`, generated Native MSFA tree | Standalone six-operator/16-slot target and fixture; original-voice WAV host |
 | 32X PWM | `native_genesis_pwm.cpp`, shared `pwm32x_core.h` | Standalone PWM target, primary/additional-tag fixtures and 32X WAV host |
 | SNES S-DSP | `native_genesis_snes.cpp` | Not yet connected |
 | SPC700 file player | `native_genesis_spc.cpp` | Not yet connected |

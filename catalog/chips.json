@@ -279,6 +279,10 @@
         "vendor/msfa/UPSTREAM.md"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {
           "native/reference/overrides/msfa/dx7note.cc": "Apache-2.0",
           "native/reference/overrides/msfa/env.cc": "Apache-2.0",
@@ -289,13 +293,11 @@
           "native/reference/tauri/native_genesis_dx7.cpp": "Apache-2.0"
         },
         "defaultLicensedFiles": [
-          "native/reference/tauri/native_genesis_dx7.h"
+          "native/reference/tauri/native_genesis_dx7.h",
+          "native/include/tetorica/dx7.hpp"
         ],
         "differencesDocument": "docs/research.md",
         "id": "dx7",
-        "knownRequirements": [
-          "Use the common MSFA files plus the six Native overrides, replacing same-name common files; the standalone Native DX7 SDK target is not yet implemented."
-        ],
         "licenseFiles": [
           "LICENSE",
           "vendor/msfa/COPYING"
@@ -310,12 +312,19 @@
           "native/reference/overrides/msfa/ringbuffer.cc",
           "native/reference/overrides/msfa/synth.h",
           "native/reference/overrides/msfa/synth_unit.cc",
-          "native/reference/overrides/msfa/synth_unit.h"
+          "native/reference/overrides/msfa/synth_unit.h",
+          "native/include/tetorica/dx7.hpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_dx7",
+        "tests": [
+          "tetorica.dx7.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Independent MSFA DX7 renderer with native_dx7_* ABI, caller-validated copied 155-byte voices, sixteen preallocated slots, protected slot allocation, identity-scoped live edits, release/kill and panic. Fixed scalar 44.1 kHz internal synthesis with integer-phase output-rate conversion; shared MSFA sources and the six selected Native overrides are assembled in the build directory. SDK Native panic amendment resets preallocated note state without allocation for clean feedback restart. Native lifecycle/allocation tests and deployed WASM PCM comparisons; no native SysEx parser, voice bank manager, device, IPC scheduler, portable snapshot or playback-deadline guarantee."
       },
       "sourceFiles": [
+        "native/include/tetorica/dx7.hpp",
         "native/reference/overrides/msfa/dx7note.cc",
         "native/reference/overrides/msfa/env.cc",
         "native/reference/overrides/msfa/ringbuffer.cc",

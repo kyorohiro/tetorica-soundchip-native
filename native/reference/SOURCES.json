@@ -420,8 +420,8 @@
       "file": "native/reference/overrides/msfa/synth_unit.cc",
       "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/native-dx7/synth_unit.cc",
       "originSha256": "8bea408d471ddcfda02dac7d004337b82e69bec08cafc9c47fd4e9e7c71ec5bf",
-      "sha256": "8bea408d471ddcfda02dac7d004337b82e69bec08cafc9c47fd4e9e7c71ec5bf",
-      "adaptation": "unchanged reference copy"
+      "sha256": "629d430c0faa2d7dc6863b2798dd264734516d1f8a8b7bf6e6fced6a8783d500",
+      "adaptation": "SDK Native panic restart correction: value-reset each preallocated Dx7Note to clear feedback history without allocating, freeing or replacing note objects. Ordinary note-on/release/kill behavior, the shared MSFA vendor sources and Native wrapper are unchanged. The original imported digest is retained separately."
     },
     {
       "file": "native/reference/overrides/msfa/synth_unit.h",
@@ -589,6 +589,14 @@
       "originSha256": "a01a79c4e2dde0e47a3fe2e1de517d9082268563fe2180286eb57c12fc271f13",
       "sha256": "5cc3440ea6ae71fc6c9fc0dbc79adc27d9d5372f12c0df8e9cbd210b53844d14",
       "adaptation": "Include the public SDK header; retain the Native/standalone-Core PCM-state CLI and original exhaustive routing/ownership/cancellation/allocation tests. Extend 64-bit tag identity, zero/ordinary ownership, active control/cycle flush with retained latch ownership, global Stop/reset/tag retention contracts, unknown-tag live-state preservation, and direct-Core invalid-state rollback. Configuration-only DAC/mute checks remain distinct from the fixed Native duty/gain-1 API; no new setters or core changes."
+    },
+    {
+      "file": "native/tests/dx7_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_dx7_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "4832f2bb9e73e3c685b246df4b688633014b46605c1cf62626289aba1d403de6",
+      "sha256": "102a0bd96ed8b3db702e8378529b0c454fe9cc31c333a09ec3cc62476cede6f9",
+      "adaptation": "Include the public SDK header; preserve the original PCM event CLI and extend constructor/rate bounds, raw voice loading and identity-scoped edits, protected allocation and released-slot reuse, release/kill/panic histories, all sixteen preallocated slots, seventeen partial-construction failure cleanups, independent instances and callback allocation/free auditing. Add 96 feedback-enabled panic/restart cases against fresh Native instances, covering all 32 algorithms at three output rates. Rendering changes are limited to the separately recorded NativePanic correction."
     }
   ]
 }

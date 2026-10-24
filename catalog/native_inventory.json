@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "notes": [
     "Reference C++/C ABI sources are collected for 22 public chips. source-only does not claim an independent SDK Native build.",
-    "Standalone CMake targets build fifteen static libraries covering nineteen chip IDs: YM2612, YM2203, YM2608, YM2610/YM2610B, YM2151, YM2413, Sega PSG, AY-3-8910, OKIM6258, RF5C164, the shared YM3526/YM3812/YMF262/Y8950 OPL family, Game Boy, HuC6280, NES with optional FDS and 32X PWM. YM2612 Nuked sources remain reference-only.",
+    "Standalone CMake targets build sixteen static libraries covering twenty chip IDs: YM2612, YM2203, YM2608, YM2610/YM2610B, YM2151, YM2413, Sega PSG, AY-3-8910, OKIM6258, RF5C164, the shared YM3526/YM3812/YMF262/Y8950 OPL family, Game Boy, HuC6280, NES with optional FDS, 32X PWM and DX7. YM2612 Nuked sources remain reference-only.",
     "Vendor component origins and license files are recorded by the shared source inventory, rather than copied again here."
   ],
   "chips": [
@@ -390,15 +390,18 @@
         "native/reference/overrides/msfa/ringbuffer.cc",
         "native/reference/overrides/msfa/synth.h",
         "native/reference/overrides/msfa/synth_unit.cc",
-        "native/reference/overrides/msfa/synth_unit.h"
+        "native/reference/overrides/msfa/synth_unit.h",
+        "native/include/tetorica/dx7.hpp"
       ],
-      "status": "source-only",
+      "status": "verified",
+      "target": "tetorica_native_dx7",
+      "verificationScope": "Independent MSFA DX7 renderer with native_dx7_* ABI, caller-validated copied 155-byte voices, sixteen preallocated slots, protected slot allocation, identity-scoped live edits, release/kill and panic. Fixed scalar 44.1 kHz internal synthesis with integer-phase output-rate conversion; shared MSFA sources and the six selected Native overrides are assembled in the build directory. SDK Native panic amendment resets preallocated note state without allocation for clean feedback restart. Native lifecycle/allocation tests and deployed WASM PCM comparisons; no native SysEx parser, voice bank manager, device, IPC scheduler, portable snapshot or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.dx7.self_test"
+      ],
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "differencesDocument": "docs/research.md",
-      "knownRequirements": [
-        "Use the common MSFA files plus the six Native overrides, replacing same-name common files; the standalone Native DX7 SDK target is not yet implemented."
-      ],
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
         "LICENSE",
@@ -414,7 +417,12 @@
         "native/reference/overrides/msfa/synth_unit.h": "Apache-2.0"
       },
       "defaultLicensedFiles": [
-        "native/reference/tauri/native_genesis_dx7.h"
+        "native/reference/tauri/native_genesis_dx7.h",
+        "native/include/tetorica/dx7.hpp"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
       ]
     },
     {

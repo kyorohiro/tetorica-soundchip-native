@@ -398,6 +398,9 @@ void SynthUnit::NativeKillSlot(int slot) {
 }
 void SynthUnit::NativePanic() {
   for (int slot = 0; slot < max_active_notes; ++slot) {
+    // Native SDK amendment: match a fresh synth's note/feedback state while
+    // retaining every preallocated object and performing no heap operations.
+    *active_note_[slot].dx7_note = Dx7Note{};
     active_note_[slot].midi_note = -1;
     active_note_[slot].voice_id = 0;
     active_note_[slot].keydown = active_note_[slot].sustained = active_note_[slot].live = false;

@@ -312,7 +312,71 @@ if(TETORICA_PWM_SUPPORTS_NO_FP_CONTRACT)
   target_compile_options(tetorica_native_pwm PRIVATE -ffp-contract=off)
 endif()
 
+# MSFA's quoted includes search beside each .cc first. Assemble one private
+# tree so every translation unit sees the Native headers, including the shared
+# sources; an include-path override alone would silently select vendor headers.
+set(TETORICA_DX7_MSFA_DIR "${CMAKE_CURRENT_BINARY_DIR}/msfa")
+set(TETORICA_DX7_MSFA_SOURCES
+  dx7note.cc env.cc exp2.cc fm_core.cc fm_op_kernel.cc freqlut.cc lfo.cc
+  patch.cc pitchenv.cc resofilter.cc ringbuffer.cc sin.cc synth_unit.cc
+)
+set(TETORICA_DX7_MSFA_HEADERS
+  aligned_buf.h controllers.h dx7note.h env.h exp2.h fm_core.h fm_op_kernel.h
+  freqlut.h lfo.h module.h patch.h pitchenv.h resofilter.h ringbuffer.h sin.h
+  synth.h synth_unit.h
+)
+set(TETORICA_DX7_MSFA_OVERRIDES
+  dx7note.cc env.cc ringbuffer.cc synth.h synth_unit.cc synth_unit.h
+)
+set(TETORICA_DX7_ASSEMBLED_SOURCES)
+foreach(msfa_file IN LISTS TETORICA_DX7_MSFA_SOURCES TETORICA_DX7_MSFA_HEADERS)
+  if(msfa_file IN_LIST TETORICA_DX7_MSFA_OVERRIDES)
+    set(msfa_input "${CMAKE_CURRENT_LIST_DIR}/reference/overrides/msfa/${msfa_file}")
+  else()
+    set(msfa_input "${TETORICA_SDK_ROOT}/vendor/msfa/${msfa_file}")
+  endif()
+  configure_file("${msfa_input}" "${TETORICA_DX7_MSFA_DIR}/${msfa_file}" COPYONLY)
+  if(msfa_file IN_LIST TETORICA_DX7_MSFA_SOURCES)
+    list(APPEND TETORICA_DX7_ASSEMBLED_SOURCES "${TETORICA_DX7_MSFA_DIR}/${msfa_file}")
+  endif()
+endforeach()
+add_library(tetorica_native_dx7 STATIC
+  reference/tauri/native_genesis_dx7.cpp
+  ${TETORICA_DX7_ASSEMBLED_SOURCES}
+)
+add_library(tetorica::dx7 ALIAS tetorica_native_dx7)
+target_compile_features(tetorica_native_dx7 PUBLIC cxx_std_17)
+target_compile_definitions(tetorica_native_dx7 PRIVATE MSFA_FORCE_SCALAR _USE_MATH_DEFINES)
+target_include_directories(tetorica_native_dx7
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_DX7_MSFA_DIR}"
+)
+# std::call_once and the portable ring-buffer wait need the platform thread
+# dependency even when this static library is consumed outside this project.
+find_package(Threads REQUIRED)
+target_link_libraries(tetorica_native_dx7 PRIVATE Threads::Threads)
+if(MSVC)
+  target_compile_options(tetorica_native_dx7 PRIVATE /EHsc)
+endif()
+# Preserve the original Tauri build's scalar integer/FP semantics without
+# applying implementation flags to consumers or the other chip libraries.
+foreach(flag IN ITEMS -fwrapv -fno-strict-aliasing -ffp-contract=off)
+  string(MAKE_C_IDENTIFIER "TETORICA_DX7_SUPPORTS_${flag}" supported_flag)
+  check_cxx_compiler_flag("${flag}" "${supported_flag}")
+  if(${supported_flag})
+    target_compile_options(tetorica_native_dx7 PRIVATE "${flag}")
+  endif()
+endforeach()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
+  add_executable(tetorica_dx7_wav examples/dx7_wav.cpp)
+  target_link_libraries(tetorica_dx7_wav PRIVATE tetorica::dx7)
+  if(MSVC)
+    target_compile_options(tetorica_dx7_wav PRIVATE /EHsc)
+  endif()
   add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
   target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
   if(MSVC)
@@ -388,6 +452,16 @@ endif()
 if(TETORICA_NATIVE_BUILD_TESTS)
   # A Release configuration must execute the fixture's assertions as well.
   enable_testing()
+  add_executable(tetorica_dx7_fixture tests/dx7_fixture.cpp)
+  target_link_libraries(tetorica_dx7_fixture PRIVATE tetorica::dx7)
+  if(MSVC)
+    target_compile_options(tetorica_dx7_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_dx7_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.dx7.self_test
+    COMMAND tetorica_dx7_fixture --self-test)
+
   add_executable(tetorica_ym2612_fixture tests/ym2612_fixture.cpp)
   target_link_libraries(tetorica_ym2612_fixture PRIVATE tetorica::ym2612)
   if(MSVC)
