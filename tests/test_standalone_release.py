@@ -2,14 +2,18 @@
 import hashlib
 import json
 import copy
+import importlib.util
 from pathlib import Path
+import shutil
 import stat
+import subprocess
+import sys
 import tempfile
 import unittest
 import zipfile
 
 from check_standalone_release import (AuditError, REQUIRED_ARTIFACTS, REQUIRED_CHIPS,
-                                      REQUIRED_JAVASCRIPT_REFERENCES, audit_catalog,
+                                      REQUIRED_JAVASCRIPT_REFERENCES, REQUIRED_UPSTREAM_REFERENCES, audit_catalog,
                                       audit_local_sources, audit_manifest,
                                       audit_wasm, relative_path, unpack)
 
@@ -29,6 +33,7 @@ class ReleaseAuditTests(unittest.TestCase):
         return path
 
     def fixture(self):
+        self.write("sdk.json", json.dumps({"name": "tetorica-soundchip-native", "version": "0.1.0"}))
         source = self.write("vendor/core.cpp", "int sound_chip() { return 1; }\n")
         self.write("vendor/LICENSE", "BSD-3-Clause fixture license\n")
         self.write("scripts/build-wasm.sh", "#!/bin/sh\nset -eu\nem++ vendor/core.cpp -o result.js\n")
@@ -48,12 +53,37 @@ class ReleaseAuditTests(unittest.TestCase):
             javascript_components.append({"id": identifier, "sourceFiles": [entry], "licenseFiles": [license_file],
                                           "files": [{"path": entry, "originPath": f"web/{identifier}audioengine.js",
                                                      "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}]})
+        upstream = []
+        upstream_components = []
+        for identifier in sorted(REQUIRED_UPSTREAM_REFERENCES):
+            directory = f"vendor/{identifier}/upstream"
+            entry = f"{directory}/core.c"
+            path = self.write(entry, '/* BSD-3-Clause upstream source fixture */\n#include "support.h"\n')
+            license_file = f"{directory}/LICENSE"
+            notice = self.write(license_file, "BSD-3-Clause upstream fixture license\n")
+            files = [{"path": "core.c", "upstreamPath": "emu/core.c", "sha256": hashlib.sha256(path.read_bytes()).hexdigest()},
+                     {"path": "LICENSE", "upstreamPath": "LICENSE", "sha256": hashlib.sha256(notice.read_bytes()).hexdigest()}]
+            snapshot = {"repository": "https://example.invalid/upstream", "commit": "a" * 40,
+                        "role": "upstream-source-reference", "files": files,
+                        "buildStatus": "reference-only; framework dependencies omitted",
+                        "omittedDependencies": [{"path": "support.h", "reason": "fixture dependency not included"}]}
+            manifest_name = f"{directory}/snapshot-manifest.json"
+            manifest_path = self.write(manifest_name, json.dumps(snapshot))
+            record = {key: snapshot[key] for key in ("repository", "commit", "role", "buildStatus", "omittedDependencies")}
+            record.update({"id": identifier, "snapshotManifest": manifest_name,
+                           "sourceFiles": [entry], "licenseFiles": [license_file],
+                           "sdkIntegration": {"native": "not-integrated", "wasm": "not-integrated"}})
+            upstream.append(record)
+            upstream_components.append({"id": identifier, "sourceFiles": [entry], "licenseFiles": [license_file],
+                "files": [{"path": f"{directory}/{item['path']}", "originPath": item["upstreamPath"], "sha256": item["sha256"]} for item in files]
+                    + [{"path": manifest_name, "originPath": "snapshot-manifest.json", "sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest()}]})
         catalog = {"schemaVersion": 1, "chips": [{"id": chip, **references} for chip in sorted(REQUIRED_CHIPS)],
-                   "javascriptReferences": copy.deepcopy(javascript)}
+                   "javascriptReferences": copy.deepcopy(javascript), "upstreamReferences": copy.deepcopy(upstream)}
         self.write("catalog/chips.json", json.dumps(catalog))
         inventory = {"schemaVersion": 1, "components": [{"id": "core", **references,
-                     "files": [{"path": "vendor/core.cpp", "originPath": "src/core.cpp", "sha256": hashlib.sha256(source.read_bytes()).hexdigest()}]}, *javascript_components],
+                     "files": [{"path": "vendor/core.cpp", "originPath": "src/core.cpp", "sha256": hashlib.sha256(source.read_bytes()).hexdigest()}]}, *javascript_components, *upstream_components],
                      "javascriptReferences": copy.deepcopy(javascript),
+                     "upstreamReferences": copy.deepcopy(upstream),
                      "artifacts": [{"id": artifact, "chipIds": sorted(REQUIRED_CHIPS), **references,
                                     "format": "emscripten-es-module", "buildScript": "scripts/build-wasm.sh"} for artifact in sorted(REQUIRED_ARTIFACTS)]}
         self.write("catalog/source_inventory.json", json.dumps(inventory))
@@ -62,6 +92,10 @@ class ReleaseAuditTests(unittest.TestCase):
         self.write("native/reference/SOURCES.json", json.dumps({"schemaVersion": 1, "entries": [
             {"file": "vendor/core.cpp", "sha256": hashlib.sha256(source.read_bytes()).hexdigest()}]}))
         return catalog, inventory
+
+    def save_catalogs(self, catalog, inventory):
+        self.write("catalog/chips.json", json.dumps(catalog))
+        self.write("catalog/source_inventory.json", json.dumps(inventory))
 
     def manifest(self):
         files = {}
@@ -218,6 +252,100 @@ class ReleaseAuditTests(unittest.TestCase):
         (self.root / "vendor/msm5205/LICENSE").unlink()
         with self.assertRaisesRegex(AuditError, "missing/outside licenseFiles.*msm5205"):
             audit_catalog(self.root)
+
+    def test_upstream_reference_cannot_disappear_from_both_catalogs(self):
+        catalog, inventory = self.fixture()
+        for document in (catalog, inventory):
+            document["upstreamReferences"].pop()
+        self.save_catalogs(catalog, inventory)
+        with self.assertRaisesRegex(AuditError, "upstream reference inventory changed"):
+            audit_catalog(self.root)
+
+    def test_upstream_catalogs_must_agree(self):
+        catalog, inventory = self.fixture()
+        catalog["upstreamReferences"][0]["commit"] = "b" * 40
+        self.save_catalogs(catalog, inventory)
+        with self.assertRaisesRegex(AuditError, "Upstream references differ"):
+            audit_catalog(self.root)
+
+    def test_upstream_reference_requires_full_immutable_commit(self):
+        for commit in ("master", "a" * 39, "A" * 40):
+            with self.subTest(commit=commit):
+                catalog, inventory = self.fixture()
+                for document in (catalog, inventory):
+                    document["upstreamReferences"][0]["commit"] = commit
+                self.save_catalogs(catalog, inventory)
+                with self.assertRaisesRegex(AuditError, "full immutable upstream commit"):
+                    audit_catalog(self.root)
+
+    def test_upstream_reference_cannot_claim_an_sdk_runtime_port(self):
+        for backend in ("native", "wasm"):
+            with self.subTest(backend=backend):
+                catalog, inventory = self.fixture()
+                for document in (catalog, inventory):
+                    document["upstreamReferences"][0]["sdkIntegration"][backend] = "verified"
+                self.save_catalogs(catalog, inventory)
+                with self.assertRaisesRegex(AuditError, "must not claim an SDK runtime port"):
+                    audit_catalog(self.root)
+
+    def test_upstream_source_and_manifest_require_hash_provenance(self):
+        for source_name in ("core.c", "snapshot-manifest.json"):
+            with self.subTest(source=source_name):
+                catalog, inventory = self.fixture()
+                reference = inventory["upstreamReferences"][0]
+                component = next(item for item in inventory["components"] if item["id"] == reference["id"])
+                component["files"] = [item for item in component["files"] if not item["path"].endswith("/" + source_name)]
+                self.save_catalogs(catalog, inventory)
+                with self.assertRaisesRegex(AuditError, "upstream (source|manifest) missing from hash provenance"):
+                    audit_catalog(self.root)
+
+    def test_upstream_source_tampering_is_rejected(self):
+        _, inventory = self.fixture()
+        self.write(inventory["upstreamReferences"][0]["sourceFiles"][0], "modified upstream source\n")
+        with self.assertRaisesRegex(AuditError, "Imported source hash mismatch"):
+            audit_catalog(self.root)
+
+    def test_upstream_snapshot_cannot_hide_unlisted_sources(self):
+        _, inventory = self.fixture()
+        reference = inventory["upstreamReferences"][0]
+        directory = Path(reference["snapshotManifest"]).parent
+        self.write((directory / "unlisted.h").as_posix(), "/* unlisted */\n")
+        with self.assertRaisesRegex(AuditError, "snapshot files differ from manifest"):
+            audit_catalog(self.root)
+
+    def test_upstream_dependency_limitations_must_be_preserved(self):
+        catalog, inventory = self.fixture()
+        for document in (catalog, inventory):
+            document["upstreamReferences"][0].pop("omittedDependencies")
+        self.save_catalogs(catalog, inventory)
+        with self.assertRaisesRegex(AuditError, "manifest omittedDependencies differs"):
+            audit_catalog(self.root)
+
+    def test_upstream_reference_may_omit_documented_framework_dependencies(self):
+        _, inventory = self.fixture()
+        for reference in inventory["upstreamReferences"]:
+            self.assertFalse((self.root / reference["snapshotManifest"]).parent.joinpath("support.h").exists())
+        audit_catalog(self.root)
+        audit_local_sources(self.root)
+
+    def test_catalog_refresh_keeps_upstream_references_and_source_bytes(self):
+        _, inventory = self.fixture()
+        project = Path(__file__).resolve().parents[1]
+        for filename in ("sdk_common.py", "refresh_catalog.py"):
+            shutil.copyfile(project / "scripts" / filename, self.root / "scripts" / filename)
+        originals = {record["path"]: (self.root / record["path"]).read_bytes()
+                     for component in inventory["components"] for record in component["files"]}
+        subprocess.run([sys.executable, self.root / "scripts/refresh_catalog.py"], check=True, capture_output=True)
+        catalog = json.loads((self.root / "catalog/chips.json").read_text())
+        self.assertEqual(catalog["upstreamReferences"], inventory["upstreamReferences"])
+        self.assertEqual(len(catalog["chips"]), 22)
+        for filename, content in originals.items():
+            self.assertEqual((self.root / filename).read_bytes(), content)
+        audit_catalog(self.root)
+        spec = importlib.util.spec_from_file_location("fixture_sdk_common", self.root / "scripts/sdk_common.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertEqual(module.check_collection(self.root)["upstreamReferences"], 3)
 
     def test_parent_and_absolute_cpp_includes_are_rejected(self):
         for include in ('"../../outside.h"', '"..\\..\\outside.h"', '"/Users/developer/checkout/core.h"', '"C:/checkout/core.h"'):

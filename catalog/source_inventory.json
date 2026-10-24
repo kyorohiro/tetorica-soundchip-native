@@ -1281,7 +1281,8 @@
       ],
       "sourceVersion": [
         "Tetorica JavaScript reference snapshot a9f9a8a86ec4bd182224b1bc3979cfde6cf95b48; exact imported bytes identified below",
-        "An upstream commit pin is not recorded in the supplied provenance; the upstream C/C++ originals were not imported or independently compared for this reference entry"
+        "The upstream revision used for this historical JavaScript adaptation was not recorded. Separately collected pinned upstream references are cataloged under upstreamReferences; their revisions do not establish the adaptation's original revision.",
+        "The SDK component README has been amended; JavaScript engine and license bytes remain unchanged. The original imported README SHA-256 is retained in originSha256."
       ],
       "files": [
         {
@@ -1297,7 +1298,9 @@
         {
           "path": "vendor/libvgm-msm5205/README.md",
           "originPath": "third_party/libvgm-msm5205/README.md",
-          "sha256": "4ae997cefdc782d583cea0587839475e0c813a189151b5e3c1bbde8e457387bd"
+          "sha256": "53ef04029add857e206b8f039a31b72d3274b5e377631ee4400350e0f1d915f7",
+          "originSha256": "4ae997cefdc782d583cea0587839475e0c813a189151b5e3c1bbde8e457387bd",
+          "adaptation": "SDK documentation amended to describe independently pinned upstream sources, license boundaries, and omitted framework dependencies; original imported README digest retained in originSha256"
         }
       ]
     },
@@ -1316,7 +1319,8 @@
       ],
       "sourceVersion": [
         "Tetorica JavaScript reference snapshot a9f9a8a86ec4bd182224b1bc3979cfde6cf95b48; exact imported bytes identified below",
-        "An upstream commit pin is not recorded in the supplied provenance; the upstream C/C++ originals were not imported or independently compared for this reference entry"
+        "The upstream revision used for this historical JavaScript adaptation was not recorded. Separately collected pinned upstream references are cataloged under upstreamReferences; their revisions do not establish the adaptation's original revision.",
+        "The SDK component README has been amended; JavaScript engine and license bytes remain unchanged. The original imported README SHA-256 is retained in originSha256."
       ],
       "files": [
         {
@@ -1332,7 +1336,144 @@
         {
           "path": "vendor/mame-okim6295/README.md",
           "originPath": "third_party/mame-okim6295/README.md",
-          "sha256": "c4f3c0182f7cce78f053932f700695d6a1f0cf3be2c094a2df9c4f33cb601d83"
+          "sha256": "56c31643a450029ade937c1738ccb8e59703394c30d003dad533d621fbe3700c",
+          "originSha256": "c4f3c0182f7cce78f053932f700695d6a1f0cf3be2c094a2df9c4f33cb601d83",
+          "adaptation": "SDK documentation amended to describe independently pinned upstream sources, license boundaries, and omitted framework dependencies; original imported README digest retained in originSha256"
+        }
+      ]
+    },
+    {
+      "id": "libvgm-msm5205-upstream",
+      "sourceFiles": [
+        "vendor/libvgm-msm5205/upstream/libvgm/emu/cores/msm5205.c"
+      ],
+      "licenseFiles": [
+        "vendor/libvgm-msm5205/LICENSE"
+      ],
+      "upstream": [
+        "https://github.com/ValleyBell/libvgm/tree/bad50c571db45b872304bdcd0603dd2214f0663e"
+      ],
+      "sourceVersion": [
+        "Independently collected upstream reference pinned at https://github.com/ValleyBell/libvgm@bad50c571db45b872304bdcd0603dd2214f0663e",
+        "Included source bytes are unmodified. No SDK Native or WASM integration is provided. reference-only; libvgm support files without an explicit license are omitted",
+        "This snapshot does not establish the historical revision used by the Tetorica JavaScript adaptation."
+      ],
+      "files": [
+        {
+          "path": "vendor/libvgm-msm5205/upstream/libvgm/emu/cores/msm5205.c",
+          "originPath": "emu/cores/msm5205.c",
+          "sha256": "7d69c40afbeacb98a8d0798e12201b04b8dc40b4d4c60f73c61d7cb47da18ad0"
+        },
+        {
+          "path": "vendor/libvgm-msm5205/upstream/libvgm/snapshot-manifest.json",
+          "originPath": "snapshot-manifest.json",
+          "sha256": "5a0c2a24b046aaa0a1a0fb2b72fe0bed036d2b8f736be33dbf75155ea427bbef",
+          "provenanceRole": "SDK-generated snapshot manifest; not an upstream source file"
+        },
+        {
+          "path": "vendor/libvgm-msm5205/LICENSE",
+          "originPath": "third_party/libvgm-msm5205/LICENSE",
+          "sha256": "3315f9a2466767cf2e59ccc74f593bd702af01d44519e3d2d48cdf4d9891512e"
+        }
+      ]
+    },
+    {
+      "id": "libvgm-okim6295-upstream",
+      "sourceFiles": [
+        "vendor/mame-okim6295/upstream/libvgm/emu/cores/okim6295.c",
+        "vendor/mame-okim6295/upstream/libvgm/emu/cores/okiadpcm.c",
+        "vendor/mame-okim6295/upstream/libvgm/emu/cores/okiadpcm.h"
+      ],
+      "licenseFiles": [
+        "vendor/mame-okim6295/LICENSE"
+      ],
+      "upstream": [
+        "https://github.com/ValleyBell/libvgm/tree/bad50c571db45b872304bdcd0603dd2214f0663e"
+      ],
+      "sourceVersion": [
+        "Independently collected upstream reference pinned at https://github.com/ValleyBell/libvgm@bad50c571db45b872304bdcd0603dd2214f0663e",
+        "Included source bytes are unmodified. No SDK Native or WASM integration is provided. reference-only; libvgm support files without an explicit license are omitted",
+        "This snapshot does not establish the historical revision used by the Tetorica JavaScript adaptation."
+      ],
+      "files": [
+        {
+          "path": "vendor/mame-okim6295/upstream/libvgm/emu/cores/okim6295.c",
+          "originPath": "emu/cores/okim6295.c",
+          "sha256": "00778ea2bb630abf549ea25671e9d19df50d4ce4889be9e1fcfa6739b5ae6194"
+        },
+        {
+          "path": "vendor/mame-okim6295/upstream/libvgm/emu/cores/okiadpcm.c",
+          "originPath": "emu/cores/okiadpcm.c",
+          "sha256": "95ad62ea67fb3f239873abf79200ce11d3d548c40022ec02da0dd4a3abaf5af1"
+        },
+        {
+          "path": "vendor/mame-okim6295/upstream/libvgm/emu/cores/okiadpcm.h",
+          "originPath": "emu/cores/okiadpcm.h",
+          "sha256": "f850732fe0cdb032d2cedda758d4b74eb6562f701b80ec75d7a59d41cd243864"
+        },
+        {
+          "path": "vendor/mame-okim6295/upstream/libvgm/snapshot-manifest.json",
+          "originPath": "snapshot-manifest.json",
+          "sha256": "7f39e5344c5dab8b87d93a3c72da4fa5ec296e0af19345415ed07064a0fe7fa4",
+          "provenanceRole": "SDK-generated snapshot manifest; not an upstream source file"
+        },
+        {
+          "path": "vendor/mame-okim6295/LICENSE",
+          "originPath": "third_party/mame-okim6295/LICENSE",
+          "sha256": "951803c525415c349f53adab1fde00c49b242e981f1242931140791c18b72176"
+        }
+      ]
+    },
+    {
+      "id": "mame-okim6295-upstream",
+      "sourceFiles": [
+        "vendor/mame-okim6295/upstream/mame/okim6295.cpp",
+        "vendor/mame-okim6295/upstream/mame/okim6295.h",
+        "vendor/mame-okim6295/upstream/mame/okiadpcm.cpp",
+        "vendor/mame-okim6295/upstream/mame/okiadpcm.h"
+      ],
+      "licenseFiles": [
+        "vendor/mame-okim6295/LICENSE"
+      ],
+      "upstream": [
+        "https://github.com/mamedev/mame/tree/9d8a6727a206fc822b8b69d67a51e6fd7dbf4d4b"
+      ],
+      "sourceVersion": [
+        "Independently collected upstream reference pinned at https://github.com/mamedev/mame@9d8a6727a206fc822b8b69d67a51e6fd7dbf4d4b",
+        "Included source bytes are unmodified. No SDK Native or WASM integration is provided. reference-only; MAME framework required",
+        "This snapshot does not establish the historical revision used by the Tetorica JavaScript adaptation."
+      ],
+      "files": [
+        {
+          "path": "vendor/mame-okim6295/upstream/mame/okim6295.cpp",
+          "originPath": "src/devices/sound/okim6295.cpp",
+          "sha256": "ff6f45f2e7db51cab3344ab3e1a55d0d95e1341c2994a35983e733fae022b18b"
+        },
+        {
+          "path": "vendor/mame-okim6295/upstream/mame/okim6295.h",
+          "originPath": "src/devices/sound/okim6295.h",
+          "sha256": "c2c75718818b24864911fc714c8cf61a278266c93f565d97831a81303c6db2a1"
+        },
+        {
+          "path": "vendor/mame-okim6295/upstream/mame/okiadpcm.cpp",
+          "originPath": "src/devices/sound/okiadpcm.cpp",
+          "sha256": "a49dbd1089b3163a3a38480f6d877462c506b9f85e66a0cf5ea015b2a193dcd8"
+        },
+        {
+          "path": "vendor/mame-okim6295/upstream/mame/okiadpcm.h",
+          "originPath": "src/devices/sound/okiadpcm.h",
+          "sha256": "28f70d023aa2f18a0287b1290ac108692b5f270ce91622c636742af2e8909ab4"
+        },
+        {
+          "path": "vendor/mame-okim6295/upstream/mame/snapshot-manifest.json",
+          "originPath": "snapshot-manifest.json",
+          "sha256": "58caadb706959f29c4fe505fb4d8659b2b217c73da6ffcf3e1f1d319f0296faf",
+          "provenanceRole": "SDK-generated snapshot manifest; not an upstream source file"
+        },
+        {
+          "path": "vendor/mame-okim6295/LICENSE",
+          "originPath": "third_party/mame-okim6295/LICENSE",
+          "sha256": "951803c525415c349f53adab1fde00c49b242e981f1242931140791c18b72176"
         }
       ]
     }
@@ -2772,6 +2913,93 @@
         "status": "not-ported"
       },
       "provenanceStatus": "imported-reference-source; unchanged from the Tetorica JavaScript implementation"
+    }
+  ],
+  "upstreamReferences": [
+    {
+      "repository": "https://github.com/ValleyBell/libvgm",
+      "commit": "bad50c571db45b872304bdcd0603dd2214f0663e",
+      "role": "upstream-source-reference",
+      "buildStatus": "reference-only; libvgm support files without an explicit license are omitted",
+      "omittedDependencies": [
+        "emu/EmuCores.h",
+        "emu/EmuHelper.h",
+        "emu/SoundDevs.h",
+        "emu/cores/msm5205.h",
+        "emu/dac_control.h",
+        "emu/logging.h",
+        "emu/snddef.h",
+        "stdtype.h"
+      ],
+      "omissionReason": "These libvgm integration headers have no explicit license declaration in the pinned snapshot. Upstream reports incomplete per-module license assignment; no license is inferred for those files.",
+      "licenseDiscussion": "https://github.com/ValleyBell/libvgm/issues/129",
+      "comparisonNote": "Independently collected upstream reference. The historical revision used for the Tetorica JavaScript adaptation is not established by this snapshot.",
+      "id": "libvgm-msm5205-upstream",
+      "snapshotManifest": "vendor/libvgm-msm5205/upstream/libvgm/snapshot-manifest.json",
+      "sourceFiles": [
+        "vendor/libvgm-msm5205/upstream/libvgm/emu/cores/msm5205.c"
+      ],
+      "licenseFiles": [
+        "vendor/libvgm-msm5205/LICENSE"
+      ],
+      "sdkIntegration": {
+        "native": "not-integrated",
+        "wasm": "not-integrated"
+      }
+    },
+    {
+      "repository": "https://github.com/ValleyBell/libvgm",
+      "commit": "bad50c571db45b872304bdcd0603dd2214f0663e",
+      "role": "upstream-source-reference",
+      "buildStatus": "reference-only; libvgm support files without an explicit license are omitted",
+      "omittedDependencies": [
+        "emu/EmuCores.h",
+        "emu/EmuHelper.h",
+        "emu/EmuStructs.h",
+        "emu/SoundDevs.h",
+        "emu/cores/okim6295.h",
+        "emu/logging.h",
+        "emu/snddef.h",
+        "stdtype.h"
+      ],
+      "omissionReason": "These libvgm integration headers have no explicit license declaration in the pinned snapshot. Upstream reports incomplete per-module license assignment; no license is inferred for those files.",
+      "licenseDiscussion": "https://github.com/ValleyBell/libvgm/issues/129",
+      "comparisonNote": "Independently collected upstream reference. The historical revision used for the Tetorica JavaScript adaptation is not established by this snapshot.",
+      "id": "libvgm-okim6295-upstream",
+      "snapshotManifest": "vendor/mame-okim6295/upstream/libvgm/snapshot-manifest.json",
+      "sourceFiles": [
+        "vendor/mame-okim6295/upstream/libvgm/emu/cores/okim6295.c",
+        "vendor/mame-okim6295/upstream/libvgm/emu/cores/okiadpcm.c",
+        "vendor/mame-okim6295/upstream/libvgm/emu/cores/okiadpcm.h"
+      ],
+      "licenseFiles": [
+        "vendor/mame-okim6295/LICENSE"
+      ],
+      "sdkIntegration": {
+        "native": "not-integrated",
+        "wasm": "not-integrated"
+      }
+    },
+    {
+      "repository": "https://github.com/mamedev/mame",
+      "commit": "9d8a6727a206fc822b8b69d67a51e6fd7dbf4d4b",
+      "role": "upstream-source-reference",
+      "buildStatus": "reference-only; MAME framework required",
+      "id": "mame-okim6295-upstream",
+      "snapshotManifest": "vendor/mame-okim6295/upstream/mame/snapshot-manifest.json",
+      "sourceFiles": [
+        "vendor/mame-okim6295/upstream/mame/okim6295.cpp",
+        "vendor/mame-okim6295/upstream/mame/okim6295.h",
+        "vendor/mame-okim6295/upstream/mame/okiadpcm.cpp",
+        "vendor/mame-okim6295/upstream/mame/okiadpcm.h"
+      ],
+      "licenseFiles": [
+        "vendor/mame-okim6295/LICENSE"
+      ],
+      "sdkIntegration": {
+        "native": "not-integrated",
+        "wasm": "not-integrated"
+      }
     }
   ]
 }

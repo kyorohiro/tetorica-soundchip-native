@@ -11,6 +11,9 @@ CHIP_IDS = frozenset((
     "huc6280", "okim6258", "ym3526", "ym3812", "y8950", "ymf262", "ym2413", "ay8910",
 ))
 JAVASCRIPT_REFERENCE_IDS = frozenset(("msm5205", "okim6295"))
+UPSTREAM_REFERENCE_IDS = frozenset((
+    "libvgm-msm5205-upstream", "libvgm-okim6295-upstream", "mame-okim6295-upstream",
+))
 
 
 def read_json(path):
@@ -59,6 +62,63 @@ def verify_record(root, name, expected):
     if actual["sha256"] != expected["sha256"] or ("size" in expected and actual["size"] != expected["size"]):
         raise ValueError(f"Snapshot checksum mismatch: {name}")
     return actual
+
+
+def check_upstream_references(root, inventory, catalog):
+    references = inventory.get("upstreamReferences", [])
+    ids = [entry["id"] for entry in references]
+    if len(ids) != len(set(ids)) or set(ids) != UPSTREAM_REFERENCE_IDS:
+        raise ValueError("Upstream reference inventory changed")
+    if catalog.get("upstreamReferences") != references:
+        raise ValueError("Upstream reference catalogs differ; run scripts/refresh_catalog.py")
+    components = {component["id"]: component for component in inventory["components"]}
+    for entry in references:
+        identifier = entry["id"]
+        if entry.get("role") != "upstream-source-reference" or entry.get("sdkIntegration") != {
+            "native": "not-integrated", "wasm": "not-integrated",
+        }:
+            raise ValueError(f"Upstream reference must not claim an SDK runtime port: {identifier}")
+        if not isinstance(entry.get("commit"), str) or not re.fullmatch(r"[0-9a-f]{40}", entry["commit"]):
+            raise ValueError(f"Upstream reference requires a full immutable commit: {identifier}")
+        if not isinstance(entry.get("repository"), str) or not entry["repository"].startswith("https://"):
+            raise ValueError(f"Upstream reference requires a repository URL: {identifier}")
+        manifest_path = local_path(root, entry.get("snapshotManifest"))
+        manifest = read_json(manifest_path)
+        for key, value in manifest.items():
+            if key != "files" and value != entry.get(key):
+                raise ValueError(f"Upstream manifest {key} differs from catalog: {identifier}")
+        component = components.get(identifier)
+        if component is None:
+            raise ValueError(f"Upstream reference lacks a provenance component: {identifier}")
+        component_files = {record["path"]: record for record in component["files"]}
+        snapshot_files = set()
+        if not manifest.get("files"):
+            raise ValueError(f"Upstream snapshot manifest is empty: {identifier}")
+        for record in manifest["files"]:
+            source = local_path(manifest_path.parent, record["path"])
+            name = source.relative_to(root).as_posix()
+            if name in snapshot_files:
+                raise ValueError(f"Duplicate upstream snapshot file: {name}")
+            snapshot_files.add(name)
+            verify_record(root, name, record)
+            if name not in component_files or component_files[name].get("sha256") != record["sha256"]:
+                raise ValueError(f"Upstream source missing from hash provenance: {name}")
+            if component_files[name].get("originPath") != record.get("upstreamPath"):
+                raise ValueError(f"Upstream source origin differs from manifest: {name}")
+            origin = record.get("upstreamPath")
+            if not isinstance(origin, str) or not origin or "\\" in origin or origin.startswith("/") or ":" in origin or any(part in ("", ".", "..") for part in origin.split("/")):
+                raise ValueError(f"Invalid upstream source origin: {name}")
+        manifest_name = manifest_path.relative_to(root).as_posix()
+        if manifest_name not in component_files:
+            raise ValueError(f"Upstream snapshot manifest missing from hash provenance: {identifier}")
+        actual = {path.relative_to(root).as_posix() for path in manifest_path.parent.rglob("*") if path.is_file()}
+        if actual != snapshot_files | {manifest_name}:
+            raise ValueError(f"Upstream snapshot files differ from manifest: {identifier}")
+        if set(component.get("sourceFiles", [])) != set(entry.get("sourceFiles", [])) or not entry.get("sourceFiles") or not set(entry["sourceFiles"]).issubset(snapshot_files):
+            raise ValueError(f"Upstream source references differ from snapshot: {identifier}")
+        if set(component.get("licenseFiles", [])) != set(entry.get("licenseFiles", [])) or not entry.get("licenseFiles") or not set(entry["licenseFiles"]).issubset(component_files):
+            raise ValueError(f"Upstream license references lack hash provenance: {identifier}")
+    return len(references)
 
 
 def check_collection(root=ROOT):
@@ -121,4 +181,5 @@ def check_collection(root=ROOT):
     for chip in catalog["chips"]:
         if not chip.get("sourceFiles") or not chip.get("licenseFiles"):
             raise ValueError(f"Incomplete chip catalog entry: {chip['id']}")
-    return {"chips": len(ids), "artifacts": len(inventory["artifacts"]), "javascriptReferences": len(javascript), "snapshotFiles": count}
+    upstream = check_upstream_references(root, inventory, catalog)
+    return {"chips": len(ids), "artifacts": len(inventory["artifacts"]), "javascriptReferences": len(javascript), "upstreamReferences": upstream, "snapshotFiles": count}

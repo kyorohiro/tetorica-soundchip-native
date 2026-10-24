@@ -13,8 +13,12 @@ WASM wrappers both use this directory. Its upstream ymfm commit was not pinned
 in the reference workspace; the recorded workspace commit and file hashes are
 the exact source identity, rather than an invented upstream version.
 
-The `mame-*` directories retain locally adapted chip cores, unmodified upstream
-reference files and the pinned-revision notices. `nuked-opn2/` and `snes-spc/`
+Most `mame-*` directories retain locally adapted chip cores, unmodified upstream
+reference files and the pinned-revision notices. `mame-okim6295/` and
+`libvgm-msm5205/` contain the JavaScript adaptation notices and separately pinned
+BSD-declared C/C++ originals for inspection. Their READMEs list framework
+dependencies and libvgm files omitted because no license is declared. Those
+upstream references are not standalone SDK targets. `nuked-opn2/` and `snes-spc/`
 retain their LGPL texts. `tetorica-nes/` retains the Apache-2.0 JSNES and MIT FDS
 notices for its C++ port. The optional 32X reference source is kept under
 `mame-32x-pwm/`; its compiled shared implementation is `wasm/pwm32x_core.h`.

@@ -39,7 +39,9 @@ chip and its adapters.
 The [MSM5205](vendor/libvgm-msm5205/LICENSE) and
 [OKIM6295](vendor/mame-okim6295/LICENSE) JavaScript references retain their BSD
 copyright notices and adaptation records. They are unchanged copies of the
-Analyzer engines, with no sample ROM or third-party music bundled.
+Analyzer engines, with no sample ROM or third-party music bundled. Their vendor directories also contain independently pinned upstream C/C++ files whose headers explicitly declare BSD-3-Clause. Their snapshot manifests record immutable revisions and per-file hashes.
+
+libvgm's unmarked integration headers, support implementation, and player code are not included. Its [license discussion](https://github.com/ValleyBell/libvgm/issues/129) reports incomplete per-module assignment; the license of an emulator source file is not extended to the surrounding framework. MAME's included OKIM6295/ADPCM files likewise retain their own BSD declarations; the complete MAME framework is not bundled.
 
 ## Source and binary releases
 

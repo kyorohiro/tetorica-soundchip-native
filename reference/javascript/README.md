@@ -2,7 +2,7 @@
 
 This directory contains the existing Tetorica JavaScript implementations of MSM5205 and OKIM6295. They are synchronous PCM renderers with no audio-device, browser, npm, or other repository dependency. The two engine files are copied byte for byte from the main Tetorica source tree; their packaged hashes and origins are recorded in [the source inventory](../../catalog/source_inventory.json).
 
-These engines are JavaScript references. They do not yet have Native C++ implementations, WASM build recipes, or SDK C ABI entry points. Their API is the direct engine API below, rather than `createSoundChip()`.
+These engines are JavaScript references. They do not yet have SDK Native integrations, WASM build recipes, or SDK C ABI entry points. Independently pinned upstream C/C++ originals are collected separately in the vendor directories. Their API is the direct engine API below, rather than `createSoundChip()`.
 
 ## Run the example
 
@@ -109,5 +109,7 @@ The retained source headers identify the original authors and BSD-3-Clause licen
 
 - MSM5205: [source notice](../../vendor/libvgm-msm5205/README.md), [BSD-3-Clause license](../../vendor/libvgm-msm5205/LICENSE).
 - OKIM6295: [source notice](../../vendor/mame-okim6295/README.md), [BSD-3-Clause license](../../vendor/mame-okim6295/LICENSE).
+
+Those component guides also link the included upstream C/C++ originals, commit pins, and hashes. Only upstream files with explicit BSD declarations are collected. Unmarked libvgm support files are omitted; they are not dependencies of these JavaScript engines. The upstream snapshots are not claimed to be the historical port baseline or standalone SDK C/C++ targets.
 
 The engine headers retain historical paths from their source repository to preserve the imported bytes. The links above are the locations within this SDK. New SDK example and documentation code is covered by the root [BSD-3-Clause license](../../LICENSE).

@@ -27,15 +27,18 @@ def main():
                    "licenseFiles": a["licenseFiles"], "buildScript": a["buildScript"], "format": a["format"]}
                   for a in inventory["artifacts"] if not set(a.get("chipIds", [])).intersection(CHIP_IDS)]
     javascript = inventory.get("javascriptReferences", [])
+    upstream = inventory.get("upstreamReferences", [])
     data = {"schemaVersion": 1, "stage": "bootstrap", "chips": chips, "additionalArtifacts": additional,
             "javascriptReferences": javascript,
+            "upstreamReferences": upstream,
             "differencesDocument": "docs/chip-differences.md",
             "notes": ["Source collection is complete for these 22 Playground IDs; independent Native targets are being migrated one by one.",
                       "A WASM recipe is not a claim of runtime verification; release build-info and tests report the verified scope.",
                       "snes (DSP/RAM access) and spc (SPC CPU/file player) share the SNES-SPC sources but remain separate APIs.",
-                      "JavaScript references are separate from the 22 Playground IDs and 27 WASM recipes; their Native/WASM ports are not implemented."]}
+                      "JavaScript references are separate from the 22 Playground IDs and 27 WASM recipes; their Native/WASM ports are not implemented.",
+                      "Pinned upstream source references preserve original C/C++ implementations and dependencies; they are not additional SDK Native/WASM targets."]}
     (ROOT / "catalog/chips.json").write_bytes(json_bytes(data))
-    print(f"Catalog written: {len(chips)} Playground chips, {len(additional)} additional WASM artifacts, {len(javascript)} JavaScript references")
+    print(f"Catalog written: {len(chips)} Playground chips, {len(additional)} additional WASM artifacts, {len(javascript)} JavaScript references, {len(upstream)} upstream source references")
 
 
 if __name__ == "__main__":

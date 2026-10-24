@@ -16,7 +16,9 @@ The source catalog covers 22 chip API identifiers:
 
 Additional WASM recipes cover YM3438, YMF276, YMF288, YMF278B, Sega PCM, and K051649. YM2612 also includes the optional Nuked-OPN2 engine.
 
-The collection also includes the VGM Analyzer's **MSM5205 and OKIM6295 JavaScript reference implementations**, with their original notices and source hashes. These two engines have not yet been ported to C++ or WASM.
+The collection also includes the VGM Analyzer's **MSM5205 and OKIM6295 JavaScript reference implementations**, plus separately pinned upstream C/C++ source references under [libvgm-msm5205](vendor/libvgm-msm5205/) and [mame-okim6295](vendor/mame-okim6295/). SDK Native/WASM integrations for these two engines are not yet provided.
+
+The upstream references include files explicitly marked BSD-3-Clause. libvgm support files without an explicit license declaration are omitted, following the [upstream licensing status](https://github.com/ValleyBell/libvgm/issues/129). The component READMEs and snapshot manifests describe the omissions and framework dependencies. These reference-only files are separate from the self-contained build targets and runnable JavaScript engines.
 
 | Deliverable | Current status |
 | --- | --- |

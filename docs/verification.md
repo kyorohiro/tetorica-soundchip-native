@@ -4,7 +4,7 @@ Verification was performed on macOS on 2026-10-24 using installed development to
 
 ## Source and release audits
 
-`scripts/check_sdk.py` verified 22 Playground chip IDs, 27 WASM recipes, two separate JavaScript reference engines, SHA-256 digests for 235 imported files, and their source/license references. Captured cores and Native bridges retain their source bytes; include-path adaptations are recorded in the provenance inventory. All 24 regression tests for the release-audit tools passed.
+`scripts/check_sdk.py` verifies 22 Playground chip IDs, 27 WASM recipes, two separate JavaScript reference engines, three pinned upstream ADPCM source snapshots, and their SHA-256 digests and source/license references. Captured cores and Native bridges retain their source bytes; include-path adaptations and documentation updates are recorded in the provenance inventory. Release-audit regression tests cover these checks.
 
 Source and WASM archives were extracted outside the original repositories. The audits checked complete manifest coverage, hashes and byte sizes, safe relative paths, source catalogs, and the identity of the source ZIP embedded in the WASM release. CMake File API and compiler-command records confirmed that project sources and include paths stayed within the extracted SDK and its build directory.
 
@@ -34,7 +34,7 @@ Emscripten optimization emits two existing array-bounds warnings in ymfm templat
 
 ## MSM5205 and OKIM6295 JavaScript references
 
-The two engine files and four component notice/license files match the imported Tetorica sources byte for byte. They add two JavaScript references, without changing the 22 Playground IDs or 27 WASM recipes. Both catalogs explicitly record their Native and WASM ports as `not-ported`.
+The two engine files and component license texts match the imported Tetorica sources byte for byte. Component READMEs now describe the separately collected upstream sources and omitted dependencies. The two JavaScript references do not change the 22 Playground IDs or 27 WASM recipes. Both catalogs explicitly record their Native and WASM ports as `not-ported`.
 
 All ten Node.js 22+ smoke checks passed, covering finite audible PCM, exact chunk continuity, mute progression, reset, MSM5205 external VCLK, OKIM6295 commands and voice completion, attachment gain and lifecycle, and standalone WAV generation. The synthetic-data example produced two seconds of 22,050 Hz PCM16 stereo audio for each chip, without npm dependencies or a game ROM.
 
@@ -46,6 +46,14 @@ python3 tests/check_standalone_release.py \
   --wasm-zip releases/tetorica-soundchip-native-0.1.0-wasm.zip \
   --audit-only --javascript-smoke --wasm-smoke
 ```
+
+## Upstream ADPCM source references
+
+Eight original C/C++ files are collected in three snapshots: libvgm MSM5205, libvgm OKIM6295/ADPCM, and MAME OKIM6295/ADPCM. Every file has an explicit BSD-3-Clause declaration. Immutable official commit pins and file SHA-256 hashes are checked against the snapshot manifests and source inventory. The JavaScript engine bytes and existing build recipes are unchanged.
+
+The source and WASM release audits verify that these references survive packaging, including the exact source ZIP embedded with the WASM artifact. Regression tests reject missing references, mutable revision names, changed bytes, incomplete hash coverage, inconsistent catalogs, and accidental SDK port claims.
+
+These snapshots have not been compiled as SDK targets. They deliberately omit MAME's framework and libvgm support files without explicit license declarations. The missing dependencies are recorded, and the audits do not claim header closure or a standalone C/C++ build for them. The runnable JavaScript examples and existing build targets do not use those omitted files.
 
 ## DX7 and remaining chips
 

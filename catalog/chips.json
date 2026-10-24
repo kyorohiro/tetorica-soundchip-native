@@ -1697,8 +1697,96 @@
     "Source collection is complete for these 22 Playground IDs; independent Native targets are being migrated one by one.",
     "A WASM recipe is not a claim of runtime verification; release build-info and tests report the verified scope.",
     "snes (DSP/RAM access) and spc (SPC CPU/file player) share the SNES-SPC sources but remain separate APIs.",
-    "JavaScript references are separate from the 22 Playground IDs and 27 WASM recipes; their Native/WASM ports are not implemented."
+    "JavaScript references are separate from the 22 Playground IDs and 27 WASM recipes; their Native/WASM ports are not implemented.",
+    "Pinned upstream source references preserve original C/C++ implementations and dependencies; they are not additional SDK Native/WASM targets."
   ],
   "schemaVersion": 1,
-  "stage": "bootstrap"
+  "stage": "bootstrap",
+  "upstreamReferences": [
+    {
+      "buildStatus": "reference-only; libvgm support files without an explicit license are omitted",
+      "commit": "bad50c571db45b872304bdcd0603dd2214f0663e",
+      "comparisonNote": "Independently collected upstream reference. The historical revision used for the Tetorica JavaScript adaptation is not established by this snapshot.",
+      "id": "libvgm-msm5205-upstream",
+      "licenseDiscussion": "https://github.com/ValleyBell/libvgm/issues/129",
+      "licenseFiles": [
+        "vendor/libvgm-msm5205/LICENSE"
+      ],
+      "omissionReason": "These libvgm integration headers have no explicit license declaration in the pinned snapshot. Upstream reports incomplete per-module license assignment; no license is inferred for those files.",
+      "omittedDependencies": [
+        "emu/EmuCores.h",
+        "emu/EmuHelper.h",
+        "emu/SoundDevs.h",
+        "emu/cores/msm5205.h",
+        "emu/dac_control.h",
+        "emu/logging.h",
+        "emu/snddef.h",
+        "stdtype.h"
+      ],
+      "repository": "https://github.com/ValleyBell/libvgm",
+      "role": "upstream-source-reference",
+      "sdkIntegration": {
+        "native": "not-integrated",
+        "wasm": "not-integrated"
+      },
+      "snapshotManifest": "vendor/libvgm-msm5205/upstream/libvgm/snapshot-manifest.json",
+      "sourceFiles": [
+        "vendor/libvgm-msm5205/upstream/libvgm/emu/cores/msm5205.c"
+      ]
+    },
+    {
+      "buildStatus": "reference-only; libvgm support files without an explicit license are omitted",
+      "commit": "bad50c571db45b872304bdcd0603dd2214f0663e",
+      "comparisonNote": "Independently collected upstream reference. The historical revision used for the Tetorica JavaScript adaptation is not established by this snapshot.",
+      "id": "libvgm-okim6295-upstream",
+      "licenseDiscussion": "https://github.com/ValleyBell/libvgm/issues/129",
+      "licenseFiles": [
+        "vendor/mame-okim6295/LICENSE"
+      ],
+      "omissionReason": "These libvgm integration headers have no explicit license declaration in the pinned snapshot. Upstream reports incomplete per-module license assignment; no license is inferred for those files.",
+      "omittedDependencies": [
+        "emu/EmuCores.h",
+        "emu/EmuHelper.h",
+        "emu/EmuStructs.h",
+        "emu/SoundDevs.h",
+        "emu/cores/okim6295.h",
+        "emu/logging.h",
+        "emu/snddef.h",
+        "stdtype.h"
+      ],
+      "repository": "https://github.com/ValleyBell/libvgm",
+      "role": "upstream-source-reference",
+      "sdkIntegration": {
+        "native": "not-integrated",
+        "wasm": "not-integrated"
+      },
+      "snapshotManifest": "vendor/mame-okim6295/upstream/libvgm/snapshot-manifest.json",
+      "sourceFiles": [
+        "vendor/mame-okim6295/upstream/libvgm/emu/cores/okim6295.c",
+        "vendor/mame-okim6295/upstream/libvgm/emu/cores/okiadpcm.c",
+        "vendor/mame-okim6295/upstream/libvgm/emu/cores/okiadpcm.h"
+      ]
+    },
+    {
+      "buildStatus": "reference-only; MAME framework required",
+      "commit": "9d8a6727a206fc822b8b69d67a51e6fd7dbf4d4b",
+      "id": "mame-okim6295-upstream",
+      "licenseFiles": [
+        "vendor/mame-okim6295/LICENSE"
+      ],
+      "repository": "https://github.com/mamedev/mame",
+      "role": "upstream-source-reference",
+      "sdkIntegration": {
+        "native": "not-integrated",
+        "wasm": "not-integrated"
+      },
+      "snapshotManifest": "vendor/mame-okim6295/upstream/mame/snapshot-manifest.json",
+      "sourceFiles": [
+        "vendor/mame-okim6295/upstream/mame/okim6295.cpp",
+        "vendor/mame-okim6295/upstream/mame/okim6295.h",
+        "vendor/mame-okim6295/upstream/mame/okiadpcm.cpp",
+        "vendor/mame-okim6295/upstream/mame/okiadpcm.h"
+      ]
+    }
+  ]
 }
