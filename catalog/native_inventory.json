@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "notes": [
     "Reference C++/C ABI sources are collected for 22 public chips. source-only does not claim an independent SDK Native build.",
-    "Standalone CMake targets build fourteen static libraries covering eighteen chip IDs: YM2612, YM2203, YM2608, YM2610/YM2610B, YM2151, YM2413, Sega PSG, AY-3-8910, OKIM6258, RF5C164, the shared YM3526/YM3812/YMF262/Y8950 OPL family, Game Boy, HuC6280 and NES with optional FDS. YM2612 Nuked sources remain reference-only.",
+    "Standalone CMake targets build fifteen static libraries covering nineteen chip IDs: YM2612, YM2203, YM2608, YM2610/YM2610B, YM2151, YM2413, Sega PSG, AY-3-8910, OKIM6258, RF5C164, the shared YM3526/YM3812/YMF262/Y8950 OPL family, Game Boy, HuC6280, NES with optional FDS and 32X PWM. YM2612 Nuked sources remain reference-only.",
     "Vendor component origins and license files are recorded by the shared source inventory, rather than copied again here."
   ],
   "chips": [
@@ -316,20 +316,36 @@
       "id": "pwm",
       "sourceFiles": [
         "native/reference/tauri/native_genesis_pwm.cpp",
-        "native/reference/tauri/native_genesis_pwm.h"
+        "native/reference/tauri/native_genesis_pwm.h",
+        "native/include/tetorica/pwm.hpp",
+        "wasm/pwm32x_core.h"
       ],
-      "status": "source-only",
+      "status": "verified",
+      "target": "tetorica_native_pwm",
+      "verificationScope": "Independent fixed duty/gain-1 32X PWM renderer with native_pwm_* ABI, three-entry stereo FIFOs, routing, timer/cycle/clock state, immediate global Stop, reset and observational snapshots. Nonzero 64-bit host tags support FIFO/latch ownership and source cancellation without changing synthesis; tag zero is ordinary primary traffic. Native control/ownership tests plus offline JavaScript and deployed Worklet/WASM PCM comparisons. Direct-core configuration-only tests do not add public gain/mode/mute setters. No 32X CPU, audio device, host queue, scheduler or playback-deadline guarantee.",
+      "tests": [
+        "tetorica.pwm.self_test",
+        "tetorica.extra_pwm.self_test"
+      ],
       "licenseStatus": "declared",
       "licenseNote": "Original Tetorica integration code and headers use BSD-3-Clause under the repository LICENSE, including original files without a file-level declaration. Existing explicit file licenses and third-party copyright notices are retained; the repository default does not replace them.",
       "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
       "licenseFiles": [
-        "LICENSE"
+        "LICENSE",
+        "vendor/mame-32x-pwm/LICENSE"
       ],
       "declaredFileLicenses": {
         "native/reference/tauri/native_genesis_pwm.cpp": "BSD-3-Clause",
-        "native/reference/tauri/native_genesis_pwm.h": "BSD-3-Clause"
+        "native/reference/tauri/native_genesis_pwm.h": "BSD-3-Clause",
+        "wasm/pwm32x_core.h": "BSD-3-Clause"
       },
-      "defaultLicensedFiles": []
+      "defaultLicensedFiles": [
+        "native/include/tetorica/pwm.hpp"
+      ],
+      "buildFiles": [
+        "CMakeLists.txt",
+        "native/CMakeLists.txt"
+      ]
     },
     {
       "id": "nes",

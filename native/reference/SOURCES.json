@@ -573,6 +573,22 @@
       "originSha256": "a3a8358966a9530a9b21b8ce5c691c2daa5749fdd46496a820aec3c743fb3afc",
       "sha256": "cab792c1380e8f893d8d7ef07e523e205bbff140dce422001affd0acb36201bd",
       "adaptation": "Include the public SDK header; retain the original PCM event CLI, benchmark, six-source gate/observation/isolation and callback-allocation checks. Extend the 400-byte ABI layout, both optional-FDS profiles, output/base/outer-clock boundaries and regional tables, copied full DMC RAM and range rollback, DMC wrap/IRQ/loop and protected final-byte behavior, FDS raw wave/modulation/IO gates, filter/held output and distinct global/per-channel Stop semantics, reset clearing full memory with retained settings, and snapshot/mute/source-lifetime checks. Native implementation and vendor source bytes remain unchanged."
+    },
+    {
+      "file": "native/tests/pwm_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_pwm_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "31bf6a9e5c1fa38d3b5d11578ca8f78153cd93fc574c6721b36986bcfd2be65b",
+      "sha256": "99e968e958dde2ddea6c124c2c58e7ab95177ed82e4a7f50cbebbc73209fb812",
+      "adaptation": "Include the public SDK header; retain the two-float interleaved PCM event CLI and original Stop/reset/clock/allocation checks. Extend constructor defaults/bounds, stereo FIFO capacity/flags/word masks, routing and held latch behavior, exact timer reconfiguration and Stop/reset phase, invalid-input rollback, read-only state and independent-instance checks. No wrapper or core changes."
+    },
+    {
+      "file": "native/tests/extra_pwm_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_extra_pwm_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "a01a79c4e2dde0e47a3fe2e1de517d9082268563fe2180286eb57c12fc271f13",
+      "sha256": "5cc3440ea6ae71fc6c9fc0dbc79adc27d9d5372f12c0df8e9cbd210b53844d14",
+      "adaptation": "Include the public SDK header; retain the Native/standalone-Core PCM-state CLI and original exhaustive routing/ownership/cancellation/allocation tests. Extend 64-bit tag identity, zero/ordinary ownership, active control/cycle flush with retained latch ownership, global Stop/reset/tag retention contracts, unknown-tag live-state preservation, and direct-Core invalid-state rollback. Configuration-only DAC/mute checks remain distinct from the fixed Native duty/gain-1 API; no new setters or core changes."
     }
   ]
 }

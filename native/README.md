@@ -27,11 +27,13 @@ translation-unit constraints.
 
 ## Build support
 
+Requirements: CMake 3.20 or newer and a C++17 compiler.
+
 The independently buildable Native components are **ymfm YM2612, YM2151,
-YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280, NES with optional FDS and YM3526/YM3812/YMF262/Y8950**.
-These eighteen chip IDs use fourteen static libraries; YM2610/YM2610B share one
+YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280, NES with optional FDS, 32X PWM and YM3526/YM3812/YMF262/Y8950**.
+These nineteen chip IDs use fifteen static libraries; YM2610/YM2610B share one
 library, and four OPL-family chips share another. Constructors explicitly select
-the per-handle variant/kind. Nineteen aliases/headers include the generic OPL entry:
+the per-handle variant/kind. Twenty aliases/headers include the generic OPL entry:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -58,6 +60,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::gameboy` | `tetorica_native_gameboy` | `<tetorica/gameboy.hpp>` | `native_gameboy_*`, `NativeGameboyState` |
 | `tetorica::huc6280` | `tetorica_native_huc6280` | `<tetorica/huc6280.hpp>` | `native_huc6280_*`, `NativeHuc6280State` |
 | `tetorica::nes` | `tetorica_native_nes` | `<tetorica/nes.hpp>` | `native_nes_*`, `NativeNesState` |
+| `tetorica::pwm` | `tetorica_native_pwm` | `<tetorica/pwm.hpp>` | `native_pwm_*`, `NativePwmState` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -95,7 +98,7 @@ clock/divider guards, pan, repeat, retained Stop/reset and observation.
 The RF5C164 fixture covers both profiles, eight voices, sign-magnitude PCM,
 loop markers, RAM/bank access, clock conversion, reset retention and the
 additional profile's immediate source cancellation and observation.
-All sixteen fixtures run through CTest with assertions enabled in Release builds.
+All eighteen fixtures run through CTest with assertions enabled in Release builds.
 The three OPL-family fixtures exercise primary controls/PCM, additional source
 ownership/held output, and Y8950 writable-page memory separately. The shared OPL
 library covers four selected chip kinds; each handle constructs only one kind.
@@ -115,6 +118,12 @@ and I/O gates, the 400-byte state ABI, independent instances, regional tables,
 creation/clock guards, retained Stop/full reset and non-advancing observation.
 It compares exact DMC PCM/lifetime during unrelated protected gate edits and
 rejects allocation/free while rendering and applying tested controls.
+The primary PWM fixture checks constructor/default bounds, FIFO depth/flags,
+cycle/timer behavior, routing, integrated duty PCM, clock edits and Stop/reset.
+The additional PWM fixture checks independent instances, pure observation,
+64-bit owner-tag FIFO/latch cancellation and isolation, overflow, retained
+Stop/reset and clock guards. Both compare reference PCM and reject C++
+allocation/free on their tested rendering/control paths.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
@@ -873,8 +882,128 @@ The public forwarder and SDK integration use the default BSD-3-Clause terms.
 The existing Native NES/FDS renderer explicitly retains **Apache-2.0 AND MIT**,
 including the JSNES and fixNES notices; see [LICENSES.md](../LICENSES.md).
 
+## Embed 32X PWM
+
+Link `tetorica::pwm` and include `<tetorica/pwm.hpp>` for the unchanged
+`native_pwm_*` ABI and `NativePwmState`. Each handle owns the shared
+`wasm/pwm32x_core.h` core, two three-entry FIFOs, output latches and Native
+owner-tag metadata. CMake compiles only `native_genesis_pwm.cpp`; the core is
+header-only. No sample storage is borrowed, and no SH2, DMA, video, analog PWM
+filter, audio device or application scheduler is included.
+
+```cmake
+add_subdirectory(vendor/tetorica-soundchip-native)
+target_link_libraries(your_application PRIVATE tetorica::pwm)
+```
+
+`native_pwm_create(output_rate)` accepts 1–1,000,000 Hz and returns null for
+invalid rates. Native defaults are **23,011,361 Hz, duty mode, gain 1**.
+The standalone reference JavaScript defaults to DAC mode/gain 0.4 instead;
+its VGM comparison path uses duty/gain 1. This Native ABI has no gain,
+output-mode or mute setter. `native_pwm_set_clock` accepts integer
+100,000–100,000,000 Hz and returns success/failure, preserving FIFO contents,
+latches and timer phase; rejected edits leave the handle unchanged.
+
+Write register indices 0–4, rather than machine bus addresses:
+
+| Index | Function |
+| --- | --- |
+| 0 | 16-bit control: left FIFO route in bits 0–1, right FIFO route in bits 2–3, interrupt cadence in bits 8–11 |
+| 1 | 12-bit cycle register; a written zero has effective cycle 4095, while readback retains zero |
+| 2 | Push the left FIFO |
+| 3 | Push the right FIFO |
+| 4 | Push the same value to both FIFOs |
+
+Route 1 sends a FIFO to its matching output; route 2 crosses it to the opposite
+output. Routes 0/3 consume entries without updating a latch. Thus control
+`0x05` gives ordinary left/right routing and `0x0a` swaps them. Every timer tick
+pops each nonempty FIFO, left first and right second, so a right-FIFO write wins
+when both target the same latch on one tick. A full FIFO drops its oldest entry
+when pushed. FIFO register reads in `get_state().registers[2/3]` are `0x4000`
+when empty, `0x8000` when full and zero otherwise; register 4 is their bitwise
+AND. The snapshot also provides sizes and raw queue contents.
+
+The timer runs when effective cycle is not 1 and the control low nibble is
+nonzero. Its interval is **cycle minus one chip clocks**, so the FIFO source
+rate is `clock/(cycle-1)`. An active control/cycle write clears both FIFOs,
+resets the cadence tick and starts a fresh full interval, while retaining
+already latched output and the cumulative interrupt count. Configure these
+registers before filling the FIFOs. Deactivation retains latches and queues;
+empty queues retain the previous output. Cadence zero represents 16 ticks;
+other values represent 1–15. Interrupts are reported only as a count, with no
+host callback or CPU IRQ/DMA system.
+
+FIFO writes copy the low 16 bits immediately; synthesis uses each latched
+value's low 12 bits. Native duty PCM is
+`((raw & 4095)/(effective_cycle/2.0) - 1)`, with no clipping. An invalid latch
+is silent, but a valid raw zero is **negative full scale**. Center counts on
+`cycle/2`, and keep counts between 0 and cycle for the nominal [-1,+1] range;
+counts larger than cycle can exceed full scale. For example, cycle 960 has
+neutral count 480, source interval 959 clocks and about 23,995.163 ticks/s at
+the default clock. `native_pwm_sample` integrates the held duty output over
+one output frame, including any ticks within it. It is not a one-pop-per-call
+PCM queue: hosts must feed according to actual tick timing and queue capacity.
+
+A small raw-count host can configure, prime and render as follows:
+
+```cpp
+#include <tetorica/pwm.hpp>
+
+int main() {
+    void* chip = native_pwm_create(48000);
+    if (!chip) return 1;
+    native_pwm_write(chip, 1, 960);
+    native_pwm_write(chip, 0, 0x05);
+    native_pwm_write(chip, 2, 600); // Left +0.25 duty after the first tick.
+    native_pwm_write(chip, 3, 480); // Right neutral, not raw zero.
+    float left[512], right[512];
+    for (unsigned frame = 0; frame < 512; ++frame)
+        native_pwm_sample(chip, &left[frame], &right[frame]);
+    // Empty FIFOs hold the last value; a streaming host must refill them.
+    native_pwm_stop(chip); // Invalidates both latches and empties both queues.
+    native_pwm_destroy(chip);
+}
+```
+
+Ordinary `native_pwm_write` is tag zero, the unowned primary path.
+`native_pwm_write_tagged` associates a nonzero 64-bit owner with FIFO entries
+and the output latches they later update. The tag changes no PCM or timing.
+`native_pwm_has_tag` reports queued or valid latched ownership, not signal
+amplitude. `native_pwm_cancel_tag` removes only matching queued entries,
+compacts each FIFO in order and immediately invalidates any matching output
+latch without advancing the timer or unrelated queued/latching state. It does
+not restore a value that was overwritten earlier. Tag zero is never reported,
+and cancellation of zero is a no-op. Overflow, route collisions and active
+timer reconfiguration follow the same physical queue/latch behavior as
+ordinary writes; active reconfiguration drops queued tags while retaining
+latched ownership. These are ownership controls for a host's existing event
+policy, not a new scheduler, timestamp queue, owner lease or lifetime manager.
+
+Stop empties the active queues, invalidates/zeros the audible latches and
+clears ownership tags immediately. It retains control/cycle, edited clock,
+timer phase and interrupt count; an enabled empty timer can continue counting.
+Reset additionally clears registers, effective cycle and timer/count history,
+retaining output rate and edited clock. Reset also clears all tags.
+`native_pwm_get_state` copies register readback, effective cycle, raw latches,
+validity, FIFO contents/sizes, timer phase/count and clock without advancing
+PCM. The snapshot omits owner tags and is observational, not a save/load API.
+`native_pwm_core_size` reports the owned C++ allocation including metadata.
+Create/destroy outside the callback and serialize every write, observation,
+clock edit, cancellation, Stop/reset and sample on the owning audio thread.
+
+The [32X WAV host](examples/sega32x_wav.cpp) demonstrates bounded FIFO feeding
+with original locally generated PCM/percussion, keeping the default clock
+and adding separate YM2612/PSG handles after a left/right PWM-only audition.
+
 ## Offline WAV examples
 
+`examples/sega32x_wav.cpp` links `tetorica::pwm`, `tetorica::ym2612` and
+`tetorica::segapsg` in `tetorica_32x_wav`. The first half-second auditions
+PWM only on the left, and the next half-second only on the right; the final
+two seconds mix original PWM PCM bass/percussion with FM and PSG. It retains
+the Native 23,011,361 Hz clock and cycle 960 (neutral 480, 959 clocks/tick),
+primes each three-entry FIFO and refills only free slots using sequential
+source-tick time. Fixed gains, bounded duties and fades preserve headroom.
 `examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in
 `tetorica_genesis_wav`. `examples/master_system_wav.cpp` links
 `tetorica::ym2413` and `tetorica::segapsg` in `tetorica_master_system_wav`.
@@ -934,8 +1063,9 @@ From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav tetorica_nes_fds_wav
+cmake --build build/native --config Release --target tetorica_32x_wav tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav tetorica_nes_fds_wav
 # Single-configuration generators:
+./build/native/native/tetorica_32x_wav "32x demo.wav"
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
 ./build/native/native/tetorica_master_system_wav "master system demo.wav"
 ./build/native/native/tetorica_msx_wav "msx demo.wav"
@@ -950,6 +1080,7 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/tetorica_pcengine_wav "pcengine demo.wav"
 ./build/native/native/tetorica_nes_fds_wav "nes fds demo.wav"
 # Visual Studio on Windows:
+./build/native/native/Release/tetorica_32x_wav.exe "32x demo.wav"
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
 ./build/native/native/Release/tetorica_master_system_wav.exe "master system demo.wav"
 ./build/native/native/Release/tetorica_msx_wav.exe "msx demo.wav"
@@ -997,7 +1128,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | NES + optional FDS | `native_genesis_nes.cpp` | Standalone APU/FDS target and fixture; copied DMC RAM, wave/modulation tables and observation |
 | PC Engine / HuC6280 | `native_genesis_huc6280.cpp` | Standalone six-source target and fixture; copied wave RAM, DDA/noise/LFO and observation |
 | DX7 | `native_genesis_dx7.cpp` | Not yet connected |
-| 32X PWM | `native_genesis_pwm.cpp` | Not yet connected |
+| 32X PWM | `native_genesis_pwm.cpp`, shared `pwm32x_core.h` | Standalone PWM target, primary/additional-tag fixtures and 32X WAV host |
 | SNES S-DSP | `native_genesis_snes.cpp` | Not yet connected |
 | SPC700 file player | `native_genesis_spc.cpp` | Not yet connected |
 

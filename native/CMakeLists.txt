@@ -289,6 +289,29 @@ foreach(flag IN ITEMS -fwrapv -fno-strict-aliasing -ffp-contract=off)
   endif()
 endforeach()
 
+# The exact browser/WASM FIFO and timer core is header-only; the pinned
+# native wrapper supplies the C ABI and host-owned tag cancellation metadata.
+add_library(tetorica_native_pwm STATIC
+  reference/tauri/native_genesis_pwm.cpp
+)
+add_library(tetorica::pwm ALIAS tetorica_native_pwm)
+target_compile_features(tetorica_native_pwm PUBLIC cxx_std_17)
+target_include_directories(tetorica_native_pwm
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+  PRIVATE
+    "${TETORICA_SDK_ROOT}/wasm"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_pwm PRIVATE /EHsc)
+endif()
+# Match the original Tauri PWM build's floating-point evaluation order.
+check_cxx_compiler_flag("-ffp-contract=off" TETORICA_PWM_SUPPORTS_NO_FP_CONTRACT)
+if(TETORICA_PWM_SUPPORTS_NO_FP_CONTRACT)
+  target_compile_options(tetorica_native_pwm PRIVATE -ffp-contract=off)
+endif()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
   add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
   target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
@@ -349,6 +372,11 @@ if(TETORICA_NATIVE_BUILD_EXAMPLES)
   target_link_libraries(tetorica_pcengine_wav PRIVATE tetorica::huc6280)
   if(MSVC)
     target_compile_options(tetorica_pcengine_wav PRIVATE /EHsc)
+  endif()
+  add_executable(tetorica_32x_wav examples/sega32x_wav.cpp)
+  target_link_libraries(tetorica_32x_wav PRIVATE tetorica::pwm tetorica::ym2612 tetorica::segapsg)
+  if(MSVC)
+    target_compile_options(tetorica_32x_wav PRIVATE /EHsc)
   endif()
   add_executable(tetorica_nes_fds_wav examples/nes_fds_wav.cpp)
   target_link_libraries(tetorica_nes_fds_wav PRIVATE tetorica::nes)
@@ -501,6 +529,29 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.huc6280.self_test
     COMMAND tetorica_huc6280_fixture --self-test)
+  add_executable(tetorica_pwm_fixture tests/pwm_fixture.cpp)
+  target_link_libraries(tetorica_pwm_fixture PRIVATE tetorica::pwm)
+  if(MSVC)
+    target_compile_options(tetorica_pwm_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_pwm_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.pwm.self_test
+    COMMAND tetorica_pwm_fixture --self-test)
+  add_executable(tetorica_extra_pwm_fixture tests/extra_pwm_fixture.cpp)
+  target_link_libraries(tetorica_extra_pwm_fixture PRIVATE tetorica::pwm)
+  target_include_directories(tetorica_extra_pwm_fixture PRIVATE "${TETORICA_SDK_ROOT}/wasm")
+  if(MSVC)
+    target_compile_options(tetorica_extra_pwm_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_extra_pwm_fixture PRIVATE -UNDEBUG)
+  endif()
+  # Its --core CLI exercises the same header-only core as the wrapper.
+  if(TETORICA_PWM_SUPPORTS_NO_FP_CONTRACT)
+    target_compile_options(tetorica_extra_pwm_fixture PRIVATE -ffp-contract=off)
+  endif()
+  add_test(NAME tetorica.extra_pwm.self_test
+    COMMAND tetorica_extra_pwm_fixture --self-test)
   add_executable(tetorica_nes_fixture tests/nes_fixture.cpp)
   target_link_libraries(tetorica_nes_fixture PRIVATE tetorica::nes)
   if(MSVC)
