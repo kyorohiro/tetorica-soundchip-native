@@ -28,10 +28,10 @@ translation-unit constraints.
 ## Build support
 
 The independently buildable Native components are **ymfm YM2612, YM2151,
-YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280 and YM3526/YM3812/YMF262/Y8950**.
-These seventeen chip IDs use thirteen static libraries; YM2610/YM2610B share one
+YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280, NES with optional FDS and YM3526/YM3812/YMF262/Y8950**.
+These eighteen chip IDs use fourteen static libraries; YM2610/YM2610B share one
 library, and four OPL-family chips share another. Constructors explicitly select
-the per-handle variant/kind. Eighteen aliases/headers include the generic OPL entry:
+the per-handle variant/kind. Nineteen aliases/headers include the generic OPL entry:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -57,6 +57,7 @@ build/native`. Neither build downloads dependencies.
 | `tetorica::opl`, `tetorica::ym3526`, `tetorica::ym3812`, `tetorica::ymf262`, `tetorica::y8950` | `tetorica_native_opl` | `<tetorica/opl.hpp>` and matching chip forwarders | `native_opl_*`, `native_extra_opl_*`, `NativeOplState`, `NativeExtraOplState` |
 | `tetorica::gameboy` | `tetorica_native_gameboy` | `<tetorica/gameboy.hpp>` | `native_gameboy_*`, `NativeGameboyState` |
 | `tetorica::huc6280` | `tetorica_native_huc6280` | `<tetorica/huc6280.hpp>` | `native_huc6280_*`, `NativeHuc6280State` |
+| `tetorica::nes` | `tetorica_native_nes` | `<tetorica/nes.hpp>` | `native_nes_*`, `NativeNesState` |
 
 The exported names and observational state layouts remain unchanged. These
 headers expose the current reference C ABI to C++ hosts; they are not yet a new
@@ -94,7 +95,7 @@ clock/divider guards, pan, repeat, retained Stop/reset and observation.
 The RF5C164 fixture covers both profiles, eight voices, sign-magnitude PCM,
 loop markers, RAM/bank access, clock conversion, reset retention and the
 additional profile's immediate source cancellation and observation.
-All fifteen fixtures run through CTest with assertions enabled in Release builds.
+All sixteen fixtures run through CTest with assertions enabled in Release builds.
 The three OPL-family fixtures exercise primary controls/PCM, additional source
 ownership/held output, and Y8950 writable-page memory separately. The shared OPL
 library covers four selected chip kinds; each handle constructs only one kind.
@@ -108,6 +109,12 @@ The HuC6280 fixture covers six audible sources, owned 5-bit wave RAM, selected
 and explicit-channel writes, waveform-helper control/DDA restoration and phase
 effects, stereo, noise/LFO, mute progression, Stop/reset, clock conversion,
 non-advancing observation and rendering without allocation/free.
+The NES fixture checks all six source gates/mutes, copied RAM boundaries and
+DMC wrap/loop/IRQ/final-byte lifetime, protected host gates, FDS wave/modulation
+and I/O gates, the 400-byte state ABI, independent instances, regional tables,
+creation/clock guards, retained Stop/full reset and non-advancing observation.
+It compares exact DMC PCM/lifetime during unrelated protected gate edits and
+rejects allocation/free while rendering and applying tested controls.
 See the [verification record](../docs/verification.md)
 for completed checks and platform results. Other collected wrappers still need
 their own standalone targets and verification.
@@ -748,6 +755,124 @@ includes `huc6280.cpp`; do not compile the vendor implementation again as a
 separate translation unit. No scheduler, audio device or machine runtime is
 imported.
 
+## Embed NES with optional FDS
+
+Link `tetorica::nes` and include `<tetorica/nes.hpp>` for the unchanged
+`native_nes_*` ABI and `NativeNesState`. FDS is a constructor flag in this one
+library/header. The target compiles only `native_genesis_nes.cpp`: it is a
+self-contained renderer. Do not add `vendor/tetorica-nes/nes_core.cpp`, whose
+`native_nes_*` exports would collide. The two core sources differ only in their local header include; WASM adds
+block generation and compiled state-layout descriptors. Neither core is
+changed by this target.
+The NES target selects C++17 and applies the original Tauri integer/aliasing/
+floating-point flags when the compiler supports them; those private flags do
+not affect other chip libraries or consumers.
+
+```cmake
+add_subdirectory(vendor/tetorica-soundchip-native)
+target_link_libraries(your_application PRIVATE tetorica::nes)
+```
+
+```cpp
+#include <tetorica/nes.hpp>
+
+int main() {
+    void* chip = native_nes_create(48000, 1789773.0, true); // NTSC, FDS enabled.
+    if (!chip) return 1;
+    native_nes_write(chip, 0x4017, 0x40); // Four-step frame clock, no frame IRQ.
+    native_nes_write(chip, 0x4015, 0x01); // Pulse 1 gate.
+    native_nes_write(chip, 0x4000, 0xbf); // 50%, held length, constant level 15.
+    native_nes_write(chip, 0x4001, 0x08); // No sweep; negate mode.
+    native_nes_write(chip, 0x4002, 253);  // round(1789773/(16*440)) - 1.
+    native_nes_write(chip, 0x4003, 0xf8); // Timer high bits + length reload.
+    float left[512], right[512];
+    for (unsigned i = 0; i < 512; ++i)
+        native_nes_sample(chip, &left[i], &right[i]);
+    native_nes_stop(chip);
+    native_nes_destroy(chip);
+}
+```
+
+Creation accepts 8,000–384,000 Hz output and a finite base clock from
+1,600,000–1,900,000 Hz. Choose, for example, 1,789,773 Hz NTSC or 1,662,607 Hz
+PAL; base clocks below 1,700,000 select PAL noise/DMC/frame tables. The base
+clock and FDS flag are immutable. `native_nes_set_clock` accepts integer
+100,000–100,000,000 Hz and returns success/failure. It changes outer
+averaging/hold relative to the base clock, preserving phase/remainder and the
+original regional tables; it does not rebuild the APU for a new region.
+At the base clock, pulse pitch is `base_clock / (16 * (period + 1))` and
+triangle pitch is `base_clock / (32 * (period + 1))`; periods above 7 are the
+usable range in this renderer. With zero FDS sweep gain, wave pitch is
+`base_clock * frequency / 4194304`. Clock edits scale these pitches by
+`clock / base_clock`.
+
+Writes use absolute CPU addresses: pulses `$4000–$4007`, triangle
+`$4008/$400A/$400B`, noise `$400C/$400E/$400F`, DMC `$4010–$4013`, gates
+`$4015` and frame control `$4017`. DMC starts at `$C000 + 64*$4012`, plays
+`16*$4013 + 1` bytes, consumes bits least significant first and wraps from
+`$FFFF` to `$8000`. The copied memory API addresses the entire 64 KiB CPU
+space: `native_nes_load(chip, bytes, offset, size)` returns 1 on success and
+0 when `offset > 65536`, `size > 65536-offset`, or nonempty data has a null
+pointer. A zero-byte upload may use null and offset 65536. Successful uploads
+copy immediately; the input can expire on return. `native_nes_read_memory`
+reads this RAM, not registers or hardware status. The host supplies encoded
+DMC data and serializes uploads with rendering; no ROM parser, memory bus or
+asynchronous loader is included.
+
+FDS I/O must be enabled through `$4023` bit 1. The owned 64-byte wave table at
+`$4040–$407F` accepts writes only when `$4089` bit 7 opens its write window;
+audio uses each byte's low six bits. Close the window for playback. `$4080`
+controls volume envelope/fixed gain, `$4082/$4083` hold the 12-bit frequency,
+`$4083` bit 7 halts/restarts wave phase and bit 6 gates envelopes. `$4084`
+controls sweep envelope/fixed gain, `$4085` writes a signed 7-bit modulation
+counter, and `$4086/$4087` set modulation frequency/control. `$4088` writes
+3-bit modulation entries only while `$4087` bit 7 disables modulation; each
+write advances the doubled index by two through 32 owned entries. `$4089`
+also selects master attenuation, and `$408A` sets envelope speed. Disabling
+I/O blocks subsequent wave/control writes but does not stop a running FDS
+oscillator. The state register mirror records submitted writes even when an
+FDS gate rejects their hardware effect; inspect applied FDS fields/tables too.
+
+Source IDs and mute bits are pulse 1/2 = 0/1, triangle = 2, noise = 3,
+DMC = 4 and FDS = 5. `native_nes_enable` is the legacy APU `$4015` helper;
+ordinary enable writes can refill an exhausted DMC sample. For independent
+host gates, `native_nes_enable_channel` accepts APU IDs 0–4 and preserves
+DMC decoder state when editing IDs 0–3. `native_nes_write_enable` merges
+protected gate bits from the current mask; protecting bit 4 also preserves
+the complete DMC state rather than refilling its final shifting byte.
+`native_nes_active_mask` observes gates/lengths/DMC data-in-flight and FDS
+oscillator enable without advancing synthesis; it is not an amplitude meter.
+`native_nes_core_size` reports the retained C++ allocation including RAM.
+
+The APU mixes pulses and triangle/noise/DMC through the retained nonlinear
+lookup model and integer high-pass history. FDS has a 2 kHz low-pass and
+20 Hz DC-removal filter before addition; the Native mix then passes through
+its 10 Hz DC remover. Output is mono duplicated to left/right. Mute bits 0–5
+preserve progression: APU mutes act before nonlinear mixing, FDS mute after
+its own filters. `get_state`, `active_mask` and memory reads neither advance
+audio nor acknowledge IRQ. State reports raw timer/rate quantities, not
+hertz; DMC frequency is eight times its CPU-cycle bit period. It includes
+frame/DMC IRQ flags, applied FDS fields, wave/modulation bytes and clock data.
+The 400-byte snapshot omits RAM and internal filter/resampler history; it is
+not a resumable save-state.
+
+Global Stop gates off the APU and submits FDS halt/zero-gain writes through
+the I/O gate; if FDS I/O is disabled, that FDS oscillator can remain active.
+`stop_channel(5)` deliberately halts it even with I/O disabled while restoring
+the authored I/O setting and retaining wave/envelope data. APU source Stop
+preserves foreign DMC state; DMC Stop also clears its current DAC sample while
+retaining the authored `$4011` and decoder level. Stop is not a PCM-buffer
+clear: DAC latches, filter tails and sub-base-clock held output can persist.
+Both Stop forms retain RAM, waves, clock and mute. Full reset clears the
+64 KiB DMC RAM, FDS wave/modulation tables, registers, gates, phases and
+filter/outer output history, retaining current/base clocks, mute and FDS flag.
+Serialize every handle operation on its owning audio thread; state snapshots
+are copied, with no imported host scheduler, lock or ownership queue.
+
+The public forwarder and SDK integration use the default BSD-3-Clause terms.
+The existing Native NES/FDS renderer explicitly retains **Apache-2.0 AND MIT**,
+including the JSNES and fixNES notices; see [LICENSES.md](../LICENSES.md).
+
 ## Offline WAV examples
 
 `examples/genesis_wav.cpp` links `tetorica::ym2612` and `tetorica::segapsg` in
@@ -798,11 +923,18 @@ waves left/right; the next uses a pulse bass, host-fed 5-bit DDA melody and
 both noise channels; the last combines all six audible sources and reverses
 the first two voices' sides. It uses the 3,579,545 Hz clock, unsigned DAC
 neutral 16, fixed gain and short per-note fades without external sample data.
+`examples/nes_fds_wav.cpp` links only `tetorica::nes` in
+`tetorica_nes_fds_wav`. At the 1,789,773 Hz NTSC base clock, its first second
+uses both pulses, triangle, noise and 65 original DMC bytes copied into RAM;
+the next uses an original 64-sample FDS triangle; the last mixes all six.
+It disables modulation for musical pitch conversion and checks timer
+quantization within one percent. The retained mono output is duplicated
+into stereo, using fixed gain and per-note fades.
 From the SDK root:
 
 ```sh
 cmake -S . -B build/native -DCMAKE_BUILD_TYPE=Release
-cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav
+cmake --build build/native --config Release --target tetorica_genesis_wav tetorica_master_system_wav tetorica_msx_wav tetorica_pc98_ym2203_wav tetorica_pc98_ym2608_wav tetorica_neogeo_wav tetorica_x68000_wav tetorica_megacd_wav tetorica_dos_opl_wav tetorica_msx_audio_wav tetorica_gameboy_wav tetorica_pcengine_wav tetorica_nes_fds_wav
 # Single-configuration generators:
 ./build/native/native/tetorica_genesis_wav "genesis demo.wav"
 ./build/native/native/tetorica_master_system_wav "master system demo.wav"
@@ -816,6 +948,7 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/tetorica_msx_audio_wav "msx audio demo.wav"
 ./build/native/native/tetorica_gameboy_wav "gameboy demo.wav"
 ./build/native/native/tetorica_pcengine_wav "pcengine demo.wav"
+./build/native/native/tetorica_nes_fds_wav "nes fds demo.wav"
 # Visual Studio on Windows:
 ./build/native/native/Release/tetorica_genesis_wav.exe "genesis demo.wav"
 ./build/native/native/Release/tetorica_master_system_wav.exe "master system demo.wav"
@@ -829,13 +962,14 @@ cmake --build build/native --config Release --target tetorica_genesis_wav tetori
 ./build/native/native/Release/tetorica_msx_audio_wav.exe "msx audio demo.wav"
 ./build/native/native/Release/tetorica_gameboy_wav.exe "gameboy demo.wav"
 ./build/native/native/Release/tetorica_pcengine_wav.exe "pcengine demo.wav"
+./build/native/native/Release/tetorica_nes_fds_wav.exe "nes fds demo.wav"
 ```
 
 The one required argument selects the output WAV; the parent directory must
 exist. Each example generates exactly 144,000 frames of stereo PCM16 at 48 kHz
 from synthetic notes/percussion, with no audio device or external assets.
 They use their chips' respective hardware pitch equations, fixed mix headroom
-and short output fades. Sega PSG stereo remains `0xff`; AY, OPLL and YM2203
+and short output fades. Sega PSG stereo remains `0xff`; AY, OPLL, YM2203 and NES/FDS
 output is mono on both channels. Their fixed example gains are not motherboard mix
 ratios or SDK-wide defaults. Rendering and file writing happen offline,
 rather than inside an audio callback.
@@ -860,7 +994,7 @@ controlled separately by `TETORICA_NATIVE_BUILD_TESTS`.
 | RF5C164 | `native_genesis_rf5c164.cpp`, `native_genesis_extra_rf5c164.cpp` | One standalone library and fixture; distinct primary/additional profiles |
 | OKIM6258 | `native_genesis_extra_okim6258.cpp` | Standalone ADPCM target and fixture; borrowed immutable sample |
 | Game Boy | `native_genesis_gameboy.cpp` | Standalone DMG APU target and fixture; owned wave RAM, gate-only Stop and observation |
-| NES + optional FDS | `native_genesis_nes.cpp` | Not yet connected |
+| NES + optional FDS | `native_genesis_nes.cpp` | Standalone APU/FDS target and fixture; copied DMC RAM, wave/modulation tables and observation |
 | PC Engine / HuC6280 | `native_genesis_huc6280.cpp` | Standalone six-source target and fixture; copied wave RAM, DDA/noise/LFO and observation |
 | DX7 | `native_genesis_dx7.cpp` | Not yet connected |
 | 32X PWM | `native_genesis_pwm.cpp` | Not yet connected |

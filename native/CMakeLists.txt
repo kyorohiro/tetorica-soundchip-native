@@ -263,6 +263,32 @@ if(MSVC)
   target_compile_options(tetorica_native_huc6280 PRIVATE /EHsc)
 endif()
 
+# This pinned C++ JSNES/FDS port is self-contained. The separately inventoried
+# vendor/tetorica-nes/nes_core.cpp exports the same C ABI and must not be linked.
+add_library(tetorica_native_nes STATIC
+  reference/tauri/native_genesis_nes.cpp
+)
+add_library(tetorica::nes ALIAS tetorica_native_nes)
+target_compile_features(tetorica_native_nes PUBLIC cxx_std_17)
+target_include_directories(tetorica_native_nes
+  PUBLIC
+    "${CMAKE_CURRENT_LIST_DIR}/include"
+    "${CMAKE_CURRENT_LIST_DIR}/reference/tauri"
+)
+if(MSVC)
+  target_compile_options(tetorica_native_nes PRIVATE /EHsc)
+endif()
+# Preserve the original Tauri build's JavaScript integer and floating-point
+# semantics without imposing these flags on consumers or unrelated chip cores.
+include(CheckCXXCompilerFlag)
+foreach(flag IN ITEMS -fwrapv -fno-strict-aliasing -ffp-contract=off)
+  string(MAKE_C_IDENTIFIER "TETORICA_NES_SUPPORTS_${flag}" supported_flag)
+  check_cxx_compiler_flag("${flag}" "${supported_flag}")
+  if(${supported_flag})
+    target_compile_options(tetorica_native_nes PRIVATE "${flag}")
+  endif()
+endforeach()
+
 if(TETORICA_NATIVE_BUILD_EXAMPLES)
   add_executable(tetorica_genesis_wav examples/genesis_wav.cpp)
   target_link_libraries(tetorica_genesis_wav PRIVATE tetorica::ym2612 tetorica::segapsg)
@@ -323,6 +349,11 @@ if(TETORICA_NATIVE_BUILD_EXAMPLES)
   target_link_libraries(tetorica_pcengine_wav PRIVATE tetorica::huc6280)
   if(MSVC)
     target_compile_options(tetorica_pcengine_wav PRIVATE /EHsc)
+  endif()
+  add_executable(tetorica_nes_fds_wav examples/nes_fds_wav.cpp)
+  target_link_libraries(tetorica_nes_fds_wav PRIVATE tetorica::nes)
+  if(MSVC)
+    target_compile_options(tetorica_nes_fds_wav PRIVATE /EHsc)
   endif()
 endif()
 
@@ -470,4 +501,13 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   endif()
   add_test(NAME tetorica.huc6280.self_test
     COMMAND tetorica_huc6280_fixture --self-test)
+  add_executable(tetorica_nes_fixture tests/nes_fixture.cpp)
+  target_link_libraries(tetorica_nes_fixture PRIVATE tetorica::nes)
+  if(MSVC)
+    target_compile_options(tetorica_nes_fixture PRIVATE /UNDEBUG /EHsc)
+  else()
+    target_compile_options(tetorica_nes_fixture PRIVATE -UNDEBUG)
+  endif()
+  add_test(NAME tetorica.nes.self_test
+    COMMAND tetorica_nes_fixture --self-test)
 endif()

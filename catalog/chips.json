@@ -500,11 +500,16 @@
         "vendor/ymfm/LICENSE"
       ],
       "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
         "declaredFileLicenses": {
           "native/reference/tauri/native_genesis_nes.cpp": "Apache-2.0 AND MIT"
         },
         "defaultLicensedFiles": [
-          "native/reference/tauri/native_genesis_nes.h"
+          "native/reference/tauri/native_genesis_nes.h",
+          "native/include/tetorica/nes.hpp"
         ],
         "id": "nes",
         "licenseFiles": [
@@ -516,12 +521,19 @@
         "licenseStatus": "declared",
         "sourceFiles": [
           "native/reference/tauri/native_genesis_nes.cpp",
-          "native/reference/tauri/native_genesis_nes.h"
+          "native/reference/tauri/native_genesis_nes.h",
+          "native/include/tetorica/nes.hpp"
         ],
-        "status": "source-only",
-        "tetoricaOriginalDefaultLicense": "BSD-3-Clause"
+        "status": "verified",
+        "target": "tetorica_native_nes",
+        "tests": [
+          "tetorica.nes.self_test"
+        ],
+        "tetoricaOriginalDefaultLicense": "BSD-3-Clause",
+        "verificationScope": "Independent retained Native NES APU implementation with constructor-selected optional FDS, native_nes_* ABI, owned copied 64 KiB DMC memory, pulse/triangle/noise/DMC/FDS sources, protected host gates, mute, IRQ/state observation, clock conversion and distinct Stop/reset retention. Compiles only the Native implementation, avoiding the WASM core's duplicate exports. Offline deployed WASM/Worklet PCM comparisons and Native state/control tests; no console CPU/PPU, game ROM, audio device, event scheduler or playback-deadline guarantee."
       },
       "sourceFiles": [
+        "native/include/tetorica/nes.hpp",
         "native/reference/tauri/native_genesis_nes.cpp",
         "native/reference/tauri/native_genesis_nes.h",
         "vendor/tetorica-nes/nes_core.cpp",

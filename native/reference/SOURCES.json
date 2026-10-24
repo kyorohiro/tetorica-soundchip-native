@@ -565,6 +565,14 @@
       "originSha256": "c38e44de6a05b6d4256b87f69000cf9931a7fb1955a91559745e0b2a8f0f2e67",
       "sha256": "19399bbbbd4e411e4fd852f3d4ce6fde69a1ed507b51ebc7ddd7cc7c2c3e0c3b",
       "adaptation": "Include the public SDK header and retain the two-float interleaved PCM event CLI, original state/mute/LFO/noise/isolation and callback-allocation tests. Extend ABI layout, six-voice stereo and per-channel Stop across output rates/clocks, waveform copy/masking/selection/control/DDA retention, invalid-operation rollback and fallback, low-clock held gate-off/Stop timing, constructor/clock boundaries and reset/mute/clock retention. No wrapper or vendor rendering changes."
+    },
+    {
+      "file": "native/tests/nes_fixture.cpp",
+      "origin": "w/tetorica-fm2612-playground-tauri/src-tauri/src/native_genesis_nes_fixture.cpp",
+      "originCommit": "83bfba8cbbc272a02279aba250b13e4c0f6ca57b",
+      "originSha256": "a3a8358966a9530a9b21b8ce5c691c2daa5749fdd46496a820aec3c743fb3afc",
+      "sha256": "cab792c1380e8f893d8d7ef07e523e205bbff140dce422001affd0acb36201bd",
+      "adaptation": "Include the public SDK header; retain the original PCM event CLI, benchmark, six-source gate/observation/isolation and callback-allocation checks. Extend the 400-byte ABI layout, both optional-FDS profiles, output/base/outer-clock boundaries and regional tables, copied full DMC RAM and range rollback, DMC wrap/IRQ/loop and protected final-byte behavior, FDS raw wave/modulation/IO gates, filter/held output and distinct global/per-channel Stop semantics, reset clearing full memory with retained settings, and snapshot/mute/source-lifetime checks. Native implementation and vendor source bytes remain unchanged."
     }
   ]
 }
