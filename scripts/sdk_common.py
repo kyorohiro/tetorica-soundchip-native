@@ -10,6 +10,7 @@ CHIP_IDS = frozenset((
     "gameboy", "segapsg", "ym2151", "pwm", "nes", "dx7", "snes", "spc",
     "huc6280", "okim6258", "ym3526", "ym3812", "y8950", "ymf262", "ym2413", "ay8910",
 ))
+JAVASCRIPT_REFERENCE_IDS = frozenset(("msm5205", "okim6295"))
 
 
 def read_json(path):
@@ -72,11 +73,13 @@ def check_collection(root=ROOT):
     if set(chip["id"] for chip in native["chips"]) != CHIP_IDS:
         raise ValueError("native_inventory.json is missing a Playground chip")
     count = 0
+    recorded_sources = set()
     for component in inventory["components"]:
         if not component.get("licenseFiles"):
             raise ValueError(f"No license reference for component {component['id']}")
         for record in component["files"]:
             verify_record(root, record["path"], record)
+            recorded_sources.add(record["path"])
             count += 1
     for entry in read_json(root / "native/reference/SOURCES.json")["entries"]:
         verify_record(root, entry["file"], entry)
@@ -98,7 +101,24 @@ def check_collection(root=ROOT):
                 check_references(item)
     for value in (inventory, native, catalog):
         check_references(value)
+    javascript = inventory.get("javascriptReferences", [])
+    javascript_ids = [entry["id"] for entry in javascript]
+    if len(javascript_ids) != len(set(javascript_ids)) or set(javascript_ids) != JAVASCRIPT_REFERENCE_IDS:
+        raise ValueError("JavaScript references must include MSM5205 and OKIM6295 exactly once")
+    if catalog.get("javascriptReferences") != javascript:
+        raise ValueError("JavaScript reference catalogs differ; run scripts/refresh_catalog.py")
+    for entry in javascript:
+        if entry.get("format") != "javascript-es-module":
+            raise ValueError(f"Unsupported JavaScript reference format: {entry['id']}")
+        if entry.get("native", {}).get("status") != "not-ported" or entry.get("wasm", {}).get("status") != "not-ported":
+            raise ValueError(f"JavaScript reference must not claim a Native/WASM port: {entry['id']}")
+        name = entry.get("entryPoint")
+        local_path(root, name)
+        if not entry.get("licenseFiles") or not entry.get("sourceFiles") or name not in entry["sourceFiles"]:
+            raise ValueError(f"Incomplete JavaScript reference: {entry['id']}")
+        if not set(entry["sourceFiles"]).issubset(recorded_sources):
+            raise ValueError(f"JavaScript reference has no imported-source checksum: {entry['id']}")
     for chip in catalog["chips"]:
         if not chip.get("sourceFiles") or not chip.get("licenseFiles"):
             raise ValueError(f"Incomplete chip catalog entry: {chip['id']}")
-    return {"chips": len(ids), "artifacts": len(inventory["artifacts"]), "snapshotFiles": count}
+    return {"chips": len(ids), "artifacts": len(inventory["artifacts"]), "javascriptReferences": len(javascript), "snapshotFiles": count}

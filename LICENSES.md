@@ -18,7 +18,9 @@ Tetorica's original code does not replace those component terms.
   files, original license texts, WASM artifacts, and Native build status.
 - [catalog/source_inventory.json](catalog/source_inventory.json) records upstream
   projects, source versions, import paths, and SHA-256 hashes. Reference WASM
-  artifacts are identified separately from their source files.
+  artifacts are identified separately from their source files. Its
+  `javascriptReferences` section records the MSM5205 and OKIM6295 engines
+  separately from compiled artifacts.
 - [catalog/native_inventory.json](catalog/native_inventory.json) maps Native
   wrappers to their sources and records existing file-level declarations and the
   BSD default for Tetorica-authored glue.
@@ -33,6 +35,11 @@ Apache-2.0, [FDS](vendor/tetorica-nes/LICENSE-FDS) uses MIT, and
 [Nuked-OPN2](vendor/nuked-opn2/LICENSE) and [SNES-SPC](vendor/snes-spc/LICENSE)
 retain their LGPL terms. Use the catalog's complete file list when selecting a
 chip and its adapters.
+
+The [MSM5205](vendor/libvgm-msm5205/LICENSE) and
+[OKIM6295](vendor/mame-okim6295/LICENSE) JavaScript references retain their BSD
+copyright notices and adaptation records. They are unchanged copies of the
+Analyzer engines, with no sample ROM or third-party music bundled.
 
 ## Source and binary releases
 

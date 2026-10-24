@@ -26,6 +26,7 @@ class AuditError(RuntimeError):
 
 REQUIRED_CHIPS = frozenset("ym2612 ym2203 ym2610 ym2610b rf5c164 ym2608 gameboy segapsg ym2151 pwm nes dx7 snes spc huc6280 okim6258 ym3526 ym3812 y8950 ymf262 ym2413 ay8910".split())
 REQUIRED_ARTIFACTS = frozenset("ay8910 gameboy_apu huc6280 k051649 nesapu nuked_opn2 okim6258 pwm32x rf5c164 segapcm segapsg spc y8950 ym2151 ym2203 ym2413 ym2608 ym2610b ym2612 ym3438 ym3526 ym3812 ymf262 ymf276 ymf278b ymf288 dx7".split())
+REQUIRED_JAVASCRIPT_REFERENCES = frozenset(("msm5205", "okim6295"))
 
 
 def require(value, message):
@@ -118,6 +119,33 @@ def check_references(root, owner, key, values):
             require(path.stat().st_size > 0, f"{owner}: empty license file {name}")
 
 
+def audit_javascript_references(root, catalog, inventory):
+    references = []
+    for owner, document in (("chip catalog", catalog), ("source inventory", inventory)):
+        records = document.get("javascriptReferences")
+        require(isinstance(records, list), f"Missing {owner} JavaScript references")
+        ids = [record.get("id") for record in records]
+        require(len(ids) == len(set(ids)) and set(ids) == REQUIRED_JAVASCRIPT_REFERENCES,
+                f"{owner} JavaScript reference inventory changed: {ids}")
+        references.append({record["id"]: record for record in records})
+    require(references[0] == references[1], "JavaScript references differ between the two catalogs")
+    source_hashes = {item["path"] for component in inventory["components"] for item in component.get("files", [])}
+    for identifier, record in references[0].items():
+        require(record.get("format") == "javascript-es-module", f"{identifier}: invalid JavaScript reference format")
+        require(record.get("entryPoint") == f"reference/javascript/{identifier}audioengine.js",
+                f"{identifier}: invalid JavaScript entry point")
+        for key in ("sourceFiles", "licenseFiles"):
+            check_references(root, identifier, key, record.get(key))
+        require(record["entryPoint"] in record["sourceFiles"], f"{identifier}: entry point missing from sourceFiles")
+        require(set(record["sourceFiles"]) <= source_hashes,
+                f"{identifier}: JavaScript source missing from hash provenance")
+        for backend in ("native", "wasm"):
+            require(isinstance(record.get(backend), dict) and record[backend].get("status") == "not-ported",
+                    f"{identifier}: JavaScript reference must remain {backend} not-ported")
+    package = read_json(root / "reference/javascript/package.json")
+    require(package.get("type") == "module", "JavaScript references require a local ES module package")
+
+
 def audit_catalog(root):
     catalog = read_json(root / "catalog/chips.json")
     require(catalog.get("schemaVersion") == 1, "Unsupported chip catalog schema")
@@ -131,6 +159,7 @@ def audit_catalog(root):
         for key in ("sourceFiles", "licenseFiles"):
             check_references(root, chip["id"], key, chip.get(key))
     inventory = read_json(root / "catalog/source_inventory.json")
+    require(inventory.get("schemaVersion") == 1, "Unsupported source inventory schema")
     for section in ("components", "artifacts"):
         records = inventory.get(section)
         require(isinstance(records, list) and records, f"Missing source inventory {section}")
@@ -157,6 +186,7 @@ def audit_catalog(root):
                         f"{record['id']}: absent chipIds")
     covered = {chip for artifact in inventory["artifacts"] for chip in artifact["chipIds"]}
     require(set(ids) <= covered, f"WASM inventory lost public chips: {sorted(set(ids)-covered)}")
+    audit_javascript_references(root, catalog, inventory)
     native = read_json(root / "catalog/native_inventory.json")
     require(native.get("schemaVersion") == 1 and {chip["id"] for chip in native.get("chips", [])} == REQUIRED_CHIPS,
             "Native reference inventory lost a public chip")
@@ -290,6 +320,7 @@ def main():
     parser.add_argument("--work-dir", type=Path)
     parser.add_argument("--audit-only", action="store_true")
     parser.add_argument("--wasm-smoke", action="store_true", help="Run the released YM2612 Node ABI smoke even with --audit-only")
+    parser.add_argument("--javascript-smoke", action="store_true", help="Run the two JavaScript reference smokes with Node.js 22+, even with --audit-only")
     parser.add_argument("--build-wasm", metavar="ARTIFACT", help="Also rebuild one WASM artifact using installed Emscripten")
     args = parser.parse_args()
     work = args.work_dir or Path(tempfile.mkdtemp(prefix="tetorica SDK standalone "))
@@ -311,6 +342,9 @@ def main():
         environment.pop(key, None)
     if not args.audit_only:
         build_native(root, work / "native-build", environment)
+    if not args.audit_only or args.javascript_smoke:
+        require(shutil.which("node"), "JavaScript reference smoke requires Node.js 22+")
+        command(["node", root / "tests/javascript_reference_smoke.mjs", root / "reference/javascript"], root, environment)
     if args.wasm_zip and (not args.audit_only or args.wasm_smoke):
         require(shutil.which("node"), "WASM ABI smoke requires Node.js")
         command(["node", root / "tests/wasm_smoke.mjs", wasm / "wasm"], root, environment)
@@ -320,7 +354,7 @@ def main():
         require(any((work / "rebuilt-wasm").rglob("*.wasm")), "WASM build produced no WASM artifact")
         if args.build_wasm in ("ym2612", "all"):
             command(["node", root / "tests/wasm_smoke.mjs", work / "rebuilt-wasm"], root, environment)
-    print(f"PASS: {len(catalog['chips'])} chips and {len(inventory['artifacts'])} WASM artifacts; standalone release at {root}")
+    print(f"PASS: {len(catalog['chips'])} chips, {len(inventory['artifacts'])} WASM artifacts and {len(catalog['javascriptReferences'])} JavaScript references; standalone release at {root}")
 
 
 if __name__ == "__main__":

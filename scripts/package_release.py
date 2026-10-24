@@ -6,7 +6,7 @@ import stat
 import zipfile
 from sdk_common import ROOT, check_collection, file_record, json_bytes, local_path, metadata, read_json, sha256, verify_record
 
-SOURCE_DIRS = ("catalog", "docs", "native", "scripts", "tests", "vendor", "wasm")
+SOURCE_DIRS = ("catalog", "docs", "native", "reference", "scripts", "tests", "vendor", "wasm")
 SOURCE_FILES = (".gitignore", "CMakeLists.txt", "sdk.json", "README.md", "LICENSE", "LICENSE.tools", "LICENSES.md", "CHANGELOG.md")
 SKIP_DIRS = {".git", ".svn", ".hg", "node_modules", "target", "build", "dist", "releases", "__pycache__"}
 

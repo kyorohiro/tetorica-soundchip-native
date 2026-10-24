@@ -1655,10 +1655,49 @@
     }
   ],
   "differencesDocument": "docs/chip-differences.md",
+  "javascriptReferences": [
+    {
+      "entryPoint": "reference/javascript/msm5205audioengine.js",
+      "format": "javascript-es-module",
+      "id": "msm5205",
+      "licenseFiles": [
+        "vendor/libvgm-msm5205/LICENSE"
+      ],
+      "native": {
+        "status": "not-ported"
+      },
+      "provenanceStatus": "imported-reference-source; unchanged from the Tetorica JavaScript implementation",
+      "sourceFiles": [
+        "reference/javascript/msm5205audioengine.js"
+      ],
+      "wasm": {
+        "status": "not-ported"
+      }
+    },
+    {
+      "entryPoint": "reference/javascript/okim6295audioengine.js",
+      "format": "javascript-es-module",
+      "id": "okim6295",
+      "licenseFiles": [
+        "vendor/mame-okim6295/LICENSE"
+      ],
+      "native": {
+        "status": "not-ported"
+      },
+      "provenanceStatus": "imported-reference-source; unchanged from the Tetorica JavaScript implementation",
+      "sourceFiles": [
+        "reference/javascript/okim6295audioengine.js"
+      ],
+      "wasm": {
+        "status": "not-ported"
+      }
+    }
+  ],
   "notes": [
     "Source collection is complete for these 22 Playground IDs; independent Native targets are being migrated one by one.",
     "A WASM recipe is not a claim of runtime verification; release build-info and tests report the verified scope.",
-    "snes (DSP/RAM access) and spc (SPC CPU/file player) share the SNES-SPC sources but remain separate APIs."
+    "snes (DSP/RAM access) and spc (SPC CPU/file player) share the SNES-SPC sources but remain separate APIs.",
+    "JavaScript references are separate from the 22 Playground IDs and 27 WASM recipes; their Native/WASM ports are not implemented."
   ],
   "schemaVersion": 1,
   "stage": "bootstrap"

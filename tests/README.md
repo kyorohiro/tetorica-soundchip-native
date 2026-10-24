@@ -1,6 +1,6 @@
 # Standalone release verification
 
-The Python checker uses only the standard library. Native compilation needs CMake 3.20+ and a C++14 compiler. The optional WASM rebuild needs an installed Emscripten toolchain; the ABI smoke needs Node.js 18.3+.
+The Python checker uses only the standard library. Native compilation needs CMake 3.20+ and a C++14 compiler. The JavaScript reference smoke, included in a normal verification run, needs Node.js 22+. The optional WASM rebuild needs an installed Emscripten toolchain; the WASM ABI smoke alone works with Node.js 18.3+.
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py' -v
@@ -11,12 +11,15 @@ python3 tests/check_standalone_release.py \
   --build-wasm ym2612
 ```
 
-The work directory must be empty. Its source tree is extracted from the ZIP, not copied from another checkout. Manifest inventories, hashes, source/license references, Native provenance, all 22 public chips and all 27 WASM recipes are checked before building. CMake File API and compiler-command paths reject outside project sources/includes. Downloading build recipes, external CMake fetches, archive symlinks and escaping paths are rejected. This is not an operating-system network sandbox; installed compiler/system headers and Emscripten's toolchain cache remain toolchain dependencies.
+The work directory must be empty. Its source tree is extracted from the ZIP, not copied from another checkout. Manifest inventories, hashes, source/license references, Native provenance, all 22 public chips, all 27 WASM recipes and both JavaScript references are checked before building. MSM5205 and OKIM6295 are a separate JavaScript-only set: their entry points and source hashes must be present, their metadata must agree in both catalogs, and their Native/WASM status must remain `not-ported`. CMake File API and compiler-command paths reject outside project sources/includes. Downloading build recipes, external CMake fetches, archive symlinks and escaping paths are rejected. This is not an operating-system network sandbox; installed compiler/system headers and Emscripten's toolchain cache remain toolchain dependencies.
 
 The initial compiled Native target and released WASM artifact are YM2612/ymfm. Other chips retain source recipes and their explicitly recorded verification/license status. The Node smoke tests synchronous reads, audible finite stereo output, reset and exact PCM continuation after save/load. It loads the supplied loader unchanged through a temporary `.mjs` file, with explicit WASM bytes and no npm dependencies.
 
-To recheck unchanged compiled releases without compiling again, pass `--audit-only --wasm-smoke`. To run the low-level ABI smoke directly:
+The JavaScript smoke imports the copied engines from the extracted source tree and checks audible finite stereo output, exact chunk continuity, mute progression, reset, MSM5205 external VCLK, OKIM6295 sample/voice commands, stop/end behavior and attachment gain. It also runs the synthetic rendering example from a temporary directory and verifies both PCM16 WAV files. No npm installation, browser or audio device is used.
+
+To recheck unchanged releases without compiling again, pass `--audit-only --wasm-smoke --javascript-smoke`. With just `--audit-only`, no compiler or Node process is started. To run either smoke directly:
 
 ```sh
 node tests/wasm_smoke.mjs /path/to/extracted-release/wasm
+node tests/javascript_reference_smoke.mjs /path/to/extracted-source/reference/javascript
 ```

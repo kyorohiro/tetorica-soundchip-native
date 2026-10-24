@@ -16,12 +16,15 @@ The source catalog covers 22 chip API identifiers:
 
 Additional WASM recipes cover YM3438, YMF276, YMF288, YMF278B, Sega PCM, and K051649. YM2612 also includes the optional Nuked-OPN2 engine.
 
+The collection also includes the VGM Analyzer's **MSM5205 and OKIM6295 JavaScript reference implementations**, with their original notices and source hashes. These two engines have not yet been ported to C++ or WASM.
+
 | Deliverable | Current status |
 | --- | --- |
 | Standalone native CMake target | **YM2612 using ymfm**, built and tested |
 | Other native adapters | Reference sources included; standalone targets are being added |
 | WASM build recipes | 27 artifacts; independent builds verified for YM2612 and DX7 |
 | Initial compiled WASM archive | YM2612, with its matching source archive embedded |
+| JavaScript references | MSM5205 and OKIM6295; runnable ES modules, with no Native/WASM port yet |
 
 Source availability does not imply that every adapter is ready to link unchanged. The [chip differences](docs/chip-differences.md) document records required combinations and known prerequisites, including the Game Boy native header adjustment. See the [machine-readable catalog](catalog/chips.json) and [verification record](docs/verification.md) for details.
 
@@ -92,6 +95,16 @@ Most artifacts produce an Emscripten ES module (`*_wasm.js`) and its matching `.
 
 Each build records its compiler, input hashes, and output hashes in `build-info.json`. A separate output directory keeps rebuilt artifacts apart from any imported reference binaries.
 
+## Run the JavaScript ADPCM references
+
+Requirements: Node.js 22 or newer. No npm installation, audio device, or external sample ROM is required for the example.
+
+```sh
+node reference/javascript/examples/render-adpcm.mjs build/adpcm-reference
+```
+
+The example generates MSM5205 and OKIM6295 WAV files from synthetic data. The two reference engines are unchanged copies of the Tetorica Analyzer implementations and can also be imported as ES modules. They provide a behavioral reference for future native ports. See [the JavaScript reference guide](reference/javascript/README.md) for their APIs and limitations.
+
 ## Use a release archive
 
 Keep a versioned source archive in your own project and record its SHA-256. Updates are explicit; an application can keep using its pinned version independently of this repository.
@@ -115,6 +128,7 @@ For JavaScript Synth helpers, AudioWorklet integration, and higher-level APIs, s
 - [Native API and build notes](native/README.md)
 - [Per-chip source and backend differences](docs/chip-differences.md)
 - [MSFA/DX7 modifications](docs/research.md)
+- [MSM5205 and OKIM6295 JavaScript references](reference/javascript/README.md)
 - [Release packaging and integration](docs/releases.md)
 - [Architecture and source maintenance](docs/architecture.md)
 - [Verification results](docs/verification.md)

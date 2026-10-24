@@ -12,11 +12,12 @@ This SDK collects implementations already developed and checked in the reference
 
 ## Changes made while importing the SDK
 
-The reference Web import commit is `0fff93d46ab3e9227ecffcacdf96f3ca115e6f72`. [source_inventory.json](../catalog/source_inventory.json) and [Native SOURCES.json](../native/reference/SOURCES.json) identify the exact included bytes by hash.
+The original C/C++ and WASM import commit is `0fff93d46ab3e9227ecffcacdf96f3ca115e6f72`. The JavaScript ADPCM references were imported separately from `a9f9a8a86ec4bd182224b1bc3979cfde6cf95b48`. [source_inventory.json](../catalog/source_inventory.json) records each component's source version; it and [Native SOURCES.json](../native/reference/SOURCES.json) identify the exact included bytes by hash.
 
 | Area | Inspection result |
 | --- | --- |
-| Shared cores, WASM wrappers and accompanying documents | All 170 files across the 15 source-inventory components match their `originPath` sources byte for byte. MSFA's actual source comes from the standalone package checkout |
+| Original shared cores, WASM wrappers and accompanying documents | All 170 files across the original 15 components match their `originPath` sources byte for byte. MSFA's actual source comes from the standalone package checkout |
+| JavaScript ADPCM references | Two engines and four notice/license files add six byte-identical imports in two components. These references are separate from the 22 Playground IDs and 27 WASM artifacts |
 | Native reference sources | 56 of 59 files match their Tauri sources byte for byte. The three files below only change includes for the SDK layout |
 | HuC6280 Native | `native_genesis_huc6280.cpp`: changes `../native-huc6280/snapshot/third_party/mame-huc6280/huc6280.{h,cpp}` to `huc6280.{h,cpp}` |
 | Nuked Native | `native_genesis_nuked.cpp`: changes `../native-nuked/snapshot/wasm/nuked_opn2_wasm.c` to `nuked_opn2_wasm.c` |
@@ -112,6 +113,17 @@ The shared [nuked_opn2_wasm.c](../wasm/nuked_opn2_wasm.c) uses the existing adap
 | `ymf278b` | [ymfm OPL4 wrapper](../wasm/ymf278b_wasm.cpp), matching the reference bytes. No standalone Native SDK adapter; the host prepares sample ROM |
 | `segapcm` | [README](../vendor/mame-segapcm/README.md). Matches the reference bytes; adapts the 16-voice 315-5218 to VGM flat offsets, a ROM vector and bank settings. Reset retains ROM. No Native SDK adapter |
 | `k051649` | [README](../vendor/mame-k051649/README.md). Matches the reference bytes; adapts five-channel SCC / SCC+ to VGM ports / registers. SCC channels 4 / 5 share a waveform; SCC+ keeps them independent. Reset additionally clears wave RAM. No Native SDK adapter |
+
+## JavaScript-only Analyzer reference engines
+
+| Reference | Origin and behavior | Native / WASM status |
+| --- | --- | --- |
+| `msm5205` | [Engine](../reference/javascript/msm5205audioengine.js), imported unchanged from `web/msm5205audioengine.js`. The libvgm-derived model includes ADPCM decoding, a leaky accumulator, FIFO, reset, prescaler, 3/4-bit data, external VCLK, and fractional output timing. Mute masks output while decoder timing continues. [Original notices](../vendor/libvgm-msm5205/README.md) and [BSD license](../vendor/libvgm-msm5205/LICENSE) are retained | Not ported. The runnable JavaScript source is a behavioral reference; no CMake target or WASM recipe is claimed |
+| `okim6295` | [Engine](../reference/javascript/okim6295audioengine.js), imported unchanged from `web/okim6295audioengine.js`. The MAME/libvgm-derived model has four ADPCM voices, sample-ROM command handling, clock/pin7 changes, standard and NMK112 banks, and held-sample output timing. Mute retains voice progression. [Original notices](../vendor/mame-okim6295/README.md) and [BSD license](../vendor/mame-okim6295/LICENSE) are retained | Not ported. The host supplies ROM data and event timing; the example generates synthetic data |
+
+Both engines render stereo Float32 blocks synchronously and need no AudioContext. Their source comments retain the original repository paths for provenance; this SDK's relocated notices are linked above. The upstream reference revisions were not pinned in the existing port notices, so the catalog records that limitation together with the exact Tetorica source revision and hashes. No unmodified upstream C/C++ implementation or game ROM is implied by these imports.
+
+See [reference/javascript/README.md](../reference/javascript/README.md) for the standalone example and APIs. These two references do not add Playground modes or `createSoundChip()` IDs.
 
 ## Licensing and future updates
 

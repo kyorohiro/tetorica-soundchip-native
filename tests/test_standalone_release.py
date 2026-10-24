@@ -1,13 +1,15 @@
 """Regression tests for release isolation and provenance checks; no compiler needed."""
 import hashlib
 import json
+import copy
 from pathlib import Path
 import stat
 import tempfile
 import unittest
 import zipfile
 
-from check_standalone_release import (AuditError, REQUIRED_ARTIFACTS, REQUIRED_CHIPS, audit_catalog,
+from check_standalone_release import (AuditError, REQUIRED_ARTIFACTS, REQUIRED_CHIPS,
+                                      REQUIRED_JAVASCRIPT_REFERENCES, audit_catalog,
                                       audit_local_sources, audit_manifest,
                                       audit_wasm, relative_path, unpack)
 
@@ -31,10 +33,27 @@ class ReleaseAuditTests(unittest.TestCase):
         self.write("vendor/LICENSE", "BSD-3-Clause fixture license\n")
         self.write("scripts/build-wasm.sh", "#!/bin/sh\nset -eu\nem++ vendor/core.cpp -o result.js\n")
         references = {"sourceFiles": ["vendor/core.cpp"], "licenseFiles": ["vendor/LICENSE"]}
-        catalog = {"schemaVersion": 1, "chips": [{"id": chip, **references} for chip in sorted(REQUIRED_CHIPS)]}
+        javascript = []
+        javascript_components = []
+        self.write("reference/javascript/package.json", '{"type":"module","private":true}\n')
+        for identifier in sorted(REQUIRED_JAVASCRIPT_REFERENCES):
+            entry = f"reference/javascript/{identifier}audioengine.js"
+            path = self.write(entry, f"export const referenceId = '{identifier}';\n")
+            license_file = f"vendor/{identifier}/LICENSE"
+            self.write(license_file, "BSD-3-Clause JavaScript fixture license\n")
+            record = {"id": identifier, "format": "javascript-es-module", "entryPoint": entry,
+                      "sourceFiles": [entry], "licenseFiles": [license_file],
+                      "native": {"status": "not-ported"}, "wasm": {"status": "not-ported"}}
+            javascript.append(record)
+            javascript_components.append({"id": identifier, "sourceFiles": [entry], "licenseFiles": [license_file],
+                                          "files": [{"path": entry, "originPath": f"web/{identifier}audioengine.js",
+                                                     "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}]})
+        catalog = {"schemaVersion": 1, "chips": [{"id": chip, **references} for chip in sorted(REQUIRED_CHIPS)],
+                   "javascriptReferences": copy.deepcopy(javascript)}
         self.write("catalog/chips.json", json.dumps(catalog))
         inventory = {"schemaVersion": 1, "components": [{"id": "core", **references,
-                     "files": [{"path": "vendor/core.cpp", "originPath": "src/core.cpp", "sha256": hashlib.sha256(source.read_bytes()).hexdigest()}]}],
+                     "files": [{"path": "vendor/core.cpp", "originPath": "src/core.cpp", "sha256": hashlib.sha256(source.read_bytes()).hexdigest()}]}, *javascript_components],
+                     "javascriptReferences": copy.deepcopy(javascript),
                      "artifacts": [{"id": artifact, "chipIds": sorted(REQUIRED_CHIPS), **references,
                                     "format": "emscripten-es-module", "buildScript": "scripts/build-wasm.sh"} for artifact in sorted(REQUIRED_ARTIFACTS)]}
         self.write("catalog/source_inventory.json", json.dumps(inventory))
@@ -148,6 +167,56 @@ class ReleaseAuditTests(unittest.TestCase):
         inventory["artifacts"] = [item for item in inventory["artifacts"] if item["id"] != "ym3438"]
         self.write("catalog/source_inventory.json", json.dumps(inventory))
         with self.assertRaisesRegex(AuditError, "artifact inventory changed.*ym3438"):
+            audit_catalog(self.root)
+
+    def test_javascript_reference_cannot_disappear_from_both_catalogs(self):
+        catalog, inventory = self.fixture()
+        for document in (catalog, inventory):
+            document["javascriptReferences"] = [record for record in document["javascriptReferences"] if record["id"] != "msm5205"]
+        self.write("catalog/chips.json", json.dumps(catalog))
+        self.write("catalog/source_inventory.json", json.dumps(inventory))
+        with self.assertRaisesRegex(AuditError, "JavaScript reference inventory changed"):
+            audit_catalog(self.root)
+
+    def test_javascript_catalogs_must_agree_on_source_and_backend_metadata(self):
+        catalog, _ = self.fixture()
+        catalog["javascriptReferences"][0]["native"]["status"] = "verified"
+        self.write("catalog/chips.json", json.dumps(catalog))
+        with self.assertRaisesRegex(AuditError, "differ between the two catalogs"):
+            audit_catalog(self.root)
+
+    def test_javascript_only_reference_cannot_claim_a_native_or_wasm_port(self):
+        for backend in ("native", "wasm"):
+            with self.subTest(backend=backend):
+                catalog, inventory = self.fixture()
+                for document in (catalog, inventory):
+                    document["javascriptReferences"][0][backend]["status"] = "verified"
+                self.write("catalog/chips.json", json.dumps(catalog))
+                self.write("catalog/source_inventory.json", json.dumps(inventory))
+                with self.assertRaisesRegex(AuditError, f"must remain {backend} not-ported"):
+                    audit_catalog(self.root)
+
+    def test_javascript_entry_point_must_be_present_and_provenanced(self):
+        catalog, inventory = self.fixture()
+        inventory["components"] = [record for record in inventory["components"] if record["id"] != "msm5205"]
+        self.write("catalog/source_inventory.json", json.dumps(inventory))
+        with self.assertRaisesRegex(AuditError, "JavaScript source missing from hash provenance"):
+            audit_catalog(self.root)
+        self.fixture()
+        (self.root / "reference/javascript/msm5205audioengine.js").unlink()
+        with self.assertRaisesRegex(AuditError, "msm5205audioengine.js"):
+            audit_catalog(self.root)
+
+    def test_javascript_source_tampering_breaks_imported_source_hash(self):
+        self.fixture()
+        self.write("reference/javascript/msm5205audioengine.js", "export const modified = true;\n")
+        with self.assertRaisesRegex(AuditError, "Imported source hash mismatch.*msm5205"):
+            audit_catalog(self.root)
+
+    def test_javascript_reference_license_must_be_present(self):
+        self.fixture()
+        (self.root / "vendor/msm5205/LICENSE").unlink()
+        with self.assertRaisesRegex(AuditError, "missing/outside licenseFiles.*msm5205"):
             audit_catalog(self.root)
 
     def test_parent_and_absolute_cpp_includes_are_rejected(self):

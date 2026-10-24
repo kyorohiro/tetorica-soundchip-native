@@ -1266,6 +1266,75 @@
           "sha256": "d78ec8c2979abef6e229dac2b7229135ebd94514d03cdbd18a007b14a9a68b5c"
         }
       ]
+    },
+    {
+      "id": "libvgm-msm5205",
+      "sourceFiles": [
+        "reference/javascript/msm5205audioengine.js"
+      ],
+      "licenseFiles": [
+        "vendor/libvgm-msm5205/LICENSE"
+      ],
+      "upstream": [
+        "https://github.com/ValleyBell/libvgm/blob/master/emu/cores/msm5205.c",
+        "https://github.com/ValleyBell/libvgm/blob/master/player/vgmplayer_cmdhandler.cpp"
+      ],
+      "sourceVersion": [
+        "Tetorica JavaScript reference snapshot a9f9a8a86ec4bd182224b1bc3979cfde6cf95b48; exact imported bytes identified below",
+        "An upstream commit pin is not recorded in the supplied provenance; the upstream C/C++ originals were not imported or independently compared for this reference entry"
+      ],
+      "files": [
+        {
+          "path": "reference/javascript/msm5205audioengine.js",
+          "originPath": "web/msm5205audioengine.js",
+          "sha256": "1a533692e8645764149fda07ebc0feed1a18010872fe1b27b546b3de0c82a5c5"
+        },
+        {
+          "path": "vendor/libvgm-msm5205/LICENSE",
+          "originPath": "third_party/libvgm-msm5205/LICENSE",
+          "sha256": "3315f9a2466767cf2e59ccc74f593bd702af01d44519e3d2d48cdf4d9891512e"
+        },
+        {
+          "path": "vendor/libvgm-msm5205/README.md",
+          "originPath": "third_party/libvgm-msm5205/README.md",
+          "sha256": "4ae997cefdc782d583cea0587839475e0c813a189151b5e3c1bbde8e457387bd"
+        }
+      ]
+    },
+    {
+      "id": "mame-okim6295",
+      "sourceFiles": [
+        "reference/javascript/okim6295audioengine.js"
+      ],
+      "licenseFiles": [
+        "vendor/mame-okim6295/LICENSE"
+      ],
+      "upstream": [
+        "https://github.com/mamedev/mame/blob/master/src/devices/sound/okim6295.cpp",
+        "https://github.com/mamedev/mame/blob/master/src/devices/sound/okiadpcm.cpp",
+        "https://github.com/ValleyBell/libvgm/blob/master/emu/cores/okim6295.c"
+      ],
+      "sourceVersion": [
+        "Tetorica JavaScript reference snapshot a9f9a8a86ec4bd182224b1bc3979cfde6cf95b48; exact imported bytes identified below",
+        "An upstream commit pin is not recorded in the supplied provenance; the upstream C/C++ originals were not imported or independently compared for this reference entry"
+      ],
+      "files": [
+        {
+          "path": "reference/javascript/okim6295audioengine.js",
+          "originPath": "web/okim6295audioengine.js",
+          "sha256": "31e35347376e163ba0f52948da4666bf20ac257481e84177e42c773a829f25a2"
+        },
+        {
+          "path": "vendor/mame-okim6295/LICENSE",
+          "originPath": "third_party/mame-okim6295/LICENSE",
+          "sha256": "951803c525415c349f53adab1fde00c49b242e981f1242931140791c18b72176"
+        },
+        {
+          "path": "vendor/mame-okim6295/README.md",
+          "originPath": "third_party/mame-okim6295/README.md",
+          "sha256": "c4f3c0182f7cce78f053932f700695d6a1f0cf3be2c094a2df9c4f33cb601d83"
+        }
+      ]
     }
   ],
   "artifacts": [
@@ -2665,6 +2734,44 @@
         "scripts/build_dx7_wasm.sh",
         "scripts/record_wasm_build.mjs"
       ]
+    }
+  ],
+  "javascriptReferences": [
+    {
+      "id": "msm5205",
+      "format": "javascript-es-module",
+      "entryPoint": "reference/javascript/msm5205audioengine.js",
+      "sourceFiles": [
+        "reference/javascript/msm5205audioengine.js"
+      ],
+      "licenseFiles": [
+        "vendor/libvgm-msm5205/LICENSE"
+      ],
+      "native": {
+        "status": "not-ported"
+      },
+      "wasm": {
+        "status": "not-ported"
+      },
+      "provenanceStatus": "imported-reference-source; unchanged from the Tetorica JavaScript implementation"
+    },
+    {
+      "id": "okim6295",
+      "format": "javascript-es-module",
+      "entryPoint": "reference/javascript/okim6295audioengine.js",
+      "sourceFiles": [
+        "reference/javascript/okim6295audioengine.js"
+      ],
+      "licenseFiles": [
+        "vendor/mame-okim6295/LICENSE"
+      ],
+      "native": {
+        "status": "not-ported"
+      },
+      "wasm": {
+        "status": "not-ported"
+      },
+      "provenanceStatus": "imported-reference-source; unchanged from the Tetorica JavaScript implementation"
     }
   ]
 }

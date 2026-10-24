@@ -10,3 +10,4 @@
 - Document upstream adaptations, import changes and Native/WASM differences for all 22 chips and additional WASM artifacts, including six MSFA Native differences and the pending Game Boy Native header adaptation.
 - Document the workflow for incorporating changes verified in the application repositories and distributing pinned SDK snapshots.
 - License original Tetorica code under BSD-3-Clause, retaining third-party licenses and existing explicit file-level terms.
+- Include the Analyzer's unchanged MSM5205 and OKIM6295 JavaScript references, BSD notices, provenance, a standalone synthetic-data WAV example, and source-archive verification. Record them separately from Native targets and WASM recipes.

@@ -27,4 +27,6 @@ The SDK is the distribution source for these snapshots. Moving shared-core devel
 
 `native/reference/tauri/` contains captured Native provider implementations. These sources retain backend-specific resampling, mute, audition and cancellation behavior. Their presence does not establish a stable SDK API or a completed standalone build for every chip. DX7's Native-specific changes are also retained separately. The current standalone Native CMake target is YM2612/ymfm; see the [verification record](verification.md) for the tested scope.
 
+`reference/javascript/` preserves the Analyzer's MSM5205 and OKIM6295 engines as synchronous JavaScript references, with their own provenance, component notices and offline example. These engines have not yet been ported to Native C++ or WASM and are cataloged separately from compiled targets.
+
 Synchronous WASM primitives used to implement `read()` and `generateStereo()` remain part of the low-level interface. The asynchronous Native IPC path does not replace the synchronous calls needed by AudioWorklet consumers. JavaScript APIs and host transport selection remain responsibilities of the consuming projects.

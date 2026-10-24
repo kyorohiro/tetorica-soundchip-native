@@ -4,7 +4,7 @@
 
 `scripts/package_release.py` uses the version in `sdk.json` to produce:
 
-- `tetorica-soundchip-native-<version>-sources.zip`: cores, Native reference implementations, WASM bridges, build recipes, catalogs, licenses and tests.
+- `tetorica-soundchip-native-<version>-sources.zip`: cores, Native reference implementations, WASM bridges, JavaScript ADPCM references and examples, build recipes, catalogs, licenses and tests.
 - `tetorica-soundchip-native-<version>-wasm.zip`: the generated artifacts selected through `--wasm-dir`, catalogs, license notices and the matching source ZIP itself.
 - `SHA256SUMS`: the SHA-256 digest of each release ZIP.
 
@@ -23,7 +23,7 @@ Original Tetorica code uses BSD-3-Clause. Retain the license files, notices and 
    python3 tests/check_standalone_release.py --source-zip <sources.zip>
    ```
 
-   Add `--wasm-zip <wasm.zip>` to audit the matching WASM release and run its Node ABI smoke test. See [tests/README.md](../tests/README.md) for tool requirements and optional rebuilds.
+   The normal verification also runs the JavaScript reference smoke using Node.js 22 or newer. Add `--wasm-zip <wasm.zip>` to audit the matching WASM release and run its Node ABI smoke test. See [tests/README.md](../tests/README.md) for tool requirements and optional rebuilds.
 
 3. Vendor the required contents under a path such as `vendor/tetorica-soundchip-native/`, retaining licenses, notices, catalogs and the manifest. Importing the complete source archive is the simplest starting point for Native integration.
 4. Record the SDK version, original archive SHA-256, selected chip and engine, and any downstream patches.
@@ -40,6 +40,8 @@ Publishing a new SDK release does not update a consumer's pinned version. Normal
 5. Update the SDK version and release archives. Consumers can adopt the new release separately.
 
 Keep three verification states distinct: source is included, source works in its original application, and source has been built and tested independently through this SDK.
+
+The MSM5205 and OKIM6295 entries under `javascriptReferences` are executable JavaScript snapshots, not Native or WASM artifacts. Include `reference/javascript/` and its component notices when selecting these sources. The packager includes them in the source ZIP; archive audits check both their presence and their explicit `not-ported` backend status.
 
 ## Next adoption step
 
