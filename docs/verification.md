@@ -344,3 +344,13 @@ records, retaining every vendor byte and license. This record is local SDK
 validation; source-archive extraction, application adoption, multi-platform CI,
 real-device listening and hard real-time deadlines are separate checks. Existing
 WASM source recipes and the previously compiled YM2612 artifact are unchanged.
+
+The first SDK 0.1.1 matrix run, `40174420834`, exposed a test-only portability
+failure on Linux x64 and ARM64: the allocation macros were active while
+libstdc++'s `<stdlib.h>` declared its `using std::malloc/free` forwards. The
+production library compiled; the instrumented test object failed. A small
+test-only `nuked_audit.cpp` now includes `<stdlib.h>` before the unchanged Native
+wrapper, keeping the standard declarations outside the audit macros. The
+production source selection, vendor/core bytes and exported APIs are unchanged.
+Local Release rebuild and all twenty-four CTest entries pass with this shim;
+the corrected multi-platform run is recorded separately after completion.

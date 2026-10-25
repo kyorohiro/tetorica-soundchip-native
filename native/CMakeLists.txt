@@ -568,7 +568,7 @@ if(TETORICA_NATIVE_BUILD_TESTS)
   # Instrument only a test copy of the wrapper. Its symbols satisfy the
   # fixture before the production archive is searched, so the archive supplies
   # only its C provider. Production libraries never reference audit hooks.
-  add_library(tetorica_nuked_audit OBJECT reference/tauri/native_genesis_nuked.cpp)
+  add_library(tetorica_nuked_audit OBJECT tests/nuked_audit.cpp)
   target_compile_features(tetorica_nuked_audit PRIVATE cxx_std_14)
   target_compile_definitions(tetorica_nuked_audit PRIVATE TETORICA_NUKED_AUDIT_ALLOCATIONS)
   target_include_directories(tetorica_nuked_audit PRIVATE
