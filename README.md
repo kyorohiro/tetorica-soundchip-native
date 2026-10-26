@@ -209,11 +209,13 @@ To create and verify archives locally:
 python3 scripts/check_sdk.py
 python3 scripts/package_release.py --out-dir releases --wasm-dir build/verified-wasm
 python3 tests/check_standalone_release.py \
-  --source-zip releases/tetorica-soundchip-native-0.1.2-sources.zip \
-  --wasm-zip releases/tetorica-soundchip-native-0.1.2-wasm.zip
+  --source-zip releases/tetorica-soundchip-native-0.1.3-sources.zip \
+  --wasm-zip releases/tetorica-soundchip-native-0.1.3-wasm.zip
 ```
 
 The source ZIP includes sources, build recipes, licenses, provenance, and tests. The WASM ZIP includes compiled artifacts and the exact matching source ZIP. Both carry per-file SHA-256 manifests. Omit `--wasm-dir` to create only the source archive. See [release packaging and integration](docs/releases.md).
+
+Starting with 0.1.3, maintainers can [publish a GitHub Release by pushing a version tag](docs/releases.md#publish-with-a-git-tag). GitHub Actions runs all five Native checks and the YM2612 WASM check, then creates and attaches the source ZIP and `SHA256SUMS`. No local archive preparation or GitHub CLI is required.
 
 For JavaScript Synth helpers, AudioWorklet integration, and higher-level APIs, see [tetorica-fm2612](https://www.npmjs.com/package/tetorica-fm2612).
 

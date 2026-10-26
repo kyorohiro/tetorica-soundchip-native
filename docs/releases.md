@@ -16,6 +16,28 @@ Previously imported WASM binaries have provenance records in `source_inventory.j
 
 Original Tetorica code uses BSD-3-Clause. Retain the license files, notices and existing explicit component licenses when vendoring either archive; [LICENSES.md](../LICENSES.md) describes the exceptions.
 
+## Publish with a Git tag
+
+Starting with 0.1.3, a version tag triggers automatic GitHub Release publication. Local ZIP creation, npm and the GitHub CLI are not required.
+
+1. Set the intended version in `sdk.json` and add its entry to `CHANGELOG.md`.
+2. Commit the release changes and push `main`, including the workflow and publishing script.
+3. From that commit, create and push the matching tag. For the current version:
+
+   ```sh
+   git tag v0.1.3
+   git push origin v0.1.3
+   ```
+
+4. Open the repository's **Actions → Verify SDK** run for the tag. All five Native jobs and the YM2612 WASM job must succeed. The final **Publish GitHub Release** job then packages the tagged sources and publishes a Release containing:
+
+   - `tetorica-soundchip-native-0.1.3-sources.zip`
+   - `SHA256SUMS`, listing the source ZIP's SHA-256
+
+The tag must equal `v` followed by the version in `sdk.json`. The publisher checks that the remote tag still points to the validated commit, uploads both files to a draft, and publishes only after the uploads succeed. A failed upload leaves a draft; rerun the failed job to resume. Published assets are checked rather than overwritten. Branch pushes, pull requests and manual validation runs do not publish releases. The WASM archive remains available in the **verified-sdk-archives** workflow artifact.
+
+Change the version for new release contents. Consumers already pin the 0.1.2 archive from commit `53b33a15f5c4b919b185cb912016eccfbbb6d3a6`; keep that archive and tag target intact. The automatic publisher begins with 0.1.3, whose source archive includes the new release tools.
+
 ## Adopting a release
 
 1. Obtain the source and, if needed, WASM ZIPs and verify them against `SHA256SUMS`.
@@ -57,7 +79,7 @@ Keep three verification states distinct: source is included, source works in its
 
 [Verify SDK](../.github/workflows/verify-sdk.yml) runs for every push, pull request, and manual dispatch. It has five Native jobs: Linux GCC on x64 and ARM64, Windows MSVC, and macOS Clang on Intel and Apple Silicon. Each packages a fresh source ZIP, extracts it under the runner's temporary directory, builds all nineteen static libraries in the Release configuration, runs twenty-four CTest tests from twenty-three fixture executables, renders/checks eighteen WAV examples, and executes the JavaScript reference smoke. The shared YM2610 fixture covers both YM2610/YM2610B variants and both profiles; three OPL fixtures cover primary, additional and Y8950 memory separately. The independent Game Boy fixture covers all four voices, owned wave RAM, clock/mute, stereo, Stop/reset and non-advancing observation. The HuC6280 fixture covers six audible channels, copied wave RAM, DDA/noise/LFO, stereo, selection, mute, retained Stop/clock/reset and non-advancing observation. The independent NES fixture covers six-source gates/mutes, copied DMC RAM and wrap/loop/IRQ/final-byte lifetime, FDS wave/modulation/I/O, regional clocks, Stop/reset and observational state without rendering allocation/free. Two PWM fixtures cover primary FIFO/timer/routing/duty integration and additional owner-tag cancellation/isolation, independent instances, observation, clock guards and retained Stop/reset, with reference PCM and allocation checks. The DX7 fixture checks raw voice loading/identity/live edits, all 16 slots, protected released tails, invalid controls, rate bounds, independence and allocation-free rendering/control, plus immediate panic silence and 96 exact fresh-instance feedback restarts across all algorithms at 44.1/48/96 kHz. The SNES executable supplies separate instrument and extended RAM/timeline CTest entries, checking rate guards, eight voices, copied RAM/bounds, stable views, same-frame/protected gates, retained Stop/full reset, independent instances, borrowed timeline replay/pause/completion, non-advancing observation and callback allocation/free. The SPC fixture checks copied loading, control-side preparation and bounded seek, pause/resume, cached mute, independent instances, non-advancing analysis, borrowed event capture/overflow, failure/reload and tested callback allocation/free. CMake File API and compiler-command checks enforce that project sources and explicit includes come from the extracted SDK. Build diagnostics are retained as per-platform artifacts. Consult the [verification record](verification.md) for completed runs; adding a target to the matrix does not itself establish platform success.
 
-The Ubuntu WASM job installs the fixed Emscripten 6.0.6 toolchain, compiles YM2612, and packages its artifacts with the exact matching source ZIP. It verifies hashes and the synchronous Node ABI, then recompiles YM2612 from the independently extracted source archive and repeats the smoke. Verified archives and compiler/input/output records are uploaded as workflow artifacts; the workflow does not publish GitHub releases.
+The Ubuntu WASM job installs the fixed Emscripten 6.0.6 toolchain, compiles YM2612, and packages its artifacts with the exact matching source ZIP. It verifies hashes and the synchronous Node ABI, then recompiles YM2612 from the independently extracted source archive and repeats the smoke. Verified archives and compiler/input/output records are uploaded as workflow artifacts. On a matching version-tag push, a separate Release job runs after both validation jobs succeed and publishes the source ZIP and its checksums as described above. Only that job receives `contents: write` permission.
 
 Compilers, Python 3.12, and Node.js 22 are CI tool dependencies. Chip sources come from the SDK checkout/archive. Separate Analyzer-only chip references and remaining WASM recipes are outside this workflow's compilation scope. The alternative Nuked YM2612 target is included in Native source-archive verification. All 22 cataloged Playground IDs now have standalone Native targets; this does not add device integration or establish unrun platform results.
 

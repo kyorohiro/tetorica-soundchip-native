@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3 — Automatic GitHub Releases
+
+- Publish a source ZIP and `SHA256SUMS` automatically when a matching version tag is pushed, after all five Native validation jobs and the YM2612 WASM job succeed. Use the workflow's built-in token and the GitHub REST API; maintainers only need Git to push the tag.
+- Keep the previously pinned 0.1.2 source archive unchanged. This release adds publishing automation and documentation without changing sound-chip cores or APIs.
+
 ## 0.1.2 — Independent Sega PSG component
 
 - Separate the original Tetorica Sega PSG implementation into `vendor/tetorica_sega_psg/`, with its own BSD-3-Clause license, copyright/SPDX headers and SMS Power! hardware-documentation credit. Update Native/WASM build paths and component provenance without changing synthesis, APIs or the imported reference binaries. Existing fixed application SDK snapshots remain unchanged until consumers explicitly adopt this release.
