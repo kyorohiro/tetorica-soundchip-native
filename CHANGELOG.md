@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.2 — Independent Sega PSG component
 
-- Separate the original Tetorica Sega PSG implementation into `vendor/tetorica_sega_psg/`, with its own BSD-3-Clause license, copyright/SPDX headers and SMS Power! hardware-documentation credit. Update Native/WASM build paths and component provenance without changing synthesis, APIs or the imported reference binaries. Existing fixed application SDK snapshots are unchanged pending a separately versioned source release.
+- Separate the original Tetorica Sega PSG implementation into `vendor/tetorica_sega_psg/`, with its own BSD-3-Clause license, copyright/SPDX headers and SMS Power! hardware-documentation credit. Update Native/WASM build paths and component provenance without changing synthesis, APIs or the imported reference binaries. Existing fixed application SDK snapshots remain unchanged until consumers explicitly adopt this release.
 
 ## 0.1.1 — Standalone Native targets
 

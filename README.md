@@ -209,8 +209,8 @@ To create and verify archives locally:
 python3 scripts/check_sdk.py
 python3 scripts/package_release.py --out-dir releases --wasm-dir build/verified-wasm
 python3 tests/check_standalone_release.py \
-  --source-zip releases/tetorica-soundchip-native-0.1.1-sources.zip \
-  --wasm-zip releases/tetorica-soundchip-native-0.1.1-wasm.zip
+  --source-zip releases/tetorica-soundchip-native-0.1.2-sources.zip \
+  --wasm-zip releases/tetorica-soundchip-native-0.1.2-wasm.zip
 ```
 
 The source ZIP includes sources, build recipes, licenses, provenance, and tests. The WASM ZIP includes compiled artifacts and the exact matching source ZIP. Both carry per-file SHA-256 manifests. Omit `--wasm-dir` to create only the source archive. See [release packaging and integration](docs/releases.md).
