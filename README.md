@@ -8,9 +8,9 @@ The collection includes the required core sources, component licenses, local mod
 
 Commercial projects can select cores under **BSD-3-Clause, MIT, and Apache-2.0**. The default YM2612 backend uses BSD-3-Clause **ymfm**. Optional **Nuked-OPN2 and SNES/SPC** components retain their **LGPL** terms, including the applicable distribution and relinking requirements. Select the components you need and follow their licenses; [LICENSES.md](LICENSES.md) maps the sources and terms.
 
-**SDK 0.1.5** adds POKEY and independently owned dual-POKEY instances. This checkout prepares the new source release; publication requires committing the release changes and pushing the matching `v0.1.5` tag through the [release workflow](docs/releases.md). The already published `v0.1.4` archive remains unchanged.
+**SDK 0.1.5** adds POKEY, independently owned dual-POKEY instances, and the C11 CD-DA/MSM5205 application-audio modules. The matching `v0.1.5` tag runs all Native and selected WASM checks before publishing through the [release workflow](docs/releases.md). The already published `v0.1.4` archive remains unchanged.
 
-**Unreleased application audio:** this checkout also includes the original C11 CD-DA PCM device and MSM5205/PC Engine ADPCM module, with Native targets and standalone WASM recipes. They are separate from the 24 chip IDs. This source aggregation does not publish a new SDK version or change consumer pins.
+**Application audio:** the original C11 CD-DA PCM device and MSM5205/PC Engine ADPCM module have Native targets and standalone WASM recipes. They are separate from the 24 chip IDs. Consumers explicitly choose when to update their pinned SDK sources.
 
 ## Supported sources and build status
 

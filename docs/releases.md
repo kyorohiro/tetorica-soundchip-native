@@ -16,11 +16,11 @@ Previously imported WASM binaries have provenance records in `source_inventory.j
 
 Original Tetorica code uses BSD-3-Clause. Retain the license files, notices and existing explicit component licenses when vendoring either archive; [LICENSES.md](../LICENSES.md) describes the exceptions.
 
-## Unreleased application-audio additions
+## Application-audio additions in 0.1.5
 
-The working tree adds CD-DA and MSM5205 under the catalogs' `applicationAudio` arrays. These are two C11 Native libraries and two `standalone-audio-wasm` recipes, separate from the 24 generic chip IDs and 29 sound-chip WASM artifact records. Their source release includes the complete core/header/bridge files, component licenses/notices and independent tests; no sibling checkout or sound-core download is required.
+SDK 0.1.5 adds CD-DA and MSM5205 under the catalogs' `applicationAudio` arrays. These are two C11 Native libraries and two `standalone-audio-wasm` recipes, separate from the 24 generic chip IDs and 29 sound-chip WASM artifact records. Their source release includes the complete core/header/bridge files, component licenses/notices and independent tests; no sibling checkout or sound-core download is required.
 
-The existing SDK version metadata remains 0.1.5. Local packaging and verification do not publish that candidate, rewrite an existing tag/archive or update any application's fixed SDK snapshot. Choose and validate an intended release version before future publication; existing published artifacts and consumer pins retain their original contents and scope.
+The release version is 0.1.5 in both SDK metadata and CMake. Local packaging and verification do not publish a release, rewrite an existing tag/archive or update any application's fixed SDK snapshot. Publication occurs only through the validated matching tag; existing published artifacts and consumer pins retain their original contents and scope.
 
 The application-audio format consists of an ES-module descriptor and raw `.wasm`, with fixed memory and no host imports. It is distinct from the usual Emscripten factory pair. A selected WASM release must include both files, its build metadata and the matching source archive. See the [CD-DA](../vendor/tetorica-cdda/README.md) and [MSM5205](../vendor/tetorica-msm5205/README.md) guides for the original ABIs and host requirements.
 
