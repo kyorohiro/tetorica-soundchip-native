@@ -8,7 +8,7 @@ The collection includes the required core sources, component licenses, local mod
 
 Commercial projects can select cores under **BSD-3-Clause, MIT, and Apache-2.0**. The default YM2612 backend uses BSD-3-Clause **ymfm**. Optional **Nuked-OPN2 and SNES/SPC** components retain their **LGPL** terms, including the applicable distribution and relinking requirements. Select the components you need and follow their licenses; [LICENSES.md](LICENSES.md) maps the sources and terms.
 
-POKEY and dual-POKEY support are **unreleased development additions** in this checkout. The metadata version remains `0.1.4`; the already published `v0.1.4` archive is unchanged. A future versioned SDK release is needed before applications adopt this addition.
+**SDK 0.1.5** adds POKEY and independently owned dual-POKEY instances. This checkout prepares the new source release; publication requires committing the release changes and pushing the matching `v0.1.5` tag through the [release workflow](docs/releases.md). The already published `v0.1.4` archive remains unchanged.
 
 ## Supported sources and build status
 

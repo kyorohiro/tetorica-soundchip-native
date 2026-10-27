@@ -1,11 +1,11 @@
 # Changelog
 
-## Unreleased — POKEY and dual POKEY
+## 0.1.5 — POKEY and dual POKEY
 
 - Add a BSD-3-Clause standalone POKEY 4.9 adaptation from the pinned, explicitly licensed libvgm core file; retain its exact upstream source, notices and provenance while omitting unmarked framework/helper files. Native and WASM compile the same four-channel core.
 - Add independently owned multi-instance handles, synchronous real read-side I/O, raw mono PCM, deterministic reset, source mute and allocation-free rendering. Two ordinary handles supply dual POKEY; host routing remains explicit.
 - Add Native/WASM parity and dual-handle isolation tests, original centered-mono/stereo WAV demonstrations, source-archive build checks and a POKEY WASM CI job. The collection now describes 24 chip IDs and 29 WASM recipes; Native builds produce 21 libraries, 26 CTest entries and 20 offline WAV examples.
-- Keep `sdk.json` at 0.1.4 during development. Do not replace the published 0.1.4 release or consumers' fixed SDK snapshots.
+- Prepare a new 0.1.5 source release. The published 0.1.4 archive remains unchanged; consumers explicitly adopt the new source snapshot. A local candidate archive is not a published tag or release.
 
 ## 0.1.4 — WonderSwan source and standalone builds
 

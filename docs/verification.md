@@ -1,6 +1,10 @@
 # Verification record
 
-## Unreleased POKEY and dual POKEY — 2026-10-27
+## SDK 0.1.5 preparation — 2026-10-27
+
+Version metadata and the changelog now identify the POKEY source candidate as **0.1.5**. Local source packaging does not create a Git tag, remote CI run or published release. An application may explicitly import a hash-pinned local candidate while recording its base commit and changed paths separately; replace that provenance only after adopting the actual tagged archive. The POKEY implementation and tested synthesis inputs remain unchanged from the development validation below.
+
+## POKEY and dual POKEY development validation — 2026-10-27
 
 This is local macOS development validation. `sdk.json` remains `0.1.4`; these local verification archives are not a new published `v0.1.4` release. The main application's fixed SDK 0.1.4 snapshot, runtime, Mixer and generated assets remain unchanged.
 
