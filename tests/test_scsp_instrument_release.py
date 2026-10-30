@@ -4,6 +4,8 @@ import hashlib
 import json
 from pathlib import Path
 import unittest
+import argparse
+from unittest.mock import patch
 import test_ps1_instrument_release as ps1
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,6 +53,36 @@ class ScspInstrumentReleaseTests(unittest.TestCase):
         h.native['instruments'][1]['target'] = 'tetorica_native_ps1_spu'
         h.catalog['instruments'][1]['native'] = copy.deepcopy(h.native['instruments'][1])
         h.rejected('Native target/header')
+
+    def test_scsp_parity_rejects_missing_or_unrelated_wasm(self):
+        h = self.helper
+        for selected in [[], ['ps1_spu']]:
+            args = argparse.Namespace(source_zip=h.helper.work/'source.zip', wasm_zip=h.helper.work/'wasm.zip' if selected else None,
+                work_dir=h.helper.work/('scsp-admission-'+str(len(selected))), audit_only=True, wasm_smoke=False,
+                javascript_smoke=False, build_wasm=None, pokey_native_parity=False, ps1_native_parity=False,
+                application_audio_parity=False, scsp_native_parity=True)
+            source = h.helper.work/'tetorica-soundchip-native-0.1.6'
+            manifest = {'name': 'tetorica-soundchip-native', 'version': '0.1.6', 'artifacts': selected}
+            with self.subTest(selected=selected), patch.object(ps1.checker.argparse.ArgumentParser, 'parse_args', return_value=args), \
+                 patch.object(ps1.checker, 'unpack', side_effect=[source, h.helper.work/'wasm']), \
+                 patch.object(ps1.checker, 'audit_manifest', return_value=manifest), \
+                 patch.object(ps1.checker, 'audit_catalog', return_value=(h.catalog, h.inventory)), \
+                 patch.object(ps1.checker, 'audit_local_sources'), patch.object(ps1.checker, 'audit_wasm'), \
+                 self.assertRaisesRegex(ps1.checker.AuditError, 'needs supplied or rebuilt SCSP'):
+                ps1.checker.main()
+
+    def test_scsp_fixture_uses_resolved_cmake_artifact_and_checks_existence(self):
+        h = self.helper
+        fixture = h.helper.work/'native Release/tetorica_scsp_fixture.exe'
+        fixture.parent.mkdir();fixture.write_bytes(b'fixture')
+        with patch.object(ps1.checker, 'prepare_native_build', return_value={'tetorica_scsp_fixture': fixture}), \
+             patch.object(ps1.checker, 'command') as commands:
+            ps1.checker.build_scsp_fixture(h.root, h.helper.work/'build', {})
+        self.assertEqual(commands.call_args_list[-1].args[0], [fixture, '--self-test'])
+        fixture.unlink()
+        with patch.object(ps1.checker, 'prepare_native_build', return_value={'tetorica_scsp_fixture': fixture}), \
+             patch.object(ps1.checker, 'command'), self.assertRaisesRegex(ps1.checker.AuditError, 'was not built'):
+            ps1.checker.build_scsp_fixture(h.root, h.helper.work/'build', {})
 
 
 if __name__ == '__main__':
