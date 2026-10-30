@@ -269,21 +269,27 @@ def audit_instruments(root, catalog, inventory, native):
         version = read_json(root / "sdk.json").get("version", "0.0.0")
         require(tuple(int(part) for part in version.split("-")[0].split(".")) < (0, 1, 6), "PS1 instrument inventory is missing")
         return
+    expected = {item.get("id") for item in sources}
+    require("ps1_spu" in expected and expected <= {"ps1_spu", "scsp"}, "Standalone instrument inventory changed")
     for label, records in (("source", sources), ("native", devices), ("catalog", entries)):
-        require([item.get("id") for item in records] == ["ps1_spu"], f"Standalone instrument {label} inventory changed")
-    record, device, entry = sources[0], devices[0], entries[0]
-    require(record.get("role") == "instrument" and record.get("chipIds") == [] and record.get("format") == "emscripten-es-module", "PS1 must remain a separate instrument API")
+        ids = [item.get("id") for item in records]
+        require(len(ids) == len(set(ids)) and set(ids) == expected, f"Standalone instrument {label} inventory changed")
     hashes = {item["path"] for component in inventory["components"] for item in component.get("files", [])}
-    for key in ("sourceFiles", "licenseFiles"):
-        check_references(root, "ps1_spu", key, record.get(key))
-        require(set(record[key]) <= hashes, f"PS1 {key} lacks imported hash provenance")
-    for key in ("sourceFiles", "licenseFiles", "buildFiles"):
-        check_references(root, "ps1_spu", key, device.get(key))
-    check_references(root, "ps1_spu", "buildScript", [record.get("buildScript")])
-    check_references(root, "ps1_spu", "buildFiles", record.get("buildFiles"))
-    require(device.get("target") == "tetorica_native_ps1_spu" and device.get("cmakeAlias") == "tetorica::ps1_spu" and device.get("publicHeader") == "native/include/tetorica/ps1_spu.h", "PS1 Native target/header mismatch")
-    check_references(root, "ps1_spu", "publicHeader", [device.get("publicHeader")])
-    require(entry.get("native") == device and entry.get("wasm", {}).get("artifacts") == [{key: record[key] for key in ("id", "format", "buildScript")}], "PS1 instrument catalogs differ")
+    for record in sources:
+        identifier = record["id"]
+        device = next(item for item in devices if item["id"] == identifier)
+        entry = next(item for item in entries if item["id"] == identifier)
+        require(record.get("role") == "instrument" and record.get("chipIds") == [] and record.get("format") == "emscripten-es-module", f"{identifier} must remain a separate instrument API")
+        for key in ("sourceFiles", "licenseFiles"):
+            check_references(root, identifier, key, record.get(key))
+            require(set(record[key]) <= hashes, f"{identifier} {key} lacks imported hash provenance")
+        for key in ("sourceFiles", "licenseFiles", "buildFiles"):
+            check_references(root, identifier, key, device.get(key))
+        check_references(root, identifier, "buildScript", [record.get("buildScript")])
+        check_references(root, identifier, "buildFiles", record.get("buildFiles"))
+        require(device.get("target") == f"tetorica_native_{identifier}" and device.get("cmakeAlias") == f"tetorica::{identifier}" and device.get("publicHeader") == f"native/include/tetorica/{identifier}.h", f"{identifier} Native target/header mismatch")
+        check_references(root, identifier, "publicHeader", [device.get("publicHeader")])
+        require(entry.get("native") == device and entry.get("wasm", {}).get("artifacts") == [{key: record[key] for key in ("id", "format", "buildScript")}], f"{identifier} instrument catalogs differ")
 
 
 def audit_catalog(root):
