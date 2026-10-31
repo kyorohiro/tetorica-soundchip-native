@@ -333,7 +333,9 @@ public:
 	unsigned int loopend,
 								loopstart,
 								len;
-	signed short data[num_loop_cache_samples];
+	// A fourteen-bit pitch can form a cursor up to three samples past the
+	// logical end before process_voice resolves overshoot at the next cache.
+	signed short data[num_loop_cache_samples+4];
 	sample_loop_cache *next;
 
 	sample_loop_cache()
@@ -3266,17 +3268,37 @@ void spu_device::set_host_pcm(const int16_t *pcm, uint32_t frames, bool looping)
         // A tiny guard region permits the renderer to advance by pitch <= 4
         // beyond the end before the normal end/loop event consumes overshoot.
         next->data=std::make_unique<signed short []>(frames+4);
-        std::copy_n(pcm,frames,next->data.get());
         next->dend=next->data.get()+frames;
         next->loop=looping ? next->data.get() : nullptr;
         if (looping) {
             next->loop_cache=new sample_loop_cache;
             next->loop_cache->len=std::min<uint32_t>(frames,num_loop_cache_samples);
-            std::copy_n(pcm,next->loop_cache->len,next->loop_cache->data);
         }
         next->add_ref();
     }
     if (host_sample) host_sample->remove_ref();
     host_sample=next.release();
     if (!host_sample) host_sample_mask=0;
+    else update_host_pcm(pcm,frames);
+}
+
+bool spu_device::update_host_pcm(const int16_t *pcm,uint32_t frames) noexcept
+{
+    if (!host_sample || !pcm || !frames ||
+        static_cast<std::size_t>(host_sample->dend-host_sample->data.get())!=frames)
+        return false;
+    auto *cache=host_sample;
+    if (cache->is_loop && (!cache->loop_cache ||
+        cache->loop_cache->len!=std::min<uint32_t>(frames,num_loop_cache_samples)))
+        return false;
+    // All validation precedes mutation. No cache/pointer ownership changes:
+    // held voices may currently address either of these two PCM arrays.
+    std::copy_n(pcm,frames,cache->data.get());
+    for(unsigned i=0;i<4;++i)cache->data[frames+i]=cache->is_loop?pcm[i%frames]:0;
+    if(cache->is_loop){
+        auto *loop=cache->loop_cache;
+        std::copy_n(pcm,loop->len,loop->data);
+        for(unsigned i=0;i<4;++i)loop->data[loop->len+i]=pcm[(loop->len+i)%frames];
+    }
+    return true;
 }

@@ -263,6 +263,7 @@ public:
 	void render(float *left, float *right, uint32_t frames);
 	void set_mix_headroom(uint32_t divisor);
 	void set_host_pcm(const int16_t *pcm, uint32_t frames, bool loop);
+	bool update_host_pcm(const int16_t *pcm, uint32_t frames) noexcept;
 	void set_host_mask(uint32_t mask) { host_sample_mask = mask; }
 	// Instrument-editor extensions; register writes retain their original behavior.
 	void refresh_envelope(unsigned int v);

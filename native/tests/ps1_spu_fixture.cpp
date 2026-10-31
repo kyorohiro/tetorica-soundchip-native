@@ -326,6 +326,70 @@ static int host_pcm_selftest()
     CHECK(ps1_spu_set_host_pcm(split.value,nullptr,0,0));
     return 0;
 }
+static int live_host_pcm_selftest()
+{
+    std::array<int16_t,112> pcm{},changed{},zero{};
+    for(unsigned i=0;i<pcm.size();++i){pcm[i]=static_cast<int16_t>((int(i)-56)*400);changed[i]=-pcm[i];}
+    ps1_pattern::Chip edited,reference,empty;
+    CHECK(!ps1_spu_update_host_pcm(nullptr,pcm.data(),112));
+    CHECK(!ps1_spu_update_host_pcm(empty.value,pcm.data(),112));
+    for(auto *chip:{&edited,&reference}){
+        ps1_pattern::configure(*chip);ps1_pattern::voice(*chip,0,4096);
+        CHECK(ps1_spu_set_host_pcm(chip->value,pcm.data(),112,1));
+        CHECK(ps1_spu_set_host_mask(chip->value,1));ps1_pattern::key(*chip,0,true);
+        ps1_pattern::render(*chip,1009);
+    }
+    CHECK(!ps1_spu_update_host_pcm(edited.value,nullptr,112));
+    CHECK(!ps1_spu_update_host_pcm(edited.value,changed.data(),0));
+    CHECK(!ps1_spu_update_host_pcm(edited.value,changed.data(),111));
+    CHECK(!ps1_spu_update_host_pcm(edited.value,changed.data(),113));
+    CHECK(same_audio(ps1_pattern::render(edited,257,1),ps1_pattern::render(reference,257,127)));
+    std::array<uint32_t,512> registers{};
+    for(unsigned i=0;i<registers.size();++i)registers[i]=ps1_spu_read(edited.value,i*2);
+    std::array<uint8_t,64> before{},after{};
+    CHECK(ps1_spu_read_ram(edited.value,ps1_pattern::address,before.data(),before.size()));
+    allocations=frees=0;track_allocations=true;
+    const bool updated=ps1_spu_update_host_pcm(edited.value,zero.data(),112)!=0;
+    track_allocations=false;CHECK(updated&&allocations==0&&frees==0);
+    for(unsigned i=0;i<registers.size();++i)CHECK(ps1_spu_read(edited.value,i*2)==registers[i]);
+    CHECK(ps1_spu_read_ram(edited.value,ps1_pattern::address,after.data(),after.size()));CHECK(before==after);
+    // This cursor is inside the separate loop cache, not the main PCM array.
+    // Preserve three Gaussian history samples, then immediately hear the edit.
+    const auto muted=ps1_pattern::render(edited,257,1);
+    CHECK(tail_peak(muted.left,4)==0);
+    CHECK(ps1_pattern::peak(ps1_pattern::render(reference,257).left)>.01);
+    // Silent even voices still publish post-envelope OUTX into odd PMON.
+    for(auto *chip:{&edited,&reference}){
+        CHECK(ps1_spu_reset(chip->value,0));ps1_pattern::configure(*chip);
+        CHECK(ps1_spu_update_host_pcm(chip->value,pcm.data(),112));
+        CHECK(ps1_spu_set_host_mask(chip->value,0x555555));
+        chip->write(0x190,0xaaaa);chip->write(0x192,0xaa);
+        for(unsigned v=0;v<24;++v){
+            ps1_pattern::voice(*chip,v,0x3fff,v%2?0x0400:0,v%2?0x0400:0);
+            ps1_pattern::key(*chip,v,true);
+        }
+        ps1_pattern::render(*chip,1024);
+    }
+    std::array<float,257> a{},ar{},b{},br{};
+    allocations=frees=0;track_allocations=true;
+    bool ok=true,equal=true,nonzero=false;
+    for(unsigned stage=0;stage<257;++stage){
+        const auto& next=stage%3==0?zero:stage%3==1?pcm:changed;
+        for(auto *chip:{&edited,&reference}){
+            ok=(ps1_spu_update_host_pcm(chip->value,next.data(),112)!=0)&&ok;
+            for(unsigned v=0;v<24;++v)chip->write(v*16+4,stage%2?1:0x3fff);
+        }
+        ok=(ps1_spu_render(edited.value,a.data(),ar.data(),a.size())!=0)&&ok;
+        for(unsigned at=0;at<a.size();){
+            const unsigned n=std::min<unsigned>(7,a.size()-at);
+            ok=(ps1_spu_render(reference.value,b.data()+at,br.data()+at,n)!=0)&&ok;at+=n;
+        }
+        equal=equal&&a==b&&ar==br;
+        for(float value:a)nonzero=nonzero||value!=0;
+    }
+    track_allocations=false;CHECK(ok&&equal&&nonzero&&allocations==0&&frees==0);
+    return 0;
+}
 static int selftest()
 {
     CHECK(ps1_spu_sample_rate()==44100);
@@ -359,6 +423,7 @@ static int selftest()
     CHECK(gaussian_selftest()==0);
     CHECK(headroom_selftest()==0);
     CHECK(host_pcm_selftest()==0);
+    CHECK(live_host_pcm_selftest()==0);
     CHECK(live_editor_selftest()==0);
     CHECK(deferred_release_selftest()==0);
     CHECK(clear_reverb_selftest()==0);

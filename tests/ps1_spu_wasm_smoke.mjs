@@ -14,7 +14,7 @@ let m;
 try{const loader=path.join(temporary,'loader.mjs');await writeFile(loader,await readFile(path.join(directory,'ps1_spu_wasm.js')));
   const {default:create}=await import(pathToFileURL(loader));m=await create({wasmBinary:await readFile(path.join(directory,'ps1_spu_wasm.wasm'))});
 }finally{await rm(temporary,{recursive:true,force:true});}
-for(const name of ['create','destroy','reset','sample_rate','write','read','load_ram','read_ram','render','refresh_envelope','audition_key','clear_reverb'])assert.equal(typeof m['_ps1_spu_'+name],'function','C ABI export '+name);
+for(const name of ['create','destroy','reset','sample_rate','write','read','load_ram','read_ram','render','refresh_envelope','audition_key','clear_reverb','set_host_pcm','update_host_pcm','set_host_mask'])assert.equal(typeof m['_ps1_spu_'+name],'function','C ABI export '+name);
 assert.equal(m._ps1_spu_sample_rate(),44100);
 const n=32768,l=m._malloc(n*4),r=m._malloc(n*4),ram=m._malloc(512*1024),handles=new Set(),checks=[];
 let frames=0;
@@ -65,6 +65,21 @@ try{
   assert.equal(m._ps1_spu_reset(a,0),1);assert.equal(peak(render(a,4097).left),0);
   assert.equal(m._ps1_spu_read_ram(a,0x2000,ram,64),1);assert.deepEqual(m.HEAPU8.slice(ram,ram+64),wave);
   checks.push('preset-reverb-tail-reset-and-retained-sample-RAM');
+  const live=create();configure(live);voice(live,0);
+  const pcmView=new DataView(m.HEAPU8.buffer,ram,224);
+  for(let i=0;i<112;i++)pcmView.setInt16(i*2,(i-56)*400,true);
+  assert.equal(m._ps1_spu_update_host_pcm(live,ram,112),0);
+  assert.equal(m._ps1_spu_set_host_pcm(live,ram,112,1),1);
+  assert.equal(m._ps1_spu_set_host_mask(live,1),1);key(live,0,true);
+  assert(peak(render(live,1009).left)>.01);
+  const registers=Array.from({length:512},(_,i)=>m._ps1_spu_read(live,i*2));
+  for(const [handle,ptr,count] of [[0,ram,112],[live,0,112],[live,ram,0],[live,ram,111],[live,ram,113]])
+    assert.equal(m._ps1_spu_update_host_pcm(handle,ptr,count),0);
+  m.HEAPU8.fill(0,ram,ram+224);
+  assert.equal(m._ps1_spu_update_host_pcm(live,ram,112),1);
+  assert.deepEqual(Array.from({length:512},(_,i)=>m._ps1_spu_read(live,i*2)),registers);
+  assert.equal(peak(render(live,257).left.subarray(4)),0);
+  checks.push('live-host-PCM-and-loop-cache-edit-preserves-registers-with-argument-guards');
   let parity;
   if(fixture){
     let samples=0,maxError=0;

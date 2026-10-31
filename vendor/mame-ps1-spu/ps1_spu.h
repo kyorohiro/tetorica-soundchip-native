@@ -52,6 +52,12 @@ int ps1_spu_set_mix_headroom(void *handle, uint32_t divisor);
  * Mask selects the voices using this bank at their next key-on; bits 0..23.
  * Loops require at least 4 frames. Set/replace while stopped. Reset preserves the bank and mask. */
 int ps1_spu_set_host_pcm(void *handle, const int16_t *pcm, uint32_t frames, int loop);
+/* In-place edit of the existing nonempty software PCM bank. The exact frame
+ * count must match; invalid arguments leave it unchanged. Copies PCM and loop
+ * guards without allocation, deallocation, key events or cursor/envelope reset.
+ * Existing Gaussian history is preserved. Serialize with all access to handle;
+ * work is O(frames), so the caller must bound live edits for its audio deadline. */
+int ps1_spu_update_host_pcm(void *handle, const int16_t *pcm, uint32_t frames);
 int ps1_spu_set_host_mask(void *handle, uint32_t mask);
 int ps1_spu_render(void *handle, float *left, float *right, uint32_t frames);
 #ifdef __cplusplus

@@ -120,3 +120,8 @@ extern "C" int ps1_spu_set_host_mask(void *handle, uint32_t mask)
     if (!handle || (mask&0xff000000u)) return 0;
     static_cast<spu_device *>(handle)->set_host_mask(mask);return 1;
 }
+extern "C" int ps1_spu_update_host_pcm(void *handle, const int16_t *pcm, uint32_t frames)
+{
+    if (!handle || !pcm || !frames) return 0;
+    return static_cast<spu_device *>(handle)->update_host_pcm(pcm,frames) ? 1 : 0;
+}

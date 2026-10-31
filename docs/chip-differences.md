@@ -213,3 +213,5 @@ full-precision voice-volume results before scaling and retain fractional dry PCM
 They do not change the Gaussian decoder, OUTX, pitch, ADSR or default register behavior.
 
 Optional software sample bank: `ps1_spu_set_host_pcm` copies signed mono PCM outside physical SPU RAM (up to 30 minutes at 44.1 kHz). `ps1_spu_set_host_mask` selects voices at key-on. Gaussian interpolation, PMON, ADSR, mixing and reverb still run in the SPU core. Reset preserves the bank; zero frames clears it. Default register/RAM playback is unchanged. The browser host labels this Software audio; it is not additional PS1 hardware RAM.
+
+`ps1_spu_update_host_pcm` edits an existing bank of exactly the same nonzero length in place, including its loop cache and guard samples. It preserves held voices' cursors, Gaussian history and envelopes, and does no allocation or deallocation. The caller serializes access to the handle and bounds the O(frame count) copy to meet its audio deadline. Changing length or loop topology still uses `set_host_pcm` while stopped.

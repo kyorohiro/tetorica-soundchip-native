@@ -620,7 +620,7 @@
       "sha256": "7eaeb7f798a34de7b366b577d6646556f5c99f43675bc31e96c69dd023ca2673"
     },
     {
-      "adaptation": "SDK-owned fixture extended with independent PSX-SPX Gaussian coefficient rows, boundary/skipped-frame and KON history tests; original import hash retained",
+      "adaptation": "SDK-owned fixture extended with independent PSX-SPX Gaussian coefficient rows, boundary/skipped-frame and KON history tests; original import hash retained; SDK same-length live host PCM and loop-cache/guard/cursor/register/allocation/PMON regressions",
       "amendmentNote": "SDK 0.1.7: exercise explicit live-envelope/manual-audition controls, guards and deferred ADSR latching through held A/D/S, manual/raw/repeated Off and next KON; retain independent foreign-channel output. Verify allocation-free reverb clear, unchanged registers/RAM/foreign voice phase, audible tail removal and warmed-cache reuse.",
       "file": "native/tests/ps1_spu_fixture.cpp",
       "origin": "test/helpers/ps1_spu_reference.cpp",
@@ -628,8 +628,8 @@
       "originRepository": "hello_ymfm_wasm",
       "originSha256": "35f5e40e329fbef18fc6c07896dfedabe00e9a0cfccf536b71af964b82acd69f",
       "originalSha256": "42a8bf738097db6dbc96169ffcafd8897b580c85c16b4b78ed3e5a677e799e5c",
-      "sha256": "8a5f19e2a39a102c6bbd1e30de74ef988f4f1cc8ba21afa24e90fdee34ee13ed",
-      "previousSdkSha256": "e7414d1acb6a1466c29adcb2f74963b180e21562831a68c23e0c19b989ac7a5f"
+      "sha256": "52b09bb6a33c7250cdb4ce569038a34a4a3073004b96f4c4d383919e1f3f7c9c",
+      "previousSdkSha256": "8a5f19e2a39a102c6bbd1e30de74ef988f4f1cc8ba21afa24e90fdee34ee13ed"
     }
   ],
   "originRepository": "tetorica-fm2612-playground-tauri",
