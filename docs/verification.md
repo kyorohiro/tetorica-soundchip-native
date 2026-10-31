@@ -1,5 +1,22 @@
 # Verification record
 
+## macOS ARM CI runner migration — 2026-10-31
+
+SDK commit `f16986cc264a7cd9b489a45826b349906e21ec9a` added allocation-free
+in-place SPU host PCM edits. In [Verify SDK run 41211681785](https://github.com/kyorohiro/tetorica-soundchip-native/actions/runs/41211681785),
+the macOS ARM64 job `124567817556` was cancelled before runner assignment or any
+build/test step. GitHub's annotation identifies the [scheduled macOS 14 image
+brownout](https://github.com/actions/runner-images/issues/13518); the run began
+at 2026-10-31 14:46:29 UTC, within the announced 14:00–00:00 UTC window.
+That cancellation does not establish a synthesis/build failure or a macOS ARM
+test result. Other jobs retain their separately reported outcomes.
+
+The ARM matrix label is changed from `macos-14` to `macos-15` to rerun the full
+Native/WASM matrix. Intel remains `macos-15-intel`. This migration changes no
+SDK implementation, public API, generated artifact, version or release tag.
+The replacement run's results must be distinguished from the initial partial
+run; this checkpoint does not claim that the cancelled ARM job passed.
+
 ## SDK 0.1.6 main CI — 2026-10-28
 
 [Verify SDK run 40660652196](https://github.com/kyorohiro/tetorica-soundchip-native/actions/runs/40660652196) completed successfully for `main` commit `100e0408f6fda7569e0cdbc967b4646eb083a0e9`.
