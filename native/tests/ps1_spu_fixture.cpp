@@ -390,6 +390,57 @@ static int live_host_pcm_selftest()
     track_allocations=false;CHECK(ok&&equal&&nonzero&&allocations==0&&frees==0);
     return 0;
 }
+static int two_host_banks_selftest()
+{
+    std::array<int16_t,112> first{},second{},zero{};
+    for(unsigned i=0;i<112;++i){first[i]=static_cast<int16_t>((int(i)-56)*400);second[i]=-first[i];}
+    ps1_pattern::Chip edited,reference;
+    for(auto *chip:{&edited,&reference}){
+        ps1_pattern::configure(*chip);
+        CHECK(ps1_spu_set_host_pcm(chip->value,first.data(),112,1));
+        CHECK(ps1_spu_set_host_pcm_bank(chip->value,1,second.data(),112,1));
+        CHECK(ps1_spu_set_host_masks(chip->value,1,1u<<23));
+        ps1_pattern::voice(*chip,0,0x3fff,0x1800,0);ps1_pattern::voice(*chip,23,0x1234,0,0x1800);
+        ps1_pattern::key(*chip,0,true);ps1_pattern::key(*chip,23,true);ps1_pattern::render(*chip,1009);
+    }
+    CHECK(!ps1_spu_set_host_pcm_bank(edited.value,2,first.data(),112,1));
+    CHECK(!ps1_spu_update_host_pcm_bank(edited.value,2,first.data(),112));
+    CHECK(!ps1_spu_set_host_masks(nullptr,1,0));
+    CHECK(!ps1_spu_set_host_masks(edited.value,1,1));
+    CHECK(!ps1_spu_set_host_masks(edited.value,0,1u<<24));
+    CHECK(same_audio(ps1_pattern::render(edited,257,1),ps1_pattern::render(reference,257,127)));
+    CHECK(ps1_spu_update_host_pcm_bank(edited.value,1,zero.data(),112));
+    const auto a=ps1_pattern::render(edited,257),b=ps1_pattern::render(reference,257);
+    CHECK(a.left==b.left&&tail_peak(a.right,4)==0&&ps1_pattern::peak(b.right)>.01);
+    CHECK(ps1_pattern::peak(std::vector<float>(a.right.begin(),a.right.begin()+4))>0); //Gaussian history retained.
+    CHECK(ps1_spu_set_host_masks(edited.value,0,0)); //Existing bank0 cursor remains latched.
+    CHECK(ps1_spu_update_host_pcm(edited.value,zero.data(),112));
+    CHECK(tail_peak(ps1_pattern::render(edited,257).left,4)==0);
+    ps1_pattern::key(edited,0,true);CHECK(ps1_pattern::peak(ps1_pattern::render(edited,257).left)>.01); //New key uses RAM.
+    for(auto *chip:{&edited,&reference}){
+        CHECK(ps1_spu_reset(chip->value,0));ps1_pattern::configure(*chip);
+        CHECK(ps1_spu_update_host_pcm_bank(chip->value,0,first.data(),112));
+        CHECK(ps1_spu_update_host_pcm_bank(chip->value,1,second.data(),112));
+        CHECK(ps1_spu_set_host_masks(chip->value,0x555555,0xaaaaaa));
+        chip->write(0x190,0xaaaa);chip->write(0x192,0xaa);
+        for(unsigned v=0;v<24;++v){ps1_pattern::voice(*chip,v,0x3fff,v%2?0x0400:0,v%2?0x0400:0);ps1_pattern::key(*chip,v,true);}
+        ps1_pattern::render(*chip,1024);
+    }
+    std::array<float,257> left{},right{},other{},otherRight{};
+    allocations=frees=0;track_allocations=true;bool ok=true,equal=true;
+    for(unsigned stage=0;stage<257;++stage){
+        for(auto *chip:{&edited,&reference}){
+            ok=(ps1_spu_update_host_pcm_bank(chip->value,0,stage%2?first.data():zero.data(),112)!=0)&&ok;
+            ok=(ps1_spu_update_host_pcm_bank(chip->value,1,stage%3?second.data():first.data(),112)!=0)&&ok;
+            for(unsigned v=0;v<24;++v)chip->write(v*16+4,stage%2?1:0x3fff);
+        }
+        ok=(ps1_spu_render(edited.value,left.data(),right.data(),257)!=0)&&ok;
+        for(unsigned at=0;at<257;){const unsigned n=std::min(7u,257-at);ok=(ps1_spu_render(reference.value,other.data()+at,otherRight.data()+at,n)!=0)&&ok;at+=n;}
+        equal=equal&&left==other&&right==otherRight;
+    }
+    track_allocations=false;CHECK(ok&&equal&&allocations==0&&frees==0);
+    return 0;
+}
 static int selftest()
 {
     CHECK(ps1_spu_sample_rate()==44100);
@@ -424,6 +475,7 @@ static int selftest()
     CHECK(headroom_selftest()==0);
     CHECK(host_pcm_selftest()==0);
     CHECK(live_host_pcm_selftest()==0);
+    CHECK(two_host_banks_selftest()==0);
     CHECK(live_editor_selftest()==0);
     CHECK(deferred_release_selftest()==0);
     CHECK(clear_reverb_selftest()==0);

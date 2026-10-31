@@ -1154,7 +1154,7 @@ void spu_device::device_stop()
 	delete xa_buffer;
 	delete cdda_buffer;
 	delete[] voice;
-	if (host_sample) { host_sample->remove_ref(); host_sample=nullptr; }
+	for(auto *&sample:host_samples)if(sample){sample->remove_ref();sample=nullptr;}
 }
 //
 //
@@ -2227,9 +2227,12 @@ void spu_device::key_on(const int v)
 
 //  printf("key_on: %d @ %x (pitch %x)\n", v, spureg.voice[v].addr<<m_counter_shift, spureg.voice[v].pitch);
 
-	if (host_sample && (host_sample_mask & (1u<<v))) {
+	sample_cache *host=nullptr;
+	for(unsigned bank=0;bank<host_samples.size();++bank)
+		if(host_samples[bank]&&(host_sample_masks[bank]&(1u<<v)))host=host_samples[bank];
+	if (host) {
 		voice[v].play.reset();
-		voice[v].play=cache_pointer(host_sample->data.get(),host_sample);
+		voice[v].play=cache_pointer(host->data.get(),host);
 	} else translate_sample_addr(spureg.voice[v].addr<<m_counter_shift,&voice[v].play);
 	assert(voice[v].play.ptr<voice[v].play.cache->dend);
 
@@ -3254,15 +3257,16 @@ void spu_device::render(float *left, float *right, uint32_t frames)
 // Host-only PCM bank. Prepare before note-on; the audio renderer still uses
 // the normal Gaussian interpolation, PMON, envelope, volume and reverb path.
 // All voices share immutable sample storage and keep independent cursors.
-void spu_device::set_host_pcm(const int16_t *pcm, uint32_t frames, bool looping)
+void spu_device::set_host_pcm_bank(unsigned bank,const int16_t *pcm,uint32_t frames,bool looping)
 {
+    if(bank>=host_samples.size())throw std::out_of_range("Host PCM bank");
     std::unique_ptr<sample_cache> next;
     if (frames) {
         next=std::make_unique<sample_cache>(this);
         next->host_pcm=true;
         next->valid=true;
         next->is_loop=looping;
-        next->start=0x10000000;
+        next->start=0x10000000*(bank+1);
         next->end=next->start+((frames+27)/28)*m_counter_packet_next;
         next->loopaddr=next->start;
         // A tiny guard region permits the renderer to advance by pitch <= 4
@@ -3276,18 +3280,18 @@ void spu_device::set_host_pcm(const int16_t *pcm, uint32_t frames, bool looping)
         }
         next->add_ref();
     }
-    if (host_sample) host_sample->remove_ref();
-    host_sample=next.release();
-    if (!host_sample) host_sample_mask=0;
-    else update_host_pcm(pcm,frames);
+    if (host_samples[bank]) host_samples[bank]->remove_ref();
+    host_samples[bank]=next.release();
+    if (!host_samples[bank]) host_sample_masks[bank]=0;
+    else update_host_pcm_bank(bank,pcm,frames);
 }
 
-bool spu_device::update_host_pcm(const int16_t *pcm,uint32_t frames) noexcept
+bool spu_device::update_host_pcm_bank(unsigned bank,const int16_t *pcm,uint32_t frames) noexcept
 {
-    if (!host_sample || !pcm || !frames ||
-        static_cast<std::size_t>(host_sample->dend-host_sample->data.get())!=frames)
+    if (bank>=host_samples.size()||!host_samples[bank]||!pcm||!frames||
+        static_cast<std::size_t>(host_samples[bank]->dend-host_samples[bank]->data.get())!=frames)
         return false;
-    auto *cache=host_sample;
+    auto *cache=host_samples[bank];
     if (cache->is_loop && (!cache->loop_cache ||
         cache->loop_cache->len!=std::min<uint32_t>(frames,num_loop_cache_samples)))
         return false;

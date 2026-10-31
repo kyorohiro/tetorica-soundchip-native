@@ -58,7 +58,16 @@ int ps1_spu_set_host_pcm(void *handle, const int16_t *pcm, uint32_t frames, int 
  * Existing Gaussian history is preserved. Serialize with all access to handle;
  * work is O(frames), so the caller must bound live edits for its audio deadline. */
 int ps1_spu_update_host_pcm(void *handle, const int16_t *pcm, uint32_t frames);
+/* Legacy routing selects bank0 and clears bank1's routing mask. */
 int ps1_spu_set_host_mask(void *handle, uint32_t mask);
+/* Two independent software banks, indexes0/1. Set/copy/clear while stopped;
+ * update requires the exact existing nonzero length and never allocates.
+ * Legacy set/update APIs above address bank0. Reset preserves both banks.
+ * Both masks have bits0..23 and must be disjoint; invalid tuples do nothing.
+ * Routing is latched at the next key-on, never changes held voice ownership. */
+int ps1_spu_set_host_pcm_bank(void *handle,uint32_t bank,const int16_t *pcm,uint32_t frames,int loop);
+int ps1_spu_update_host_pcm_bank(void *handle,uint32_t bank,const int16_t *pcm,uint32_t frames);
+int ps1_spu_set_host_masks(void *handle,uint32_t bank0_mask,uint32_t bank1_mask);
 int ps1_spu_render(void *handle, float *left, float *right, uint32_t frames);
 #ifdef __cplusplus
 }

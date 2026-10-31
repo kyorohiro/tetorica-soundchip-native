@@ -110,18 +110,30 @@ extern "C" int ps1_spu_set_mix_headroom(void *handle, uint32_t divisor)
 
 extern "C" int ps1_spu_set_host_pcm(void *handle, const int16_t *pcm, uint32_t frames, int loop)
 {
+    return ps1_spu_set_host_pcm_bank(handle,0,pcm,frames,loop);
+}
+extern "C" int ps1_spu_set_host_pcm_bank(void *handle,uint32_t bank,const int16_t *pcm,uint32_t frames,int loop)
+{
     // Thirty minutes at 44.1 kHz; signed mono PCM lives outside SPU RAM.
-    if (!handle || frames>44100u*60u*30u || (frames && !pcm) || (loop && frames && frames<4) || (loop!=0 && loop!=1)) return 0;
-    try {static_cast<spu_device *>(handle)->set_host_pcm(pcm,frames,loop!=0);return 1;}
+    if (!handle || bank>1 || frames>44100u*60u*30u || (frames && !pcm) || (loop && frames && frames<4) || (loop!=0 && loop!=1)) return 0;
+    try {static_cast<spu_device *>(handle)->set_host_pcm_bank(bank,pcm,frames,loop!=0);return 1;}
     catch (...) {return 0;}
 }
 extern "C" int ps1_spu_set_host_mask(void *handle, uint32_t mask)
 {
-    if (!handle || (mask&0xff000000u)) return 0;
-    static_cast<spu_device *>(handle)->set_host_mask(mask);return 1;
+    return ps1_spu_set_host_masks(handle,mask,0);
+}
+extern "C" int ps1_spu_set_host_masks(void *handle,uint32_t first,uint32_t second)
+{
+    if (!handle || ((first|second)&0xff000000u) || (first&second)) return 0;
+    static_cast<spu_device *>(handle)->set_host_masks(first,second);return 1;
 }
 extern "C" int ps1_spu_update_host_pcm(void *handle, const int16_t *pcm, uint32_t frames)
 {
-    if (!handle || !pcm || !frames) return 0;
-    return static_cast<spu_device *>(handle)->update_host_pcm(pcm,frames) ? 1 : 0;
+    return ps1_spu_update_host_pcm_bank(handle,0,pcm,frames);
+}
+extern "C" int ps1_spu_update_host_pcm_bank(void *handle,uint32_t bank,const int16_t *pcm,uint32_t frames)
+{
+    if (!handle || bank>1 || !pcm || !frames) return 0;
+    return static_cast<spu_device *>(handle)->update_host_pcm_bank(bank,pcm,frames) ? 1 : 0;
 }
