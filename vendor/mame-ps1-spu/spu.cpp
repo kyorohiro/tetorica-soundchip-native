@@ -2581,6 +2581,11 @@ void spu_device::key_off(const int v)
 //
 //
 
+void spu_device::clear_reverb() noexcept
+{
+	rev->clear();
+}
+
 void spu_device::update_reverb()
 {
 	if (dirty_flags&dirtyflag_reverb)

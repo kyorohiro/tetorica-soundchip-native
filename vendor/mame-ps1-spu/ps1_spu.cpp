@@ -72,6 +72,12 @@ extern "C" int ps1_spu_audition_key(void *handle, uint32_t channel, int on)
     try { static_cast<spu_device *>(handle)->audition_key(channel, on != 0); return 1; }
     catch (...) { return 0; }
 }
+extern "C" int ps1_spu_clear_reverb(void *handle)
+{
+    if (!handle) return 0;
+    static_cast<spu_device *>(handle)->clear_reverb();
+    return 1;
+}
 extern "C" int ps1_spu_load_ram(void *handle, uint32_t address, const uint8_t *data, uint32_t length)
 {
     if (!handle || !memory_range(address, length) || (length && !data)) return 0;

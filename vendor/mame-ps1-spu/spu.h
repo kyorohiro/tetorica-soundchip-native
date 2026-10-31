@@ -267,6 +267,7 @@ public:
 	// Instrument-editor extensions; register writes retain their original behavior.
 	void refresh_envelope(unsigned int v);
 	void audition_key(unsigned int v, bool on);
+	void clear_reverb() noexcept;
 	void load_ram(uint32_t address, const uint8_t *data, uint32_t length);
 	void read_ram(uint32_t address, uint8_t *data, uint32_t length) const;
 	void dma_read( uint32_t *ram, uint32_t n_address, int32_t n_size );

@@ -14,7 +14,7 @@ let m;
 try{const loader=path.join(temporary,'loader.mjs');await writeFile(loader,await readFile(path.join(directory,'ps1_spu_wasm.js')));
   const {default:create}=await import(pathToFileURL(loader));m=await create({wasmBinary:await readFile(path.join(directory,'ps1_spu_wasm.wasm'))});
 }finally{await rm(temporary,{recursive:true,force:true});}
-for(const name of ['create','destroy','reset','sample_rate','write','read','load_ram','read_ram','render'])assert.equal(typeof m['_ps1_spu_'+name],'function','C ABI export '+name);
+for(const name of ['create','destroy','reset','sample_rate','write','read','load_ram','read_ram','render','refresh_envelope','audition_key','clear_reverb'])assert.equal(typeof m['_ps1_spu_'+name],'function','C ABI export '+name);
 assert.equal(m._ps1_spu_sample_rate(),44100);
 const n=32768,l=m._malloc(n*4),r=m._malloc(n*4),ram=m._malloc(512*1024),handles=new Set(),checks=[];
 let frames=0;
@@ -56,6 +56,12 @@ try{
   checks.push('exact-block-partition-and-independent-instance-state');
   configure(a);voice(a,0);room.forEach((v,i)=>write(a,0x1c0+i*2,v));write(a,0x184,0x3000);write(a,0x186,0x3000);write(a,0x198,1);
   key(a,0,true);render(a,8192);key(a,0,false);render(a,2048);assert(peak(render(a,8192).left)>.00001);
+  assert.equal(m._ps1_spu_clear_reverb(0),0);
+  const before=room.map((_,i)=>m._ps1_spu_read(a,0x1c0+i*2));
+  assert.equal(m._ps1_spu_clear_reverb(a),1);assert.equal(peak(render(a,8193).left),0);
+  assert.deepEqual(room.map((_,i)=>m._ps1_spu_read(a,0x1c0+i*2)),before);
+  assert.equal(m._ps1_spu_read_ram(a,0x2000,ram,64),1);assert.deepEqual(m.HEAPU8.slice(ram,ram+64),wave);
+  checks.push('reverb-history-clear-retains-preset-and-sample-RAM');
   assert.equal(m._ps1_spu_reset(a,0),1);assert.equal(peak(render(a,4097).left),0);
   assert.equal(m._ps1_spu_read_ram(a,0x2000,ram,64),1);assert.deepEqual(m.HEAPU8.slice(ram,ram+64),wave);
   checks.push('preset-reverb-tail-reset-and-retained-sample-RAM');
@@ -76,6 +82,9 @@ try{
       for(const count of [1,127,2048,4097,8193]){const pcm=render(h,count);command(5,count);for(let i=0;i<count;i++)expected.push(pcm.left[i],pcm.right[i]);}
       w(0x18c,0xffff);w(0x18e,0xff);
       for(const count of [2048,8193]){const pcm=render(h,count);command(5,count);for(let i=0;i<count;i++)expected.push(pcm.left[i],pcm.right[i]);}
+      if(wet){assert.equal(m._ps1_spu_clear_reverb(h),1);command(6);
+        const pcm=render(h,257);assert.equal(peak(pcm.left),0);command(5,257);
+        for(let i=0;i<257;i++)expected.push(pcm.left[i],pcm.right[i]);}
       const run=spawnSync(path.resolve(fixture),[],{input:Buffer.concat([u32(commands.length),...commands]),maxBuffer:16*1024*1024});
       assert.equal(run.status,0,run.stderr?.toString());assert.equal(run.stdout.length,expected.length*4);
       for(let i=0;i<expected.length;i++){const error=Math.abs(run.stdout.readFloatLE(i*4)-expected[i]);assert(Number.isFinite(error)&&error<=1e-6,`Native/WASM error ${error} at sample ${i}`);maxError=Math.max(maxError,error);}

@@ -31,6 +31,10 @@ int ps1_spu_write(void *handle, uint32_t byte_offset, uint16_t value);
  * Raw key-on/key-off register writes keep their original behavior. */
 int ps1_spu_refresh_envelope(void *handle, uint32_t channel);
 int ps1_spu_audition_key(void *handle, uint32_t channel, int on);
+/* Instrument-only tail clear. Zeros the already allocated reverb delay/filter
+ * history without changing voices, RAM, decoded caches, registers or presets.
+ * No allocation/deallocation or rendering occurs; access remains serialized. */
+int ps1_spu_clear_reverb(void *handle);
 /* Invalid handle/offset returns 0xffffffff; valid register values are 16-bit. */
 uint32_t ps1_spu_read(void *handle, uint32_t byte_offset);
 int ps1_spu_load_ram(void *handle, uint32_t byte_address, const uint8_t *data, uint32_t length);

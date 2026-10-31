@@ -91,6 +91,13 @@ Each call internally drains the upstream ring in chunks of at most 2,048 frames.
   Repeated Off calls also preserve deferred edits. These extensions do not change
   raw register KON/KOFF or the original key-on-latched ADSR path. They are sound-design aids, not emulated
   hardware registers. Calling raw KON/KOFF resets any pending audition ramp.
+- `ps1_spu_clear_reverb(handle)` clears the private delay/filter history in
+  place. It does not render, allocate/free memory, stop voices, change registers
+  or invalidate decoded sample/loop caches. Hosts can mute voices and clear
+  residual tails without the allocation/cache work of a full reset. The clear
+  writes about 1.75 MiB of already allocated delay storage at the fixed rate;
+  callers must still serialize access to the handle. It is a software
+  instrument control, not a hardware register.
 - Replaced MAME device registration, save-state, stream scheduling, host CPU,
   DMA wiring, IRQ callbacks, and timers with pull-based rendering and the C API.
   The public interface is for instruments; CPU DMA and external XA/CD audio

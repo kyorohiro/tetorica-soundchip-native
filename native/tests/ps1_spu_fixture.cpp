@@ -9,7 +9,25 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <new>
 #include <vector>
+
+namespace {
+thread_local bool track_allocations=false;
+thread_local unsigned allocations=0,frees=0;
+void *allocate(std::size_t n) {
+    if(track_allocations)++allocations;
+    if(void *p=std::malloc(n?n:1))return p;
+    throw std::bad_alloc();
+}
+void release(void *p) noexcept {if(track_allocations&&p)++frees;std::free(p);}
+}
+void *operator new(std::size_t n){return allocate(n);}
+void *operator new[](std::size_t n){return allocate(n);}
+void operator delete(void *p) noexcept {release(p);}
+void operator delete[](void *p) noexcept {release(p);}
+void operator delete(void *p,std::size_t) noexcept {release(p);}
+void operator delete[](void *p,std::size_t) noexcept {release(p);}
 
 static uint32_t read_u32()
 {
@@ -65,6 +83,45 @@ static bool same_audio(const ps1_pattern::Audio& a,const ps1_pattern::Audio& b)
 static double tail_peak(const std::vector<float>& values,unsigned from)
 {
     return ps1_pattern::peak(std::vector<float>(values.begin()+from,values.end()));
+}
+static int clear_reverb_selftest()
+{
+    CHECK(!ps1_spu_clear_reverb(nullptr));
+    ps1_pattern::Chip cleared,reference,dry;
+    for(auto *chip:{&cleared,&reference,&dry}) {
+        ps1_pattern::configure(*chip);ps1_pattern::voice(*chip,0,0x1234,0x1800,0);
+        ps1_pattern::voice(*chip,23,0x0d35,0,0x1000);
+        ps1_pattern::room(*chip);chip->write(0x198,chip==&dry?0:1);
+        ps1_pattern::key(*chip,0,true);ps1_pattern::key(*chip,23,true);
+        ps1_pattern::render(*chip,8192);
+    }
+    std::array<uint32_t,512> registers{};
+    for(unsigned i=0;i<registers.size();++i)registers[i]=ps1_spu_read(cleared.value,i*2);
+    std::array<uint8_t,64> before{},after{};
+    CHECK(ps1_spu_read_ram(cleared.value,ps1_pattern::address,before.data(),before.size()));
+    allocations=frees=0;track_allocations=true;
+    const bool ok=ps1_spu_clear_reverb(cleared.value)!=0;
+    track_allocations=false;CHECK(ok&&allocations==0&&frees==0);
+    for(unsigned i=0;i<registers.size();++i)CHECK(ps1_spu_read(cleared.value,i*2)==registers[i]);
+    CHECK(ps1_spu_read_ram(cleared.value,ps1_pattern::address,after.data(),after.size()));
+    CHECK(before==after);
+    const auto a=ps1_pattern::render(cleared,257,1),b=ps1_pattern::render(reference,257,127),c=ps1_pattern::render(dry,257);
+    CHECK(a.right==b.right&&a.right==c.right); //Foreign voice phase/level never changes.
+    CHECK(a.left==c.left&&a.left!=b.left); //New delayed signal has not arrived yet.
+    for(auto *chip:{&cleared,&reference}) {
+        ps1_pattern::render(*chip,8192);ps1_pattern::key(*chip,0,false);ps1_pattern::key(*chip,23,false);
+        ps1_pattern::render(*chip,2048);
+    }
+    CHECK(ps1_spu_clear_reverb(cleared.value));
+    CHECK(ps1_pattern::peak(ps1_pattern::render(cleared,8193).left)==0);
+    CHECK(ps1_pattern::peak(ps1_pattern::render(reference,8193).left)>0.00001);
+    //Clearing preserves already-primed sample/loop caches for the next KON.
+    std::array<float,1024> left{},right{};allocations=frees=0;track_allocations=true;
+    const bool restarted=ps1_spu_write(cleared.value,0x188,1)&&
+        ps1_spu_render(cleared.value,left.data(),right.data(),left.size());
+    track_allocations=false;CHECK(restarted&&allocations==0&&frees==0);
+    CHECK(*std::max_element(left.begin(),left.end())>0);
+    return 0;
 }
 static int deferred_release_selftest()
 {
@@ -304,7 +361,8 @@ static int selftest()
     CHECK(host_pcm_selftest()==0);
     CHECK(live_editor_selftest()==0);
     CHECK(deferred_release_selftest()==0);
-    std::puts("{\"status\":\"pass\",\"scope\":\"register/RAM guards, 24 voices, ADSR, reverb, isolation, partition invariance, live editor controls and deferred release latching\"}");
+    CHECK(clear_reverb_selftest()==0);
+    std::puts("{\"status\":\"pass\",\"scope\":\"register/RAM guards, 24 voices, ADSR, reverb, isolation, partition invariance, live editor controls, deferred release latching and allocation-free reverb history clear\"}");
     return 0;
 }
 int main(int argc,char **argv)
@@ -334,6 +392,7 @@ int main(int argc,char **argv)
             for(uint32_t frame=0;frame<frames;frame++){write_float(left[frame]);write_float(right[frame]);}
             break;
         }
+        case 6: {if(!ps1_spu_clear_reverb(chip))return 4;break;}
         default:return 2;
         }
     }
