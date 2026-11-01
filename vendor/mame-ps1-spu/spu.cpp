@@ -818,16 +818,20 @@ bool spu_device::sample_cache::try_update(spu_device *spu)
 	{
 		unsigned int a;
 		unsigned int loop=0;
+		bool has_loop=false;
 
 		for (a=start; a<=end; a+=spu->m_counter_packet_next)
 		{
 			adpcm_packet *ap = (adpcm_packet *)spu->packet_read(a);
-			if ((ap->flags&adpcmflag_loop_start) && (ap->flags&adpcmflag_loop_repeat)) loop=a&(0xffff<<spu->m_counter_shift);
+			if (ap->flags&adpcmflag_loop_start) { loop=a&(0xffff<<spu->m_counter_shift); has_loop=true; }
 			if (ap->flags&adpcmflag_loop_end || !spu->m_counter_packet_next) break;
 		}
 
-		if ((a==(end-spu->m_counter_packet_next)) && (loop==loopaddr))
+		if ((a==(end-spu->m_counter_packet_next)) && (has_loop==(this->loop!=nullptr)) && (loop==loopaddr))
 		{
+			// Repeat belongs to the END packet, independently of the marker.
+			// An upload can change END+Repeat to END+Mute without moving it.
+			is_loop=(((adpcm_packet *)spu->packet_read(a))->flags&adpcmflag_loop_repeat)!=0;
 			#ifdef show_cache_update
 				printf("updating %p: ",this);
 			#endif
@@ -1532,6 +1536,7 @@ spu_device::sample_cache *spu_device::get_sample_cache(const unsigned int addr)
 	if (sc) return sc;
 
 	unsigned int loop=0;
+	bool has_loop=false;
 
 	sc=new sample_cache(this);
 	sc->valid=true;
@@ -1545,7 +1550,7 @@ spu_device::sample_cache *spu_device::get_sample_cache(const unsigned int addr)
 		if (cache[a>>3]) flush_cache(cache[a>>3],a,a+(m_counter_packet_next?m_counter_packet_next:8));
 		cache[a>>3]=sc;
 
-		if ((ap->flags&adpcmflag_loop_start) && (ap->flags&adpcmflag_loop_repeat)) loop=a & (0xffff<<m_counter_shift);
+		if (ap->flags&adpcmflag_loop_start) { loop=a & (0xffff<<m_counter_shift); has_loop=true; }
 		if (ap->flags&adpcmflag_loop_end) { if (ap->flags&adpcmflag_loop_repeat) sc->is_loop=true; break; }
 		if (!m_counter_packet_next) break;
 	}
@@ -1556,7 +1561,7 @@ spu_device::sample_cache *spu_device::get_sample_cache(const unsigned int addr)
 	sc->data=std::make_unique<signed short []>(sz);
 
 	sc->loopaddr=loop;
-	if (loop) sc->loop=&sc->data[((loop-sc->start)>>m_counter_packet_shift)*28];
+	if (has_loop) sc->loop=&sc->data[((loop-sc->start)>>m_counter_packet_shift)*28];
 
 	signed short *dp=sc->data.get();
 
@@ -1773,7 +1778,7 @@ void spu_device::update_voice_loop(const unsigned int v)
 	// If loop address is not forced get the loop pointer from the cache
 	// block (if present)
 
-	if ((! voice[v].forceloop) &&
+	if (vi->play.cache->is_loop && (! voice[v].forceloop) &&
 			(vi->play.cache->get_loop_pointer(&vi->loop)))
 	{
 		ra=vi->play.cache->loopaddr;
@@ -1785,17 +1790,12 @@ void spu_device::update_voice_loop(const unsigned int v)
 	{
 		ra=spureg.voice[v].repaddr<<m_counter_shift;
 
-		const adpcm_packet *ap=(adpcm_packet *)packet_read(ra);
-		if (ap->flags&adpcmflag_loop_repeat)
+		// Only the END packet's Repeat bit enables looping. A repeat target
+		// may be an ordinary packet (flags 0) or a Loop Start marker (flags 4).
+		if (! vi->play.cache->get_sample_pointer(ra,&vi->loop))
 		{
-			// Repeat address points to a block with loop flag set
-
-			if (! vi->play.cache->get_sample_pointer(ra,&vi->loop))
-			{
-				// Repeat address is in a different block
-
-				translate_sample_addr(ra,&vi->loop);
-			}
+			// Repeat address is in a different block
+			translate_sample_addr(ra,&vi->loop);
 		}
 	}
 
@@ -2134,7 +2134,7 @@ void spu_device::generate_voice(const unsigned int v,
 	vi->play.ptr+=sp-first;
 	vi->dptr=phase;
 	if (vi->inloopcache) vi->lcptr+=sp-first;
-	if (first<=vi->play.cache->loop && sp>vi->play.cache->loop)
+	if (vi->play.cache->loop && first<=vi->play.cache->loop && sp>vi->play.cache->loop)
 		spureg.voice[v].repaddr=vi->play.cache->loopaddr>>m_counter_shift;
 }
 

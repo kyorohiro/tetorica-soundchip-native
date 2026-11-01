@@ -114,6 +114,18 @@ Each call internally drains the upstream ring in chunks of at most 2,048 frames.
   loop-target rebuilding and interpolation, fixing an upstream cache lifetime
   issue exposed by overlapping samples and RAM replacement. RAM upload invalidates
   decoded caches before voices resume.
+- ADPCM Loop Start (`flags & 4`) updates the repeat address independently of
+  Repeat (`flags & 2`), as documented by
+  [PSX-SPX / no$psx](https://psx-spx.consoledev.net/soundprocessingunitspu/#flag-bits-in-2nd-byte-of-adpcm-header).
+  Repeat enables a loop only on an END packet. Consequently, a marker with
+  flags `4` and a repeat-register target with flags `0` are valid; neither
+  requires flags `6` or `2`. END+Mute remains one-shot even if a marker exists.
+  Cache refresh rereads these independent bits without modifying the uploaded
+  packets. Marker address zero is distinguished from an absent marker, although
+  that capture-buffer region remains unsuitable for instrument storage.
+  Regression vectors compare unchanged predictive ADPCM data across flag
+  variants, nonzero/external repeat targets, cache uploads, high-pitch Gaussian
+  boundaries and all 24 primed voices at the full 520,192-byte sample capacity.
 - Effective pitch ignores the register's upper two bits and modulation is capped
   at `0x3fff`, avoiding cache overshoot for out-of-range raw register values.
   Voice zero ignores its modulation bit because it has no preceding voice.

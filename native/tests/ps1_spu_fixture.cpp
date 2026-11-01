@@ -84,6 +84,151 @@ static double tail_peak(const std::vector<float>& values,unsigned from)
 {
     return ps1_pattern::peak(std::vector<float>(values.begin()+from,values.end()));
 }
+static std::array<uint8_t,64> predictive_wave()
+{
+    // Original 112-frame sine from the BSD Web encoder. Predictor 2 carries
+    // nonzero ADPCM history across the loop, independently of its flag byte.
+    return {{38,6,68,85,85,102,117,118,102,119,119,118,103,103,87,102,
+        38,0,70,70,69,52,36,35,18,17,0,224,224,222,222,220,
+        38,0,188,188,171,171,170,154,154,169,153,169,153,170,169,155,
+        38,3,172,187,204,204,237,221,255,14,240,2,33,34,51,67}};
+}
+static int repeat_flags_selftest()
+{
+    // Address zero is a valid raw register address, not an absent-marker
+    // sentinel. Capture will overwrite this reserved region during render;
+    // only test the initial LSAX transfer before the first packet ends.
+    for(unsigned flags:{4u,6u}) {
+        ps1_pattern::Chip chip;ps1_pattern::configure(chip);
+        auto bytes=predictive_wave();bytes[1]=uint8_t(flags);
+        CHECK(ps1_spu_load_ram(chip.value,0,bytes.data(),bytes.size()));
+        ps1_pattern::voice(chip,0);chip.write(6,0);ps1_pattern::key(chip,0,true);
+        ps1_pattern::render(chip,8,1);CHECK(ps1_spu_read(chip.value,14)==0);
+    }
+    // PSX-SPX: Loop Start (4) independently sets LSAX; Repeat (2) matters
+    // only on END. Thus 4/6 markers and 0/2 repeat targets have identical PCM.
+    // References differ only in these semantically inert bits, never in data.
+    for(bool marker:{false,true})for(unsigned packet:{0u,1u})
+        for(unsigned pitch:{0x1000u,0x1234u,0x3fffu}) {
+        ps1_pattern::Chip edited,reference;
+        auto bytes=predictive_wave(),expected=bytes;
+        bytes[1]=expected[1]=0;
+        bytes[packet*16+1]=marker?4:0;
+        expected[packet*16+1]=marker?6:2;
+        for(auto *chip:{&edited,&reference}) {
+            ps1_pattern::configure(*chip);
+            const auto& source=chip==&edited?bytes:expected;
+            CHECK(ps1_spu_load_ram(chip->value,ps1_pattern::address,source.data(),source.size()));
+            ps1_pattern::voice(*chip,23,pitch);
+            chip->write(23*16+14,(ps1_pattern::address+packet*16)/8);
+            ps1_pattern::key(*chip,23,true);
+        }
+        const auto a=ps1_pattern::render(edited,16385,1),b=ps1_pattern::render(reference,16385,257);
+        CHECK(same_audio(a,b)&&tail_peak(a.left,16000)>.01);
+        CHECK(ps1_spu_read(edited.value,23*16+14)==(ps1_pattern::address+packet*16)/8);
+        std::array<uint8_t,64> retained{};
+        CHECK(ps1_spu_read_ram(edited.value,ps1_pattern::address,retained.data(),retained.size()));
+        CHECK(retained==bytes); // Rendering must not repair or re-encode flags.
+    }
+    // A marker in an END+Mute sample must not turn it into a looping sample.
+    for(unsigned pitch:{0x800u,0x3fffu}) {
+        ps1_pattern::Chip marked,unmarked;
+        for(auto *chip:{&marked,&unmarked}) {
+            auto bytes=predictive_wave();bytes[1]=chip==&marked?4:0;bytes[49]=1;
+            ps1_pattern::configure(*chip);
+            CHECK(ps1_spu_load_ram(chip->value,ps1_pattern::address,bytes.data(),bytes.size()));
+            ps1_pattern::voice(*chip,0,pitch);ps1_pattern::key(*chip,0,true);
+        }
+        const auto a=ps1_pattern::render(marked,4097,7),b=ps1_pattern::render(unmarked,4097,127);
+        CHECK(same_audio(a,b)&&ps1_pattern::peak(a.left)>.01&&tail_peak(a.left,1024)==0);
+        CHECK(ps1_spu_read(marked.value,0x19c)&1);
+    }
+    // Repeat can target an ordinary packet in a separately decoded cache.
+    for(unsigned pitch:{0x1234u,0x3fffu}) {
+        ps1_pattern::Chip edited,reference;
+        constexpr unsigned target=ps1_pattern::address+0x100;
+        for(auto *chip:{&edited,&reference}) {
+            auto bytes=predictive_wave();bytes[1]=0;
+            ps1_pattern::configure(*chip);
+            CHECK(ps1_spu_load_ram(chip->value,ps1_pattern::address,bytes.data(),bytes.size()));
+            bytes[1]=chip==&edited?0:2;
+            CHECK(ps1_spu_load_ram(chip->value,target,bytes.data(),bytes.size()));
+            ps1_pattern::voice(*chip,0,pitch);chip->write(14,target/8);ps1_pattern::key(*chip,0,true);
+        }
+        const auto a=ps1_pattern::render(edited,16385,7),b=ps1_pattern::render(reference,16385,257);
+        CHECK(same_audio(a,b)&&tail_peak(a.left,16000)>.01);
+    }
+    // In-place cache refresh must reread both the independent marker and the
+    // END Repeat bit, including END3 -> END1 -> END3 at an unchanged address.
+    ps1_pattern::Chip updated,reference;
+    for(auto *chip:{&updated,&reference}) {
+        ps1_pattern::configure(*chip);ps1_pattern::voice(*chip,0,0x1234);ps1_pattern::key(*chip,0,true);
+    }
+    CHECK(same_audio(ps1_pattern::render(updated,1009),ps1_pattern::render(reference,1009)));
+    for(unsigned end:{3u,1u,3u}) {
+        for(auto *chip:{&updated,&reference}) {
+            auto bytes=ps1_pattern::wave();bytes[1]=chip==&updated?4:6;bytes[49]=uint8_t(end);
+            CHECK(ps1_spu_load_ram(chip->value,ps1_pattern::address,bytes.data(),bytes.size()));
+        }
+        const auto a=ps1_pattern::render(updated,1025,1),b=ps1_pattern::render(reference,1025,127);
+        CHECK(same_audio(a,b));
+        CHECK(end==1?tail_peak(a.left,512)==0:tail_peak(a.left,512)>.01);
+        if(end==1)for(auto *chip:{&updated,&reference})ps1_pattern::key(*chip,0,true);
+    }
+    return 0;
+}
+static int full_ram_repeat_selftest()
+{
+    // The application-visible sample capacity remains 512 KiB minus capture
+    // RAM. A marker near RAM's upper edge stresses history, END lookahead and
+    // high-pitch overshoot without reserving or rewriting an extra packet.
+    constexpr unsigned address=0x1000,bytes_count=0x80000-address;
+    constexpr unsigned decoded_frames=bytes_count/16*28;
+    std::vector<uint8_t> bytes(bytes_count,0),expected;
+    for(unsigned packet=0;packet<bytes_count;packet+=16) {
+        bytes[packet]=4;
+        for(unsigned n=2;n<16;++n)bytes[packet+n]=uint8_t(0x21+(n%5)*0x11);
+    }
+    bytes[bytes_count-31]=4;bytes[bytes_count-15]=3;expected=bytes;expected[bytes_count-31]=6;
+    ps1_pattern::Chip edited,reference;
+    for(auto *chip:{&edited,&reference}) {
+        ps1_pattern::configure(*chip);
+        const auto& source=chip==&edited?bytes:expected;
+        CHECK(ps1_spu_load_ram(chip->value,address,source.data(),source.size()));
+        for(unsigned v=0;v<24;++v) {
+            ps1_pattern::voice(*chip,v,0x3fff,0,0);
+            chip->write(v*16+6,address/8);chip->write(v*16+14,(address+bytes_count-32)/8);
+            ps1_pattern::key(*chip,v,true);
+        }
+        ps1_pattern::render(*chip,(decoded_frames*4096u+0x3ffe)/0x3fff+257);
+        chip->write(0x18c,0xffff);chip->write(0x18e,0xff);ps1_pattern::render(*chip,257);
+        for(unsigned v=0;v<24;++v) {
+            chip->write(v*16,0x100);chip->write(v*16+2,0x80);
+            chip->write(v*16+4,v%2?0x3fff:0x1234);
+        }
+    }
+    std::array<float,257> a{},ar{},b{},br{};
+    bool ok=true,equal=true,nonzero=false;
+    allocations=frees=0;track_allocations=true;
+    for(auto *chip:{&edited,&reference}) {
+        ok=ps1_spu_write(chip->value,0x188,0xffff)&&ok;
+        ok=ps1_spu_write(chip->value,0x18a,0xff)&&ok;
+    }
+    // Continue through the original END again, for both pitch groups.
+    for(unsigned block=0;block<3200;++block) {
+        ok=ps1_spu_render(edited.value,a.data(),ar.data(),a.size())&&ok;
+        for(unsigned at=0;at<b.size();) {
+            const unsigned n=std::min<unsigned>(7,b.size()-at);
+            ok=ps1_spu_render(reference.value,b.data()+at,br.data()+at,n)&&ok;at+=n;
+        }
+        equal=equal&&a==b&&ar==br;
+        for(float value:a)nonzero=nonzero||value!=0;
+    }
+    track_allocations=false;CHECK(ok&&equal&&nonzero&&allocations==0&&frees==0);
+    std::vector<uint8_t> retained(bytes_count);
+    CHECK(ps1_spu_read_ram(edited.value,address,retained.data(),retained.size()));CHECK(retained==bytes);
+    return 0;
+}
 static int clear_reverb_selftest()
 {
     CHECK(!ps1_spu_clear_reverb(nullptr));
@@ -506,6 +651,8 @@ static int selftest()
     CHECK(ps1_spu_render(chip,pcm,pcm+8,8));for(unsigned i=0;i<16;i++)CHECK(pcm[i]==0.0f);
     ps1_spu_destroy(chip);
     CHECK(ps1_pattern::selftest());
+    CHECK(repeat_flags_selftest()==0);
+    CHECK(full_ram_repeat_selftest()==0);
     CHECK(gaussian_selftest()==0);
     CHECK(headroom_selftest()==0);
     CHECK(host_pcm_selftest()==0);
@@ -515,7 +662,7 @@ static int selftest()
     CHECK(live_editor_selftest()==0);
     CHECK(deferred_release_selftest()==0);
     CHECK(clear_reverb_selftest()==0);
-    std::puts("{\"status\":\"pass\",\"scope\":\"register/RAM guards, 24 voices, ADSR, reverb, isolation, partition invariance, live editor controls, deferred release latching and allocation-free reverb history clear\"}");
+    std::puts("{\"status\":\"pass\",\"scope\":\"register/RAM guards, independent ADPCM flags, full-RAM allocation-free loops, 24 voices, ADSR, reverb, isolation, partition invariance, two software banks, long PCM, live editor controls, deferred release latching and allocation-free reverb history clear\"}");
     return 0;
 }
 int main(int argc,char **argv)
