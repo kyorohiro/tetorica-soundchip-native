@@ -150,3 +150,9 @@ before rendering; changing it discards queued output. Reset retains the setting.
 The existing integer reverb algorithm and its quantization remain.
 
 Optional software sample bank: `ps1_spu_set_host_pcm` copies signed mono PCM outside physical SPU RAM (up to 30 minutes at 44.1 kHz). `ps1_spu_set_host_mask` selects voices at key-on. Gaussian interpolation, PMON, ADSR, mixing and reverb still run in the SPU core. Reset preserves the bank; zero frames clears it. Default register/RAM playback is unchanged. The browser host labels this Software audio; it is not additional PS1 hardware RAM.
+
+Long-bank boundary/IRQ event distances saturate at the 32-bit event-counter
+limit and are recomputed as playback advances. They do not wrap to a false
+END at low pitch. The fixture covers one-shot and looped banks through
+16,777,216 frames at PITCH 1, both voice register banks, exact short-reference
+PCM and allocation-free first key-on/render. No bank API or frame limit changes.

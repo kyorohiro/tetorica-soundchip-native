@@ -326,6 +326,41 @@ static int host_pcm_selftest()
     CHECK(ps1_spu_set_host_pcm(split.value,nullptr,0,0));
     return 0;
 }
+static int long_host_event_selftest()
+{
+    // Exactly 2^20 source frames at PITCH=1 used to wrap the 64-bit
+    // output distance (2^32) to zero: false END for one-shot, invalid
+    // unsigned cursor overshoot for loop. The first few source frames must
+    // be identical to a short reference, including both physical voice banks.
+    for(bool loop:{false,true})for(unsigned frames:{1048576u,2097153u,16777216u}) {
+        ps1_pattern::Chip long_chip,reference;
+        std::vector<int16_t> pcm(frames,12000);
+        for(auto *chip:{&long_chip,&reference}) {
+            ps1_pattern::configure(*chip);
+            ps1_pattern::voice(*chip,0,1,0x1800,0);
+            ps1_pattern::voice(*chip,23,1,0,0x1800);
+            CHECK(ps1_spu_set_host_pcm(chip->value,pcm.data(),chip==&long_chip?frames:112,chip==&long_chip?loop:1));
+            CHECK(ps1_spu_set_host_mask(chip->value,1u|(1u<<23)));
+        }
+        std::array<float,257> left{},right{},expected_left{},expected_right{};
+        bool ok=true,sound=false;
+        allocations=frees=0;track_allocations=true;
+        for(auto *chip:{&long_chip,&reference}) {
+            ok=ps1_spu_write(chip->value,0x188,1)&&ok;
+            ok=ps1_spu_write(chip->value,0x18a,1u<<7)&&ok;
+        }
+        for(unsigned block=0;block<64;++block) {
+            ok=ps1_spu_render(long_chip.value,left.data(),right.data(),left.size())&&ok;
+            ok=ps1_spu_render(reference.value,expected_left.data(),expected_right.data(),expected_left.size())&&ok;
+            ok=left==expected_left&&right==expected_right&&ok;
+            sound=sound||*std::max_element(left.begin(),left.end())>0;
+            ok=!(ps1_spu_read(long_chip.value,0x19c)&1)&&!(ps1_spu_read(long_chip.value,0x19e)&(1u<<7))&&ok;
+        }
+        track_allocations=false;
+        CHECK(ok&&sound&&allocations==0&&frees==0);
+    }
+    return 0;
+}
 static int live_host_pcm_selftest()
 {
     std::array<int16_t,112> pcm{},changed{},zero{};
@@ -474,6 +509,7 @@ static int selftest()
     CHECK(gaussian_selftest()==0);
     CHECK(headroom_selftest()==0);
     CHECK(host_pcm_selftest()==0);
+    CHECK(long_host_event_selftest()==0);
     CHECK(live_host_pcm_selftest()==0);
     CHECK(two_host_banks_selftest()==0);
     CHECK(live_editor_selftest()==0);

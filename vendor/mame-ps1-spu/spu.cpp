@@ -1644,7 +1644,14 @@ void spu_device::update_voice_events(voiceinfo *vi)
 	{
 		// Calculate time until end of sample in output samples
 
-		vi->samplestoend=(unsigned int)(((((int64_t)(vi->play.cache->dend-vi->play.ptr)<<12)-vi->dptr)+(vi->pitch-1))/vi->pitch);
+		// A software PCM bank can be much longer than physical SPU RAM.
+		// At a low pitch, the next boundary can be more than UINT32_MAX
+		// output frames away. Wrapping that distance to zero reports END
+		// before the cursor reaches it (and makes loop overshoot invalid).
+		// Event times are recomputed after each generated segment, so a
+		// saturated far-future distance is safe and preserves short timing.
+		const int64_t end_distance=(((((int64_t)(vi->play.cache->dend-vi->play.ptr)<<12)-vi->dptr)+(vi->pitch-1))/vi->pitch);
+		vi->samplestoend=static_cast<unsigned int>((std::min)(end_distance,static_cast<int64_t>(spu_infinity)));
 		if (vi->inloopcache)
 		{
 			// Voice is inside loop cache, return time until end of that if lower
@@ -1661,7 +1668,8 @@ void spu_device::update_voice_events(voiceinfo *vi)
 		{
 			// Convert IRQ input sample distance to output samples
 
-			vi->samplestoirq=(unsigned int)(((((int64_t)irqdist)<<12)-vi->dptr)+(vi->pitch-1))/vi->pitch;
+			const int64_t irq_distance=(((((int64_t)irqdist)<<12)-vi->dptr)+(vi->pitch-1))/vi->pitch;
+			vi->samplestoirq=static_cast<unsigned int>((std::min)(irq_distance,static_cast<int64_t>(spu_infinity)));
 		} else
 		{
 			vi->samplestoirq=spu_infinity;
