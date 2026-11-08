@@ -2105,6 +2105,694 @@
           "sha256": "db522ecaa04665063e46f7f6c699eb7781c672fd7624ac58a60b0b180652d3cc"
         }
       ]
+    },
+    {
+      "id": "chips-m6581",
+      "sourceFiles": [
+        "vendor/chips-m6581/m6581.h"
+      ],
+      "licenseFiles": [
+        "vendor/chips-m6581/LICENSE"
+      ],
+      "upstream": [
+        "https://github.com/floooh/chips/tree/9e88298ce56319953ac7a43213a1120359f7a3a6"
+      ],
+      "sourceVersion": [
+        "chips 9e88298ce56319953ac7a43213a1120359f7a3a6; pinned original plus marked Tetorica adaptation"
+      ],
+      "files": [
+        {
+          "path": "vendor/chips-m6581/LICENSE",
+          "originPath": "vendor/chips-m6581/LICENSE",
+          "sha256": "0c692ece632a8ec6d2a566c9234fdabda655644e6abc70027da9ff7c35e48634",
+          "size": 893
+        },
+        {
+          "path": "vendor/chips-m6581/PATCHES.md",
+          "originPath": "vendor/chips-m6581/PATCHES.md",
+          "sha256": "173609532da797f599acefbfb352cbecbb5e7395c929fc6dd81e011a7a675a43",
+          "size": 4146
+        },
+        {
+          "path": "vendor/chips-m6581/PROVENANCE.json",
+          "originPath": "vendor/chips-m6581/PROVENANCE.json",
+          "sha256": "655f3e5d82b1ff1462019af80ef91f3d8da5d0506e0c84c6140d976fc6c8d5eb",
+          "size": 442
+        },
+        {
+          "path": "vendor/chips-m6581/README.md",
+          "originPath": "vendor/chips-m6581/README.md",
+          "sha256": "1ef364e1c76340401c5e1388aa819deb3a7741edd5f243f5063948c368a4959f",
+          "size": 984
+        },
+        {
+          "path": "vendor/chips-m6581/m6581.h",
+          "originPath": "vendor/chips-m6581/m6581.h",
+          "sha256": "a13132ce5083e707611ac65e6e37c799a19ce18a8df4dcbb9e60292cb9520aa8",
+          "size": 27353
+        },
+        {
+          "path": "vendor/chips-m6581/prepare.py",
+          "originPath": "vendor/chips-m6581/prepare.py",
+          "sha256": "f5af7e4673f63ebf3582cf0c6604a2911a0634907e8e46b88612be0ce7ce00d1",
+          "size": 4074
+        },
+        {
+          "path": "vendor/chips-m6581/upstream/TETORICA_README.md",
+          "originPath": "vendor/chips-m6581/upstream/TETORICA_README.md",
+          "sha256": "509acf62b8f6393f1625f5d5efc3e3f0937bd223cc782e0968f9dbb1cc99af57",
+          "size": 3222
+        },
+        {
+          "path": "vendor/chips-m6581/upstream/m6581.h",
+          "originPath": "vendor/chips-m6581/upstream/m6581.h",
+          "sha256": "a793225ee69b91e0ea8c91b221d06ee024e45e6c8179176980abfa95d5a54cdf",
+          "size": 26332
+        }
+      ]
+    },
+    {
+      "id": "tetorica-sid",
+      "sourceFiles": [
+        "vendor/tetorica-sid/sid.cpp",
+        "vendor/tetorica-sid/sid_core.h",
+        "native/include/tetorica/sid.h"
+      ],
+      "licenseFiles": [
+        "vendor/tetorica-sid/LICENSE"
+      ],
+      "upstream": [
+        "https://github.com/kyorohiro/hello_ymfm_wasm"
+      ],
+      "sourceVersion": [
+        "CPU-free parent SID instrument snapshot; local portable C API and documented changes; per-file hashes are authoritative"
+      ],
+      "files": [
+        {
+          "path": "native/examples/sid_wav.cpp",
+          "originPath": "native/examples/sid_wav.cpp",
+          "sha256": "f803fac16f6825ed243d88edaf8b9ba2b8c30cebd2bfb437a75ee62b6fc2f421",
+          "size": 3625
+        },
+        {
+          "path": "native/include/tetorica/sid.h",
+          "originPath": "native/include/tetorica/sid.h",
+          "sha256": "ec5fd1dd60253305a102375d28170a23085ba914f65b7162265b44e82fe1d573",
+          "size": 2358
+        },
+        {
+          "path": "native/tests/sid_c_fixture.c",
+          "originPath": "native/tests/sid_c_fixture.c",
+          "sha256": "48bbb219badc80b464cdb5a0193581ebbf01ea77d7f8f347017224c14b82efb0",
+          "size": 2407
+        },
+        {
+          "path": "native/tests/sid_fixture.cpp",
+          "originPath": "native/tests/sid_fixture.cpp",
+          "sha256": "3dfe0e481c73e4684b3e8748bcae048f5d8bc652fd678105cc705382b8d7bab0",
+          "size": 11192
+        },
+        {
+          "path": "scripts/build_sid_wasm.sh",
+          "originPath": "scripts/build_sid_wasm.sh",
+          "sha256": "54705382f894d4010e2c11d3c005c67b21f95d319a1e7229ae01e7ee6fa41b17",
+          "size": 710
+        },
+        {
+          "path": "tests/sid_wasm_smoke.mjs",
+          "originPath": "tests/sid_wasm_smoke.mjs",
+          "sha256": "f03d0a01ce15a77431ea10a38e68cfdf42bf59144c1e7fe258cc94b5faeb41c7",
+          "size": 12356
+        },
+        {
+          "path": "vendor/tetorica-sid/LICENSE",
+          "originPath": "vendor/tetorica-sid/LICENSE",
+          "sha256": "bea9cee5061847399ac39152085c9f2225a4897614c1774f7ef436a082e001fd",
+          "size": 1549
+        },
+        {
+          "path": "vendor/tetorica-sid/PROVENANCE.json",
+          "originPath": "vendor/tetorica-sid/PROVENANCE.json",
+          "sha256": "902041c6e00d5273db6b7c1edfb6e8ba7ed2678805e40e5c6ca2550c3aa19fd4",
+          "size": 760
+        },
+        {
+          "path": "vendor/tetorica-sid/README.md",
+          "originPath": "vendor/tetorica-sid/README.md",
+          "sha256": "1bc0941928380c2461c41e0755e13ca83c276b39d7160c2d3ea831d7c3d50bef",
+          "size": 5547
+        },
+        {
+          "path": "vendor/tetorica-sid/sid.cpp",
+          "originPath": "vendor/tetorica-sid/sid.cpp",
+          "sha256": "ba85f06ce78683bf14a01435eb72faa073bd3f4a51f02cbf88a2de97d3bac2ef",
+          "size": 2183
+        },
+        {
+          "path": "vendor/tetorica-sid/sid_core.h",
+          "originPath": "vendor/tetorica-sid/sid_core.h",
+          "sha256": "a6d064fff50771e5aaf36c75706b7e7efd9405fc844bcb0a2bb743d443786bf0",
+          "size": 2755
+        },
+        {
+          "path": "vendor/tetorica-sid/upstream/PARENT_LICENSE",
+          "originPath": "vendor/tetorica-sid/upstream/PARENT_LICENSE",
+          "sha256": "2d2e9213c170a9866c616fa85b6da993a6724e10befc61f468ed9bfb84c4691c",
+          "size": 1519
+        },
+        {
+          "path": "vendor/tetorica-sid/upstream/sid_core.h",
+          "originPath": "vendor/tetorica-sid/upstream/sid_core.h",
+          "sha256": "e25105c0966a3decf0b78e50f45680d501f8e3f961bf1539a346605b293beecc",
+          "size": 2770
+        },
+        {
+          "path": "vendor/tetorica-sid/upstream/sid_wasm.cpp",
+          "originPath": "vendor/tetorica-sid/upstream/sid_wasm.cpp",
+          "sha256": "b810e6d1bfb70fa76107d7a620bc840baddc5dc547f7e84727114fddd5cc2066",
+          "size": 1631
+        }
+      ]
+    },
+    {
+      "id": "sidera",
+      "sourceFiles": [
+        "vendor/sidera/adapted/src/envelope.rs",
+        "vendor/sidera/adapted/src/extfilt.rs",
+        "vendor/sidera/adapted/src/filter.rs",
+        "vendor/sidera/adapted/src/high.rs",
+        "vendor/sidera/adapted/src/lib.rs",
+        "vendor/sidera/adapted/src/noise.rs",
+        "vendor/sidera/adapted/src/oscillator.rs",
+        "vendor/sidera/adapted/src/registers.rs",
+        "vendor/sidera/adapted/src/sid.rs",
+        "vendor/sidera/adapted/src/voice.rs"
+      ],
+      "licenseFiles": [
+        "vendor/sidera/LICENSE",
+        "vendor/sidera/toolchain-notices/COPYRIGHT-library.html",
+        "vendor/sidera/toolchain-notices/licenses/Apache-2.0.txt",
+        "vendor/sidera/toolchain-notices/licenses/BSD-2-Clause.txt",
+        "vendor/sidera/toolchain-notices/licenses/CC-BY-SA-4.0.txt",
+        "vendor/sidera/toolchain-notices/licenses/GCC-exception-3.1.txt",
+        "vendor/sidera/toolchain-notices/licenses/GPL-2.0-only.txt",
+        "vendor/sidera/toolchain-notices/licenses/GPL-3.0-or-later.txt",
+        "vendor/sidera/toolchain-notices/licenses/ISC.txt",
+        "vendor/sidera/toolchain-notices/licenses/LLVM-exception.txt",
+        "vendor/sidera/toolchain-notices/licenses/MIT.txt",
+        "vendor/sidera/toolchain-notices/licenses/NCSA.txt",
+        "vendor/sidera/toolchain-notices/licenses/OFL-1.1.txt",
+        "vendor/sidera/toolchain-notices/licenses/Unicode-3.0.txt"
+      ],
+      "upstream": [
+        "https://codeberg.org/sbechet/sidera/src/commit/15041709d26c2bc36667ba27f729332c9f523696"
+      ],
+      "sourceVersion": [
+        "sidera 1.1.1 (15041709d26c2bc36667ba27f729332c9f523696); preserved crate and marked CPU-free adaptation; Rust 1.91.1 runtime notices"
+      ],
+      "files": [
+        {
+          "path": "vendor/sidera/8580-cutoff-calibration.json",
+          "originPath": "vendor/sidera/8580-cutoff-calibration.json",
+          "sha256": "f9c78e2dfef767aaf2317e7f21cebeff17b0ddf3225d83e9cbca890953b89a0a",
+          "size": 7556
+        },
+        {
+          "path": "vendor/sidera/8580-resonance-calibration.json",
+          "originPath": "vendor/sidera/8580-resonance-calibration.json",
+          "sha256": "8c8e835be3d14a1c5ce063439436bc76de5b6f9035be399535085a9d8a67ddf5",
+          "size": 2431
+        },
+        {
+          "path": "vendor/sidera/LICENSE",
+          "originPath": "vendor/sidera/LICENSE",
+          "sha256": "4516b79c625d728704f7e189e676e528077fdb0388a2c819c9d583e214fef9b6",
+          "size": 1075
+        },
+        {
+          "path": "vendor/sidera/ORIGIN.md",
+          "originPath": "vendor/sidera/ORIGIN.md",
+          "sha256": "503cf96915f1df27f1e707f08ce6be606620f95892f3d0634ec8525175f38ad6",
+          "size": 6150
+        },
+        {
+          "path": "vendor/sidera/PATCHES.json",
+          "originPath": "vendor/sidera/PATCHES.json",
+          "sha256": "841ef5bae4d8cc01f6b4a43a24946a2b8717e3cae49e76584092417107b66568",
+          "size": 955
+        },
+        {
+          "path": "vendor/sidera/README.md",
+          "originPath": "vendor/sidera/README.md",
+          "sha256": "e5fdbde6757bc2c14bf6d7d5b93a45e3e39839ef98166169696e3937cf5c68d7",
+          "size": 2036
+        },
+        {
+          "path": "vendor/sidera/SOURCES.json",
+          "originPath": "vendor/sidera/SOURCES.json",
+          "sha256": "5a174a68d26fbd82e80c34a52d976916de14addf2789e770cfd0a7ca332a9275",
+          "size": 4569
+        },
+        {
+          "path": "vendor/sidera/adapted/src/bin/sidplay/bus.rs",
+          "originPath": "vendor/sidera/adapted/src/bin/sidplay/bus.rs",
+          "sha256": "bd5e50ab618c9d9c79ccfb32805c7d45ec2085df819a8d15226aac80bcb8a22c",
+          "size": 2238
+        },
+        {
+          "path": "vendor/sidera/adapted/src/bin/sidplay/diag.rs",
+          "originPath": "vendor/sidera/adapted/src/bin/sidplay/diag.rs",
+          "sha256": "231bbda78b1a77f8bb6c5af47a5426e3855286a79cc9ff2d50bbcf099b0039cc",
+          "size": 2402
+        },
+        {
+          "path": "vendor/sidera/adapted/src/bin/sidplay/main.rs",
+          "originPath": "vendor/sidera/adapted/src/bin/sidplay/main.rs",
+          "sha256": "239dda150ba7dcd778087b98762a994608079685c9bbbe353b40775375d5c4f0",
+          "size": 5629
+        },
+        {
+          "path": "vendor/sidera/adapted/src/bin/sidplay/output.rs",
+          "originPath": "vendor/sidera/adapted/src/bin/sidplay/output.rs",
+          "sha256": "09463ac699b07e8101201482539ae4d0cafd30022605c30af2288f7c4ecdca88",
+          "size": 4341
+        },
+        {
+          "path": "vendor/sidera/adapted/src/bin/sidplay/player.rs",
+          "originPath": "vendor/sidera/adapted/src/bin/sidplay/player.rs",
+          "sha256": "33437154b41c7549a29728050c03c6c681725747de0322f5ab4235fd086347a1",
+          "size": 10189
+        },
+        {
+          "path": "vendor/sidera/adapted/src/bin/sidplay/psid.rs",
+          "originPath": "vendor/sidera/adapted/src/bin/sidplay/psid.rs",
+          "sha256": "54d3192ff0aceb3f717c1ea82d9e4ad0cfd72115157508bfaec03ef6db8f158c",
+          "size": 4262
+        },
+        {
+          "path": "vendor/sidera/adapted/src/envelope.rs",
+          "originPath": "vendor/sidera/adapted/src/envelope.rs",
+          "sha256": "3eeac3c86949f5de108c246a328e4b65821454e21cafe3f3489b776975528542",
+          "size": 5403
+        },
+        {
+          "path": "vendor/sidera/adapted/src/extfilt.rs",
+          "originPath": "vendor/sidera/adapted/src/extfilt.rs",
+          "sha256": "3b99352cfde30de6c8b5398a420a8c79586f89749054940a3d1973b2dc03c8ec",
+          "size": 1946
+        },
+        {
+          "path": "vendor/sidera/adapted/src/filter.rs",
+          "originPath": "vendor/sidera/adapted/src/filter.rs",
+          "sha256": "2bfea93993ef97539c966b97519e72983dd45f667d8c456b8eabea860360859b",
+          "size": 10281
+        },
+        {
+          "path": "vendor/sidera/adapted/src/high.rs",
+          "originPath": "vendor/sidera/adapted/src/high.rs",
+          "sha256": "7fe336f554c20770e91632ff82068dbe13d80dafcf280879a5ea1686d578851d",
+          "size": 18128
+        },
+        {
+          "path": "vendor/sidera/adapted/src/lib.rs",
+          "originPath": "vendor/sidera/adapted/src/lib.rs",
+          "sha256": "5ca8acf382ca2c9a344ab97837336a6fbd0e7a7d24af06b8d973b3d31cbce392",
+          "size": 4153
+        },
+        {
+          "path": "vendor/sidera/adapted/src/noise.rs",
+          "originPath": "vendor/sidera/adapted/src/noise.rs",
+          "sha256": "1b9c9994f608979dfdb697b80e2af2019cedd255be1e5612cdd9e62e533372ff",
+          "size": 2128
+        },
+        {
+          "path": "vendor/sidera/adapted/src/oscillator.rs",
+          "originPath": "vendor/sidera/adapted/src/oscillator.rs",
+          "sha256": "522ef1700129dddd4835fb8f7ace74f88af79e9b7dba800a764804f1feac1d38",
+          "size": 2582
+        },
+        {
+          "path": "vendor/sidera/adapted/src/registers.rs",
+          "originPath": "vendor/sidera/adapted/src/registers.rs",
+          "sha256": "3f8d75e4a438b77a60bedc0b8acb191e2be8a26f57d74493756ea660724f773d",
+          "size": 2759
+        },
+        {
+          "path": "vendor/sidera/adapted/src/sid.rs",
+          "originPath": "vendor/sidera/adapted/src/sid.rs",
+          "sha256": "f80ebc570bb1e0e207c3b9b2aaa1639ebfa1f7646583cd63608505e7b8a93946",
+          "size": 14966
+        },
+        {
+          "path": "vendor/sidera/adapted/src/voice.rs",
+          "originPath": "vendor/sidera/adapted/src/voice.rs",
+          "sha256": "676b02f2e67f9f27111b60ace6064f05935885d68825b30c43e9273c48ac7b7c",
+          "size": 8899
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/COPYRIGHT-library.html",
+          "originPath": "vendor/sidera/toolchain-notices/COPYRIGHT-library.html",
+          "sha256": "3aa41caccecaeddad6fcf2f36ce14146ab7baae57064b05b12ecc6b52d5e917f",
+          "size": 398128
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/README.md",
+          "originPath": "vendor/sidera/toolchain-notices/README.md",
+          "sha256": "f7ddd2da603cf5d9dee78b1cb1ab9a517cb00ecc48a8b5967b93d4fad3e25913",
+          "size": 600
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/SOURCES.json",
+          "originPath": "vendor/sidera/toolchain-notices/SOURCES.json",
+          "sha256": "7466cf0db64e24f6be84a5877aea870420850f0958176f7cf3557317f01bfe8e",
+          "size": 2291
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/Apache-2.0.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/Apache-2.0.txt",
+          "sha256": "074e6e32c86a4c0ef8b3ed25b721ca23aca83df277cd88106ef7177c354615ff",
+          "size": 10280
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/BSD-2-Clause.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/BSD-2-Clause.txt",
+          "sha256": "f32fb3b417a194167cfad068223fc975ba96c5960513a10f66a3c28720aec1df",
+          "size": 1267
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/CC-BY-SA-4.0.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/CC-BY-SA-4.0.txt",
+          "sha256": "23ee78c8bae49cf08ea2f0c84945c66b987ebe4520881fb51b3dad4fb43d07c2",
+          "size": 20137
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/GCC-exception-3.1.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/GCC-exception-3.1.txt",
+          "sha256": "a3966c9410ef94a1efbfa9ec04e9c1994026a70623fbf0885ce36737bfba3b54",
+          "size": 3320
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/GPL-2.0-only.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/GPL-2.0-only.txt",
+          "sha256": "54b212ba1f97f6948fa5486239ab505dd820b02e50cbfd296b4062c8609a70af",
+          "size": 17642
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/GPL-3.0-or-later.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/GPL-3.0-or-later.txt",
+          "sha256": "05315fce6c35f79b8a35454828995fa26336f235895ac64557abc028f4ffcea2",
+          "size": 34795
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/ISC.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/ISC.txt",
+          "sha256": "0ff61769b238634e042ab759dddfd104a8e69d091e3600ae3410e401a6164381",
+          "size": 730
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/LLVM-exception.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/LLVM-exception.txt",
+          "sha256": "e34c58338bd89d43e709e226610d8f32b3e3c47f4ad9a99a8dc1d4ac7842488e",
+          "size": 919
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/MIT.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/MIT.txt",
+          "sha256": "b85dcd3e453d05982552c52b5fc9e0bdd6d23c6f8e844b984a88af32570b0cc0",
+          "size": 1078
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/NCSA.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/NCSA.txt",
+          "sha256": "39cb0234065c92b9e6cee3830cbb52b1aa289aa8fe9ba2e66730fec5cf05c630",
+          "size": 1676
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/OFL-1.1.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/OFL-1.1.txt",
+          "sha256": "8eea8287e5876b539670cadb82e99f9a7afddec6f6730811be1daf25d2e9bcfd",
+          "size": 4016
+        },
+        {
+          "path": "vendor/sidera/toolchain-notices/licenses/Unicode-3.0.txt",
+          "originPath": "vendor/sidera/toolchain-notices/licenses/Unicode-3.0.txt",
+          "sha256": "f5062c9a188d81dfe66b56db4182dcf9e4b17c0d9b0d311a8e20b3a1b075c443",
+          "size": 1995
+        },
+        {
+          "path": "vendor/sidera/upstream/.cargo_vcs_info.json",
+          "originPath": "vendor/sidera/upstream/.cargo_vcs_info.json",
+          "sha256": "4e547473ff03990b7d6b2fece426e3b4e56baff4cc3a6323cf751ce445c6d4d8",
+          "size": 94
+        },
+        {
+          "path": "vendor/sidera/upstream/.gitignore",
+          "originPath": "vendor/sidera/upstream/.gitignore",
+          "sha256": "b53ee26e6ff1da219b0563333a76d2c9ec19eec713d6ee54e11a1edacb0e9f3d",
+          "size": 8
+        },
+        {
+          "path": "vendor/sidera/upstream/Cargo.lock",
+          "originPath": "vendor/sidera/upstream/Cargo.lock",
+          "sha256": "ecec7919601412406b44a2e7615278b4a35fe0194b50dc8783f7488eefc61e9b",
+          "size": 25543
+        },
+        {
+          "path": "vendor/sidera/upstream/Cargo.toml",
+          "originPath": "vendor/sidera/upstream/Cargo.toml",
+          "sha256": "6f596633e56a0a25603014de6dafaa204c081734b9a57a3143e99f6a55db6443",
+          "size": 1846
+        },
+        {
+          "path": "vendor/sidera/upstream/Cargo.toml.orig",
+          "originPath": "vendor/sidera/upstream/Cargo.toml.orig",
+          "sha256": "98015f5b2e7198e314245cd41eda7dca43392a8d0a3c49b63ec5d65da6cc6b8d",
+          "size": 1037
+        },
+        {
+          "path": "vendor/sidera/upstream/LICENSE",
+          "originPath": "vendor/sidera/upstream/LICENSE",
+          "sha256": "4516b79c625d728704f7e189e676e528077fdb0388a2c819c9d583e214fef9b6",
+          "size": 1075
+        },
+        {
+          "path": "vendor/sidera/upstream/README.md",
+          "originPath": "vendor/sidera/upstream/README.md",
+          "sha256": "35ae0865b06b12d43a02df962d5cb2afb762c6e3ab472052b17bf805a4c6ddd7",
+          "size": 13156
+        },
+        {
+          "path": "vendor/sidera/upstream/SID_ANALOG_SPEC.md",
+          "originPath": "vendor/sidera/upstream/SID_ANALOG_SPEC.md",
+          "sha256": "0a90da2eb550761c60b3b40d4afca21d236a8daa68fe07ef1af80311bad4cca3",
+          "size": 26732
+        },
+        {
+          "path": "vendor/sidera/upstream/examples/bench.rs",
+          "originPath": "vendor/sidera/upstream/examples/bench.rs",
+          "sha256": "3d6f27fc2b3d0651af84e735d3b05a2d43c480770311d7b0facf58644d6686c2",
+          "size": 1964
+        },
+        {
+          "path": "vendor/sidera/upstream/examples/render.rs",
+          "originPath": "vendor/sidera/upstream/examples/render.rs",
+          "sha256": "c4731c1000b95526f98b0244de45eff9d80d9fb53c40a8a0f588b40c7b553a8a",
+          "size": 3188
+        },
+        {
+          "path": "vendor/sidera/upstream/src/bin/sidplay/bus.rs",
+          "originPath": "vendor/sidera/upstream/src/bin/sidplay/bus.rs",
+          "sha256": "bd5e50ab618c9d9c79ccfb32805c7d45ec2085df819a8d15226aac80bcb8a22c",
+          "size": 2238
+        },
+        {
+          "path": "vendor/sidera/upstream/src/bin/sidplay/diag.rs",
+          "originPath": "vendor/sidera/upstream/src/bin/sidplay/diag.rs",
+          "sha256": "231bbda78b1a77f8bb6c5af47a5426e3855286a79cc9ff2d50bbcf099b0039cc",
+          "size": 2402
+        },
+        {
+          "path": "vendor/sidera/upstream/src/bin/sidplay/main.rs",
+          "originPath": "vendor/sidera/upstream/src/bin/sidplay/main.rs",
+          "sha256": "239dda150ba7dcd778087b98762a994608079685c9bbbe353b40775375d5c4f0",
+          "size": 5629
+        },
+        {
+          "path": "vendor/sidera/upstream/src/bin/sidplay/output.rs",
+          "originPath": "vendor/sidera/upstream/src/bin/sidplay/output.rs",
+          "sha256": "09463ac699b07e8101201482539ae4d0cafd30022605c30af2288f7c4ecdca88",
+          "size": 4341
+        },
+        {
+          "path": "vendor/sidera/upstream/src/bin/sidplay/player.rs",
+          "originPath": "vendor/sidera/upstream/src/bin/sidplay/player.rs",
+          "sha256": "33437154b41c7549a29728050c03c6c681725747de0322f5ab4235fd086347a1",
+          "size": 10189
+        },
+        {
+          "path": "vendor/sidera/upstream/src/bin/sidplay/psid.rs",
+          "originPath": "vendor/sidera/upstream/src/bin/sidplay/psid.rs",
+          "sha256": "54d3192ff0aceb3f717c1ea82d9e4ad0cfd72115157508bfaec03ef6db8f158c",
+          "size": 4262
+        },
+        {
+          "path": "vendor/sidera/upstream/src/envelope.rs",
+          "originPath": "vendor/sidera/upstream/src/envelope.rs",
+          "sha256": "3eeac3c86949f5de108c246a328e4b65821454e21cafe3f3489b776975528542",
+          "size": 5403
+        },
+        {
+          "path": "vendor/sidera/upstream/src/extfilt.rs",
+          "originPath": "vendor/sidera/upstream/src/extfilt.rs",
+          "sha256": "3b99352cfde30de6c8b5398a420a8c79586f89749054940a3d1973b2dc03c8ec",
+          "size": 1946
+        },
+        {
+          "path": "vendor/sidera/upstream/src/filter.rs",
+          "originPath": "vendor/sidera/upstream/src/filter.rs",
+          "sha256": "877d6c523bd55da84faf21fe8d7b8c190a8d7c8719e46125d2dc5a5d9c11e0e5",
+          "size": 7711
+        },
+        {
+          "path": "vendor/sidera/upstream/src/high.rs",
+          "originPath": "vendor/sidera/upstream/src/high.rs",
+          "sha256": "7fe336f554c20770e91632ff82068dbe13d80dafcf280879a5ea1686d578851d",
+          "size": 18128
+        },
+        {
+          "path": "vendor/sidera/upstream/src/lib.rs",
+          "originPath": "vendor/sidera/upstream/src/lib.rs",
+          "sha256": "5ca8acf382ca2c9a344ab97837336a6fbd0e7a7d24af06b8d973b3d31cbce392",
+          "size": 4153
+        },
+        {
+          "path": "vendor/sidera/upstream/src/noise.rs",
+          "originPath": "vendor/sidera/upstream/src/noise.rs",
+          "sha256": "1b9c9994f608979dfdb697b80e2af2019cedd255be1e5612cdd9e62e533372ff",
+          "size": 2128
+        },
+        {
+          "path": "vendor/sidera/upstream/src/oscillator.rs",
+          "originPath": "vendor/sidera/upstream/src/oscillator.rs",
+          "sha256": "522ef1700129dddd4835fb8f7ace74f88af79e9b7dba800a764804f1feac1d38",
+          "size": 2582
+        },
+        {
+          "path": "vendor/sidera/upstream/src/registers.rs",
+          "originPath": "vendor/sidera/upstream/src/registers.rs",
+          "sha256": "3f8d75e4a438b77a60bedc0b8acb191e2be8a26f57d74493756ea660724f773d",
+          "size": 2759
+        },
+        {
+          "path": "vendor/sidera/upstream/src/sid.rs",
+          "originPath": "vendor/sidera/upstream/src/sid.rs",
+          "sha256": "0f9771b90452b89b1c16b53607607b6cbcd1ac60635329355033eef9fb420587",
+          "size": 13227
+        },
+        {
+          "path": "vendor/sidera/upstream/src/voice.rs",
+          "originPath": "vendor/sidera/upstream/src/voice.rs",
+          "sha256": "676b02f2e67f9f27111b60ace6064f05935885d68825b30c43e9273c48ac7b7c",
+          "size": 8899
+        },
+        {
+          "path": "vendor/sidera/upstream/tests/golden.rs",
+          "originPath": "vendor/sidera/upstream/tests/golden.rs",
+          "sha256": "1c560531f4dcbbb5d8c47a6705786cb832210c42aaf724274ae1fca543b54bae",
+          "size": 8170
+        },
+        {
+          "path": "vendor/sidera/upstream/tests/integration.rs",
+          "originPath": "vendor/sidera/upstream/tests/integration.rs",
+          "sha256": "6ea83bee56a03887fc7246a578ec6ea641a64b6468b546553c8761d71c61e8da",
+          "size": 29431
+        }
+      ]
+    },
+    {
+      "id": "tetorica-sid8580",
+      "sourceFiles": [
+        "vendor/tetorica-sid8580/lib.rs",
+        "native/include/tetorica/sid8580.h",
+        "native/include/tetorica/sid8580.hpp"
+      ],
+      "licenseFiles": [
+        "vendor/tetorica-sid8580/LICENSE"
+      ],
+      "upstream": [
+        "https://github.com/kyorohiro/hello_ymfm_wasm"
+      ],
+      "sourceVersion": [
+        "Exact parent CPU-free sid8p Rust adapter with Native C/C++ headers; 8580 Preview approximation; no C64 CPU or song player linked"
+      ],
+      "files": [
+        {
+          "path": "native/examples/sid8580_wav.cpp",
+          "originPath": "native/examples/sid8580_wav.cpp",
+          "sha256": "cf64d342f703a531effc9a1dd64acde12720125b9c9096a592d680ec5067fde6",
+          "size": 3441
+        },
+        {
+          "path": "native/include/tetorica/sid8580.h",
+          "originPath": "native/include/tetorica/sid8580.h",
+          "sha256": "d728b2f15c7892f25a29e0bc50ce5b8d4904de4737178ab33e6ef0cd7ac5fde5",
+          "size": 3055
+        },
+        {
+          "path": "native/include/tetorica/sid8580.hpp",
+          "originPath": "native/include/tetorica/sid8580.hpp",
+          "sha256": "513fd9287c1667ac9b99842d47070bd0f1878cf2b34f4a1086a70d81d764d23c",
+          "size": 4671
+        },
+        {
+          "path": "native/sid8580.cmake",
+          "originPath": "native/sid8580.cmake",
+          "sha256": "435f14823cdd19e6919b88bb29ba1f32d0bc4740d7aecd18d4442df037126628",
+          "size": 8325
+        },
+        {
+          "path": "native/tests/sid8580_fixture.cpp",
+          "originPath": "native/tests/sid8580_fixture.cpp",
+          "sha256": "faf70d166fabd01f75f8eff5f7f695d70becb9e4918263b395e66c8796dbd5bb",
+          "size": 11988
+        },
+        {
+          "path": "scripts/build_sid8580_wasm.sh",
+          "originPath": "scripts/build_sid8580_wasm.sh",
+          "sha256": "7e258ebf142b433db383d32622f785ec0387d331d2da081884be9cbfd972692b",
+          "size": 1117
+        },
+        {
+          "path": "tests/sid8580_wasm_smoke.mjs",
+          "originPath": "tests/sid8580_wasm_smoke.mjs",
+          "sha256": "4a8e24d7fdba9aa23c455babf736a091d0c1d48cbc3ac8b0bc5afaff63fec324",
+          "size": 9772
+        },
+        {
+          "path": "vendor/tetorica-sid8580/LICENSE",
+          "originPath": "vendor/tetorica-sid8580/LICENSE",
+          "sha256": "2d2e9213c170a9866c616fa85b6da993a6724e10befc61f468ed9bfb84c4691c",
+          "size": 1519
+        },
+        {
+          "path": "vendor/tetorica-sid8580/README.md",
+          "originPath": "vendor/tetorica-sid8580/README.md",
+          "sha256": "1c4992aef0e8f37c4d97b15252cb5858a0cc2a5b3bcdba1721477dac3e22448f",
+          "size": 7311
+        },
+        {
+          "path": "vendor/tetorica-sid8580/SOURCES.json",
+          "originPath": "vendor/tetorica-sid8580/SOURCES.json",
+          "sha256": "a7202776fba61076534b567757dcd4a0d53add3362234917511bf3648958cbb7",
+          "size": 527
+        },
+        {
+          "path": "vendor/tetorica-sid8580/lib.rs",
+          "originPath": "vendor/tetorica-sid8580/lib.rs",
+          "sha256": "91228187132d85a9040f6d566484599a8870485e232a1a97e8587d8b4cc555ed",
+          "size": 14402
+        }
+      ]
     }
   ],
   "artifacts": [
@@ -3795,6 +4483,87 @@
       ],
       "notes": [
         "32 slots, fixed 44100 Hz, private 512 KiB RAM. Native/WASM PCM sine parity verified; FM/LFO/DSP retained but not behaviorally verified. No CPU/IRQ/timers/DMA/MIDI/SSF player."
+      ]
+    },
+    {
+      "id": "sid",
+      "role": "instrument",
+      "kind": "CPU-free C64 SID 6581 standalone instrument",
+      "chipIds": [],
+      "format": "standalone-wasm",
+      "outputs": [
+        "sid_wasm.wasm"
+      ],
+      "buildScript": "scripts/build_sid_wasm.sh",
+      "buildFiles": [
+        "scripts/build_sid_wasm.sh",
+        "scripts/build-wasm.sh",
+        "scripts/record_wasm_build.mjs",
+        "vendor/chips-m6581/prepare.py",
+        "vendor/chips-m6581/upstream/m6581.h"
+      ],
+      "sourceFiles": [
+        "vendor/tetorica-sid/sid.cpp",
+        "vendor/tetorica-sid/sid_core.h",
+        "vendor/chips-m6581/m6581.h",
+        "native/include/tetorica/sid.h"
+      ],
+      "licenseFiles": [
+        "vendor/chips-m6581/LICENSE",
+        "vendor/tetorica-sid/LICENSE"
+      ],
+      "notes": [
+        "Owned chip handles; raw synchronous register/render ABI; 8-96 kHz output and PAL/NTSC clock selection. Approximation, not measured hardware accuracy. No C64 CPU, SID/RSID song player, ROM or browser UI; sid_render preserves the parent host float queue and 12 Hz software DC blocker."
+      ]
+    },
+    {
+      "id": "sid8580",
+      "role": "instrument",
+      "kind": "CPU-free C64 SID 8580 Preview standalone instrument",
+      "chipIds": [],
+      "format": "standalone-wasm",
+      "outputs": [
+        "sid8580_wasm.wasm"
+      ],
+      "buildScript": "scripts/build_sid8580_wasm.sh",
+      "buildFiles": [
+        "scripts/build_sid8580_wasm.sh",
+        "scripts/build-wasm.sh",
+        "scripts/record_wasm_build.mjs"
+      ],
+      "sourceFiles": [
+        "vendor/tetorica-sid8580/lib.rs",
+        "vendor/sidera/adapted/src/envelope.rs",
+        "vendor/sidera/adapted/src/extfilt.rs",
+        "vendor/sidera/adapted/src/filter.rs",
+        "vendor/sidera/adapted/src/high.rs",
+        "vendor/sidera/adapted/src/lib.rs",
+        "vendor/sidera/adapted/src/noise.rs",
+        "vendor/sidera/adapted/src/oscillator.rs",
+        "vendor/sidera/adapted/src/registers.rs",
+        "vendor/sidera/adapted/src/sid.rs",
+        "vendor/sidera/adapted/src/voice.rs",
+        "native/include/tetorica/sid8580.h"
+      ],
+      "licenseFiles": [
+        "vendor/sidera/LICENSE",
+        "vendor/tetorica-sid8580/LICENSE",
+        "vendor/sidera/toolchain-notices/COPYRIGHT-library.html",
+        "vendor/sidera/toolchain-notices/licenses/Apache-2.0.txt",
+        "vendor/sidera/toolchain-notices/licenses/BSD-2-Clause.txt",
+        "vendor/sidera/toolchain-notices/licenses/CC-BY-SA-4.0.txt",
+        "vendor/sidera/toolchain-notices/licenses/GCC-exception-3.1.txt",
+        "vendor/sidera/toolchain-notices/licenses/GPL-2.0-only.txt",
+        "vendor/sidera/toolchain-notices/licenses/GPL-3.0-or-later.txt",
+        "vendor/sidera/toolchain-notices/licenses/ISC.txt",
+        "vendor/sidera/toolchain-notices/licenses/LLVM-exception.txt",
+        "vendor/sidera/toolchain-notices/licenses/MIT.txt",
+        "vendor/sidera/toolchain-notices/licenses/NCSA.txt",
+        "vendor/sidera/toolchain-notices/licenses/OFL-1.1.txt",
+        "vendor/sidera/toolchain-notices/licenses/Unicode-3.0.txt"
+      ],
+      "notes": [
+        "Separate sidera-backed 8580 Preview raw sid8p C ABI; exact included Rust adapter, no Cargo dependency resolution. Native target requires opt-in TETORICA_ENABLE_SID8580=ON and installed Rust; raw WASM has no JavaScript factory. No C64 CPU, SID/RSID player or ROM linked. Native sid8580.hpp additionally provides a Web-matching float queue/DC blocker."
       ]
     }
   ]

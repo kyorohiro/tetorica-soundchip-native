@@ -1,5 +1,57 @@
 # Verification record
 
+## SID 6581 / 8580 Preview Native SDK — 2026-11-09
+
+Local development adds CPU-free `sid` and `sid8580` instruments, not C64
+PSID/RSID playback. The SDK metadata was already development version 0.1.7;
+this work leaves published 0.1.6 assets and all consumer pins unchanged.
+
+- Source/catalog checks pass: 24 generic chip IDs, 29 legacy chip recipes,
+  two application-audio modules, four instruments and 438 pinned snapshot
+  files. All 122 Python release-tool regressions pass. Strict standalone
+  output declarations, DX7 compatibility, source receipts and toolchain
+  notices are covered; plain audit-only invokes no Native/Rust compiler.
+- macOS Apple Silicon Release builds pass all 33 CTest entries with Rust
+  Off, and all 34 with SID 8580 On. A separate C consumer configured without
+  the Rust tools on PATH links/runs `tetorica::sid`. The pure-C fixture also
+  compiles and calls both public ABIs when 8580 is enabled.
+- 6581 compares byte-exact PCM for 48 Native/WASM cases and another 48
+  original-parent-WASM/SDK cases. Six original scenes cover Triangle, Pulse,
+  combined waves, Sync/Ring, filter and release at 8/44.1/48/96 kHz with
+  PAL/NTSC clocks; cycles/envelope/phase observations also match the parent.
+  The local comparison receipt is `build/sid/parity.json` (1,226,516 rendered
+  frames across its checks).
+- 8580 passes 647 Native fixture checks on both Apple Silicon and Intel.
+  Each architecture matches WASM for 67,424 raw int16 frames and 67,416
+  optional-host float frames (maximum difference 0). Separately, the actual
+  parent Web host/endpoint matches SDK WASM and the C++ host for 60,507 frames
+  across all 16 waveform selectors, filter, Sync/Ring and 44.1/48/96 kHz.
+  See the component README for the distinction between raw and host policy.
+- The independently extracted source ZIP builds the complete Native set,
+  passes all 34 CTest entries, renders/checks all 24 declared WAV examples
+  and passes the JavaScript reference smoke. CMake File API source/include
+  checks include Rust sources exposed by the custom build target.
+- Supplied standalone WASM passes both extracted Native parity checks.
+  Both recipes also rebuild from extracted sources: 6581 matches its Native
+  fixture byte for byte; 8580 matches both raw and float host output exactly.
+  The initial 6581 rebuild needed permission to write Emscripten's installed
+  toolchain cache; retrying that stage and its parity check succeeded.
+  This is a toolchain dependency, not a sibling checkout or downloaded core.
+
+Tools: AppleClang 17, Emscripten 6.0.6, Rust 1.91.1. WASM SHA-256:
+
+- `sid_wasm.wasm`: `aca0a7f787461cedb80347b637b9eca3e67be487c2f8607c830a8606e1549d55`
+- `sid8580_wasm.wasm`: `21a0e8c0222b3b864f11969ff77d289013fb72e4e0c3a74b527037020f940456`
+
+Local candidates are under `build/sid-sdk-candidate/`. Extracted checks and
+logs are under `build/sid-sdk-extracted-all*`,
+`build/sid-sdk-extracted-sid-recovery.log` and
+`build/sid-sdk-extracted-rust*`. The documented validation can be rerun from
+the source kit without the parent repository, a game/ROM, Cargo dependencies
+or an audio device. Equality verifies this port, not physical SID fidelity
+or a hard real-time deadline. Windows/Linux CI is configured but was not
+executed locally; no tag, push or publication is part of this work.
+
 ## Long software PCM event counters — 2026-11-01
 
 Saturate sample-boundary and IRQ distances before converting the 64-bit

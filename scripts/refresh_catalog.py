@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Rebuild the chip entry point from the two explicit source inventories."""
-from sdk_common import ROOT, CHIP_IDS, json_bytes, read_json
+from sdk_common import ROOT, CHIP_IDS, artifact_descriptor, json_bytes, read_json
 
 
 def main():
@@ -37,7 +37,7 @@ def main():
     instruments = [{"id": entry["id"], "role": "instrument", "kind": entry["kind"],
                     "sourceFiles": entry["sourceFiles"], "licenseFiles": entry["licenseFiles"],
                     "native": next(device for device in read_json(ROOT / "catalog/native_inventory.json").get("instruments", []) if device["id"] == entry["id"]),
-                    "wasm": {"status": "build-recipes-included", "artifacts": [{key: entry[key] for key in ("id", "format", "buildScript")}]}}
+                    "wasm": {"status": "build-recipes-included", "artifacts": [artifact_descriptor(entry)]}}
                    for entry in inventory.get("instruments", [])]
     data = {"schemaVersion": 1, "stage": "bootstrap", "chips": chips, "additionalArtifacts": additional,
             "javascriptReferences": javascript,

@@ -1,9 +1,100 @@
 # Native sources
 
 This directory contains existing chip-level C++/C ABI wrappers as bootstrap
-references, the SDK's raw WonderSwan/POKEY C++ targets, the standalone PlayStation SPU instrument, and the CD-DA/MSM5205 C11 modules, without Rust, Tauri, CPAL, the application scheduler, Mixer, FX,
+references, the SDK's raw WonderSwan/POKEY C++ targets, the standalone SPU/SCSP/SID instruments, and the CD-DA/MSM5205 C11 modules, without Tauri, CPAL, the application scheduler, Mixer, FX,
 QuickJS, UI, or audio-device code. Existing applications still use their current
 sources. Collecting them here does not yet switch those consumers to this SDK.
+The default build needs only C/C++; the separate SID 8580 Preview target
+explicitly opts into Rust with `TETORICA_ENABLE_SID8580=ON`.
+
+## Embed C64 SID
+
+These CPU-free instruments expose three voices, oscillator Sync/Ring, ADSR,
+noise and the shared filter. They do not load PSID/RSID songs or emulate the
+C64 CPU, CIA, VIC, banking or ROMs. Both retain the existing Web models;
+Native/WASM parity does not establish physical-chip accuracy.
+
+| Model | CMake alias | Public API | Output |
+| --- | --- | --- | --- |
+| 6581 approximation | `tetorica::sid` | `<tetorica/sid.h>`, `sid_*` | float mono, existing 12 Hz host DC blocker |
+| 8580 Preview, opt-in Rust | `tetorica::sid8580` | `<tetorica/sid8580.h>`, `sid8p_*` | raw mono int16 batch, fixed PAL 985,248 Hz |
+| 8580 optional C++ host | same alias | `<tetorica/sid8580.hpp>`, `tetorica::Sid8580Core` | Web-style float mono, access clocks, FIFO and 12 Hz DC blocker |
+
+The 6581 API is usable from C even though its implementation is C++17:
+
+```cpp
+#include <tetorica/sid.h>
+auto* sid = sid_create(48000, 985248);
+if (!sid) return 1;
+sid_write(sid, 0, 0x44); // CH1 frequency low/high
+sid_write(sid, 1, 0x1d);
+sid_write(sid, 5, 0x00); // Attack/Decay
+sid_write(sid, 6, 0xf0); // Sustain/Release
+sid_write(sid, 24, 15);  // master volume
+sid_write(sid, 4, 0x11); // Triangle + Gate
+if (sid_render(sid, 512)) {
+    const float* mono = sid_output(sid); // consume 512 borrowed samples now
+    // Copy to your output; duplicate mono explicitly for stereo.
+}
+sid_destroy(sid);
+```
+
+Link `tetorica::sid`. Its immutable rate is 8–96 kHz and clock 900–1100 kHz.
+Every successful read/write clocks once before access; observations do not
+clock. Render drains the bounded 4096-frame queue. A full queue rejects
+another access without clocking; drain it before retrying. Reset clears chip,
+queue, time and DC history. Serialize calls per handle; create/destroy off
+the callback. Borrowed output belongs to the handle.
+
+For 8580, install Rust and its matching target standard library before CMake:
+
+```sh
+cmake -S . -B build/sid8580 -DCMAKE_BUILD_TYPE=Release -DTETORICA_ENABLE_SID8580=ON
+cmake --build build/sid8580 --config Release --target tetorica_sid8580_rust_build tetorica_sid8580_wav
+```
+
+`tetorica::sid8580` links an imported static library with the selected Rust
+toolchain's reported system dependencies. Builds call `rustc` directly; they
+do not resolve Cargo dependencies or download cores. CI uses Rust 1.91.1.
+The option defaults Off. `TETORICA_SID8580_RUSTC` selects the compiler,
+`TETORICA_SID8580_RUST_TARGET` selects a cross target, and
+`TETORICA_SID8580_RUST_FLAGS` accepts a semicolon-separated flag list.
+MSVC/MinGW and pointer width must match. On macOS build each architecture
+separately with `CMAKE_OSX_ARCHITECTURES`; universal builds are not implicit.
+
+Use `sid8p_create(48000, 1)` for 8580. Raw `sid8p_write/read` do not advance
+time. `sid8p_run(handle, cycles)` clocks exactly those cycles and returns at
+most 4096 frames (or `UINT32_MAX` on failure); copy that many `int16_t` values
+from `sid8p_output` before another mutation. The integer handles include a
+generation tag, with at most 16 live instances per library. A global Mutex
+serializes access; this is not a lock-free callback guarantee. POT reads are
+unsupported. Calibration profiles remain Off by default.
+
+For Web-style manual instrument rendering in C++:
+
+```cpp
+#include <tetorica/sid8580.hpp>
+tetorica::Sid8580Core sid(48000); // throws on invalid configuration/failure
+sid.writeRegister(24, 15);
+// Set frequency, ADSR and Gate as in the 6581 example.
+float mono[512];
+sid.renderInto(mono, 512);
+```
+
+This helper adds one clock before bus access and a 4096-frame FIFO, divides
+int16 by 32768 and applies the existing Web DC blocker. Do not apply those
+steps twice when using the raw ABI. Neither interface opens an audio device.
+Use the host on one serialized thread and retire it after rendering stops.
+
+Standalone WASM recipes are `sh scripts/build-wasm.sh sid build/wasm` and
+`sh scripts/build-wasm.sh sid8580 build/wasm`. They produce
+`sid_wasm.wasm` and `sid8580_wasm.wasm`, respectively, without a JavaScript
+factory loader. The latter needs Rust's `wasm32-unknown-unknown` target;
+the former needs Emscripten. Public C output pointers become WASM memory
+offsets, so refresh typed-array views after any memory growth.
+Retain the [m6581 zlib notices](../vendor/chips-m6581/README.md),
+[sidera MIT notices](../vendor/sidera/README.md) and the included Rust
+toolchain notices when distributing the selected components.
 
 `reference/tauri/` preserves the existing exported functions and PCM behavior.
 HuC6280 and Nuked include paths are relocated to the shared SDK source layout.
@@ -29,11 +120,11 @@ translation-unit constraints.
 
 ## Build support
 
-Requirements for the complete build: CMake 3.20 or newer, a C++17 compiler and a C11 compiler. The CD-DA and MSM5205 modules can also compile independently as C11 and expose C-compatible headers to C or C++14 callers.
+Requirements for the default build: CMake 3.20 or newer, a C++17 compiler and a C11 compiler. Enabling SID 8580 additionally requires Rust. The CD-DA and MSM5205 modules can also compile independently as C11 and expose C-compatible headers to C or C++14 callers.
 
 The independently buildable Native components are **ymfm YM2612, YM2151,
 YM2413, YM2203, YM2608 and YM2610/YM2610B, plus Sega PSG, AY-3-8910, OKIM6258, RF5C164, Game Boy, HuC6280, NES with optional FDS, 32X PWM, MSFA DX7, SNES S-DSP, SPC700/S-DSP playback, WonderSwan, POKEY and YM3526/YM3812/YMF262/Y8950**.
-These 24 chip IDs and the alternative Nuked YM2612 engine use 21 static libraries. Separate CD-DA and MSM5205 application-audio modules bring the subtotal to 23 libraries and 28 aliases/public headers. The separate PlayStation SPU instrument adds one target/header, for 24 libraries and 29 aliases/public headers. YM2610/YM2610B share a library, as do four OPL-family chips; constructors explicitly select the per-handle variant/kind. Generic OPL and the alternative Nuked engine add aliases without adding chip IDs:
+These 24 chip IDs and the alternative Nuked YM2612 engine use 21 static libraries. Separate CD-DA and MSM5205 application-audio modules bring the subtotal to 23 libraries and 28 aliases/public headers. The published 0.1.6 PlayStation SPU addition brought that release to 24 libraries and 29 aliases/public headers. Current development adds SCSP and SID 6581 by default, plus SID 8580 when explicitly enabled. YM2610/YM2610B share a library, as do four OPL-family chips; constructors explicitly select the per-handle variant/kind. Generic OPL and the alternative Nuked engine add aliases without adding chip IDs:
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -107,7 +198,7 @@ clock/divider guards, pan, repeat, retained Stop/reset and observation.
 The RF5C164 fixture covers both profiles, eight voices, sign-magnitude PCM,
 loop markers, RAM/bank access, clock conversion, reset retention and the
 additional profile's immediate source cancellation and observation.
-The full suite supplies 30 CTest entries from 29 fixture executables, with assertions enabled in Release builds. The SNES executable supplies two entries. Three fixtures cover CD-DA, MSM5205 and their combined HuC6280 host.
+The 0.1.6 baseline supplies 30 CTest entries from 29 fixture executables, with assertions enabled in Release builds; current development adds SCSP/SID fixtures and a pure-C SID caller. The SNES executable supplies two entries. Three fixtures cover CD-DA, MSM5205 and their combined HuC6280 host.
 The three OPL-family fixtures exercise primary controls/PCM, additional source
 ownership/held output, and Y8950 writable-page memory separately. The shared OPL
 library covers four selected chip kinds; each handle constructs only one kind.
@@ -156,7 +247,7 @@ reset, independent instances and exact render-block partitioning. The tested
 render/control paths reject C++ allocation/free. Its raw headphone comparisons
 exclude the WAV example's DC filter, gain and fades.
 See the [verification record](../docs/verification.md)
-for completed checks and platform results. These targets cover all 23 cataloged Playground chip IDs and the alternative Nuked YM2612 engine. Separate Analyzer-only chip references remain outside this standalone target set.
+for completed checks and platform results. These targets cover all 24 cataloged chip IDs and the alternative Nuked YM2612 engine. Separate Analyzer-only chip references remain outside this standalone target set.
 
 `src/ymfm_opn_provider.cpp` includes the unchanged shared ymfm provider and explicitly instantiates the Native OPN engine/channel/operator templates. The adapter declares those templates `extern`; optimized providers must emit their callable definitions even when the provider's own calls are inlined. This incorporates the Tauri link fix without changing DSP behavior or the exported ABI. The provider's origin and include relocation are recorded in the source inventories.
 

@@ -2,6 +2,30 @@
 
 This document describes the initial source snapshot inspected on 2026-10-24 and the subsequent component additions recorded below. The **reference Web implementation** is the Browser / WASM side of `hello_ymfm`; the **reference Native implementation** is the Tauri project `tetorica-fm2612-playground-tauri`. Upstream chip projects, those applications and this distributable SDK are separate layers.
 
+## SID instruments — local development, 2026-11-09
+
+- **6581:** the pinned zlib chips/m6581 original and seven marked Web
+  adaptations are preserved. The CPU-free C++ host retains its one-clock
+  access policy, bounded FIFO, float mono and 12 Hz DC blocker. SDK C glue
+  removes the Emscripten-only annotation and validates C arguments; valid
+  register/render operations use the same host. It does not repair the SID
+  ADSR delay/retrigger behavior or add software key-on smoothing.
+- **8580 Preview:** the pinned MIT sidera crate, adapted cycle access and
+  existing BSD `sid8p_*` endpoint are preserved. Raw C callers get generation
+  handles, non-clocking access and bounded int16 batches at PAL 985248 Hz.
+  Native pointers have their real pointer width; WASM output is a memory
+  offset. `sid8580.hpp` separately reproduces the existing Web instrument's
+  one-clock accesses, FIFO, int16-to-float scaling and DC filter. Raw and host
+  PCM have different output contracts; do not compare one against the other.
+- Both calibration profiles default Off. Their research opt-ins remain
+  explicit; Native/WASM equality does not establish physical SID accuracy.
+  Combined waveforms and analogue filter curves retain the source models'
+  approximations. Rust builds are opt-in, use installed toolchains directly,
+  and exclude Cargo player/audio dependencies and C64 machine emulation.
+- Both additions are `instruments`, not new generic factory IDs. Their C ABI
+  names remain distinct. See the [Native guide](../native/README.md#embed-c64-sid)
+  for serialization, buffer lifetime, system linking and cross-target rules.
+
 ## PlayStation SPU instrument added in 0.1.6
 
 Version 0.1.7 adds explicit live-envelope and smoothed manual-audition controls.

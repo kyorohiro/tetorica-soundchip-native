@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 import stat
 import zipfile
-from sdk_common import ROOT, check_collection, file_record, json_bytes, local_path, metadata, read_json, sha256, verify_record
+from sdk_common import ROOT, artifact_outputs, check_collection, file_record, json_bytes, local_path, metadata, read_json, sha256, verify_record
 
 SOURCE_DIRS = (".github", "catalog", "docs", "native", "reference", "scripts", "tests", "vendor", "wasm")
 SOURCE_FILES = (".gitattributes", ".gitignore", "CMakeLists.txt", "sdk.json", "README.md", "LICENSE", "LICENSE.tools", "LICENSES.md", "CHANGELOG.md")
@@ -59,22 +59,25 @@ def wasm_payload(directory, source_zip, source, inventory):
             raise ValueError(f"Unknown or repeated WASM artifact: {artifact_id}")
         found.add(artifact_id)
         recipe = known[artifact_id]
+        if artifact_id in ("sid", "sid8580") and artifact.get("format") != recipe["format"]:
+            raise ValueError(f"WASM build format differs from recipe: {artifact_id}")
         declared_sources = {entry["path"] for entry in artifact["sourceFiles"]}
         required_sources = set(recipe["sourceFiles"]) | set(recipe.get("buildFiles", [recipe["buildScript"]]))
         if declared_sources != required_sources:
             raise ValueError(f"Incomplete WASM build source receipt: {artifact_id}")
         for record in artifact["sourceFiles"]:
             verify_record(ROOT, record["path"], record)
-        expected_outputs = {"msfa.wasm"} if recipe["format"] == "standalone-wasm" else {f"{artifact_id}_wasm.js", f"{artifact_id}_wasm.wasm"}
-        if {record["path"] for record in artifact["outputs"]} != expected_outputs:
+        expected_outputs = set(artifact_outputs(recipe))
+        if len(artifact["outputs"]) != len(expected_outputs) or {record["path"] for record in artifact["outputs"]} != expected_outputs:
             raise ValueError(f"WASM output set is incomplete: {artifact_id}")
         for record in artifact["outputs"]:
             verify_record(directory, record["path"], record)
             payload["wasm/" + record["path"]] = local_path(directory, record["path"]).read_bytes()
     # Preserve component notices next to the binary and embed the exact source
     # archive; consumers need no surviving remote repository to obtain it.
+    license_paths = {name for component in inventory.get('components', []) for name in component.get('licenseFiles', [])}
     for name, content in source.items():
-        if name.startswith("catalog/") or name in ("README.md", "LICENSE", "LICENSE.tools", "LICENSES.md", "CHANGELOG.md", "sdk.json") or name.startswith("vendor/") and any(token in Path(name).name.lower() for token in ("license", "copying", "notice", "authors", "upstream")):
+        if name in license_paths or name.startswith("catalog/") or name in ("README.md", "LICENSE", "LICENSE.tools", "LICENSES.md", "CHANGELOG.md", "sdk.json") or name.startswith("vendor/") and any(token in Path(name).name.lower() for token in ("license", "copying", "copyright", "notice", "authors", "upstream")):
             payload[name] = content
     relative_source = "sources/" + source_zip.name
     payload[relative_source] = source_zip.read_bytes()

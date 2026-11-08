@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — SID 6581 and 8580 Preview instruments
+
+- Add CPU-free SID 6581 (`tetorica::sid`, portable `sid_*` C ABI) using the exact existing m6581 adaptation and host. Preserve its pinned zlib sources, marked changes, BSD host and original hashes.
+- Add explicitly opt-in Rust SID 8580 Preview (`tetorica::sid8580`, `sid8p_*` C ABI) using the existing MIT sidera adaptation. Preserve the raw int16 batch API and provide an optional C++ Web-style float/DC/FIFO host. Rust is not required by the default C/C++ build; no Cargo dependency resolution or core downloads occur.
+- Add both standalone raw-WASM recipes, Native fixtures/WAV examples, Native/WASM parity checks, exact output/source-closure validation and extracted-source rebuilds. Catalog both as instruments; 24 generic chip IDs and the 29 legacy chip recipes remain unchanged.
+- Extend CI to both SID recipes and the optional Rust Native target. Source/WASM candidates are local development artifacts; the SDK version and published 0.1.6 assets/pins remain unchanged. PSID/RSID/C64 machine playback is outside this instrument integration.
+
 ## Unreleased — experimental SCSP instrument
 
 - Pin BSD-3-Clause MAME SCSP/DSP sources at `a64a5d6602b19f67e091a4491f0c851a9dacf79d` and retain pristine files, notices and SHA-256 hashes.

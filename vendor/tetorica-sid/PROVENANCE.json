@@ -1,0 +1,11 @@
+{
+  "source": "https://github.com/kyorohiro/hello_ymfm_wasm",
+  "snapshot": "parent checkout 2026-11-09; exact file hashes below",
+  "adaptation": "sid_core.h only changes the relative chip-header include; sid.cpp adds portable C declarations and null guards around the original ABI",
+  "files": {
+    "vendor/tetorica-sid/upstream/sid_core.h": "e25105c0966a3decf0b78e50f45680d501f8e3f961bf1539a346605b293beecc",
+    "vendor/tetorica-sid/upstream/sid_wasm.cpp": "b810e6d1bfb70fa76107d7a620bc840baddc5dc547f7e84727114fddd5cc2066",
+    "vendor/tetorica-sid/upstream/PARENT_LICENSE": "2d2e9213c170a9866c616fa85b6da993a6724e10befc61f468ed9bfb84c4691c",
+    "vendor/tetorica-sid/sid_core.h": "a6d064fff50771e5aaf36c75706b7e7efd9405fc844bcb0a2bb743d443786bf0"
+  }
+}

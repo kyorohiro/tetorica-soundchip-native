@@ -2366,6 +2366,186 @@
         ],
         "status": "build-recipes-included"
       }
+    },
+    {
+      "id": "sid",
+      "kind": "CPU-free C64 SID 6581 standalone instrument",
+      "licenseFiles": [
+        "vendor/chips-m6581/LICENSE",
+        "vendor/tetorica-sid/LICENSE"
+      ],
+      "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt"
+        ],
+        "cmakeAlias": "tetorica::sid",
+        "declaredFileLicenses": {
+          "native/include/tetorica/sid.h": "BSD-3-Clause",
+          "vendor/chips-m6581/m6581.h": "Zlib",
+          "vendor/tetorica-sid/sid.cpp": "BSD-3-Clause",
+          "vendor/tetorica-sid/sid_core.h": "BSD-3-Clause"
+        },
+        "id": "sid",
+        "licenseFiles": [
+          "vendor/chips-m6581/LICENSE",
+          "vendor/tetorica-sid/LICENSE"
+        ],
+        "licenseStatus": "declared",
+        "publicHeader": "native/include/tetorica/sid.h",
+        "role": "instrument",
+        "sourceFiles": [
+          "vendor/tetorica-sid/sid.cpp",
+          "vendor/tetorica-sid/sid_core.h",
+          "vendor/chips-m6581/m6581.h",
+          "native/include/tetorica/sid.h"
+        ],
+        "status": "verified",
+        "target": "tetorica_native_sid",
+        "tests": [
+          "native/tests/sid_fixture.cpp",
+          "native/examples/sid_wav.cpp",
+          "tests/sid_wasm_smoke.mjs",
+          "native/tests/sid_c_fixture.c"
+        ],
+        "verificationScope": "CPU-free owned 6581 handles; original waveform, combined waveform, ADSR/retrigger, Sync/Ring, shared filter and raw Native/WASM parity. 8-96 kHz, PAL/NTSC clocks; instance isolation/reset/block partitioning. No CPU/player/ROM, measured hardware-fidelity or 8580 behavior claim."
+      },
+      "role": "instrument",
+      "sourceFiles": [
+        "vendor/tetorica-sid/sid.cpp",
+        "vendor/tetorica-sid/sid_core.h",
+        "vendor/chips-m6581/m6581.h",
+        "native/include/tetorica/sid.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_sid_wasm.sh",
+            "format": "standalone-wasm",
+            "id": "sid",
+            "outputs": [
+              "sid_wasm.wasm"
+            ]
+          }
+        ],
+        "status": "build-recipes-included"
+      }
+    },
+    {
+      "id": "sid8580",
+      "kind": "CPU-free C64 SID 8580 Preview standalone instrument",
+      "licenseFiles": [
+        "vendor/sidera/LICENSE",
+        "vendor/tetorica-sid8580/LICENSE",
+        "vendor/sidera/toolchain-notices/COPYRIGHT-library.html",
+        "vendor/sidera/toolchain-notices/licenses/Apache-2.0.txt",
+        "vendor/sidera/toolchain-notices/licenses/BSD-2-Clause.txt",
+        "vendor/sidera/toolchain-notices/licenses/CC-BY-SA-4.0.txt",
+        "vendor/sidera/toolchain-notices/licenses/GCC-exception-3.1.txt",
+        "vendor/sidera/toolchain-notices/licenses/GPL-2.0-only.txt",
+        "vendor/sidera/toolchain-notices/licenses/GPL-3.0-or-later.txt",
+        "vendor/sidera/toolchain-notices/licenses/ISC.txt",
+        "vendor/sidera/toolchain-notices/licenses/LLVM-exception.txt",
+        "vendor/sidera/toolchain-notices/licenses/MIT.txt",
+        "vendor/sidera/toolchain-notices/licenses/NCSA.txt",
+        "vendor/sidera/toolchain-notices/licenses/OFL-1.1.txt",
+        "vendor/sidera/toolchain-notices/licenses/Unicode-3.0.txt"
+      ],
+      "native": {
+        "buildFiles": [
+          "CMakeLists.txt",
+          "native/CMakeLists.txt",
+          "native/sid8580.cmake"
+        ],
+        "cmakeAlias": "tetorica::sid8580",
+        "declaredFileLicenses": {
+          "native/include/tetorica/sid8580.h": "BSD-3-Clause",
+          "native/include/tetorica/sid8580.hpp": "BSD-3-Clause",
+          "vendor/sidera/adapted/src/envelope.rs": "MIT",
+          "vendor/sidera/adapted/src/extfilt.rs": "MIT",
+          "vendor/sidera/adapted/src/filter.rs": "MIT",
+          "vendor/sidera/adapted/src/high.rs": "MIT",
+          "vendor/sidera/adapted/src/lib.rs": "MIT",
+          "vendor/sidera/adapted/src/noise.rs": "MIT",
+          "vendor/sidera/adapted/src/oscillator.rs": "MIT",
+          "vendor/sidera/adapted/src/registers.rs": "MIT",
+          "vendor/sidera/adapted/src/sid.rs": "MIT",
+          "vendor/sidera/adapted/src/voice.rs": "MIT",
+          "vendor/tetorica-sid8580/lib.rs": "BSD-3-Clause"
+        },
+        "id": "sid8580",
+        "licenseFiles": [
+          "vendor/sidera/LICENSE",
+          "vendor/tetorica-sid8580/LICENSE",
+          "vendor/sidera/toolchain-notices/COPYRIGHT-library.html",
+          "vendor/sidera/toolchain-notices/licenses/Apache-2.0.txt",
+          "vendor/sidera/toolchain-notices/licenses/BSD-2-Clause.txt",
+          "vendor/sidera/toolchain-notices/licenses/CC-BY-SA-4.0.txt",
+          "vendor/sidera/toolchain-notices/licenses/GCC-exception-3.1.txt",
+          "vendor/sidera/toolchain-notices/licenses/GPL-2.0-only.txt",
+          "vendor/sidera/toolchain-notices/licenses/GPL-3.0-or-later.txt",
+          "vendor/sidera/toolchain-notices/licenses/ISC.txt",
+          "vendor/sidera/toolchain-notices/licenses/LLVM-exception.txt",
+          "vendor/sidera/toolchain-notices/licenses/MIT.txt",
+          "vendor/sidera/toolchain-notices/licenses/NCSA.txt",
+          "vendor/sidera/toolchain-notices/licenses/OFL-1.1.txt",
+          "vendor/sidera/toolchain-notices/licenses/Unicode-3.0.txt"
+        ],
+        "licenseStatus": "declared",
+        "publicHeader": "native/include/tetorica/sid8580.h",
+        "role": "instrument",
+        "sourceFiles": [
+          "vendor/tetorica-sid8580/lib.rs",
+          "vendor/sidera/adapted/src/envelope.rs",
+          "vendor/sidera/adapted/src/extfilt.rs",
+          "vendor/sidera/adapted/src/filter.rs",
+          "vendor/sidera/adapted/src/high.rs",
+          "vendor/sidera/adapted/src/lib.rs",
+          "vendor/sidera/adapted/src/noise.rs",
+          "vendor/sidera/adapted/src/oscillator.rs",
+          "vendor/sidera/adapted/src/registers.rs",
+          "vendor/sidera/adapted/src/sid.rs",
+          "vendor/sidera/adapted/src/voice.rs",
+          "native/include/tetorica/sid8580.h",
+          "native/include/tetorica/sid8580.hpp"
+        ],
+        "status": "verified",
+        "target": "tetorica_native_sid8580",
+        "tests": [
+          "native/tests/sid8580_fixture.cpp",
+          "native/examples/sid8580_wav.cpp",
+          "tests/sid8580_wasm_smoke.mjs"
+        ],
+        "verificationScope": "Opt-in Rust CPU-free 8580 Preview; exact parent sid8p raw ABI, owned handles, original register-write/render scenes, raw Native/WASM and Web-matching float queue/DC parity, reset/isolation. No C64 CPU/player/ROM or hardware-exact analog claim."
+      },
+      "role": "instrument",
+      "sourceFiles": [
+        "vendor/tetorica-sid8580/lib.rs",
+        "vendor/sidera/adapted/src/envelope.rs",
+        "vendor/sidera/adapted/src/extfilt.rs",
+        "vendor/sidera/adapted/src/filter.rs",
+        "vendor/sidera/adapted/src/high.rs",
+        "vendor/sidera/adapted/src/lib.rs",
+        "vendor/sidera/adapted/src/noise.rs",
+        "vendor/sidera/adapted/src/oscillator.rs",
+        "vendor/sidera/adapted/src/registers.rs",
+        "vendor/sidera/adapted/src/sid.rs",
+        "vendor/sidera/adapted/src/voice.rs",
+        "native/include/tetorica/sid8580.h"
+      ],
+      "wasm": {
+        "artifacts": [
+          {
+            "buildScript": "scripts/build_sid8580_wasm.sh",
+            "format": "standalone-wasm",
+            "id": "sid8580",
+            "outputs": [
+              "sid8580_wasm.wasm"
+            ]
+          }
+        ],
+        "status": "build-recipes-included"
+      }
     }
   ],
   "javascriptReferences": [

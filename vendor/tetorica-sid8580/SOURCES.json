@@ -1,0 +1,17 @@
+{
+  "format": "tetorica-sid8580-adapter-source",
+  "version": 1,
+  "originRepository": "https://github.com/kyorohiro/hello_ymfm_wasm",
+  "originPath": "tetorica_src/wasm/sid8580-probe/lib.rs",
+  "license": "BSD-3-Clause",
+  "files": {
+    "lib.rs": {
+      "bytes": 14402,
+      "sha256": "91228187132d85a9040f6d566484599a8870485e232a1a97e8587d8b4cc555ed"
+    }
+  },
+  "amendments": [],
+  "cpuFree": true,
+  "parentHostAdapter": "tetorica_src/runtime/sid8580.js",
+  "originCommit": "27891985cbc7d770c9dc5a45bdfb0b7a0d5adf8b"
+}

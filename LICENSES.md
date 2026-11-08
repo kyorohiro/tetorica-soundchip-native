@@ -7,12 +7,23 @@ file-level license applies. [LICENSE.tools](LICENSE.tools) retains the same BSD
 3-Clause terms for the original integration and tooling code.
 
 Third-party cores and adaptations keep their existing copyright notices and
-licenses. These include BSD-3-Clause, Apache-2.0, MIT, and LGPL-2.1-or-later
+licenses. These include BSD-3-Clause, zlib, Apache-2.0, MIT, and LGPL-2.1-or-later
 components. Existing explicit Apache, MIT, LGPL, or other license declarations
 remain applicable to their respective files and portions. The BSD default for
 Tetorica's original code does not replace those component terms.
 
 ## Find the licenses for a component
+
+The [SID 6581 core](vendor/chips-m6581/README.md) retains floooh/chips'
+**zlib** license and its original authorship and pinned pristine header.
+The marked Tetorica adaptation retains those terms; its CPU-free host and
+portable C ABI use BSD-3-Clause. [SID 8580 Preview](vendor/tetorica-sid8580/README.md)
+uses the **MIT** [sidera core](vendor/sidera/LICENSE) and a BSD-3-Clause
+Rust endpoint/C++ host. The selected Rust standard-library/toolchain notices
+are included under `vendor/sidera/toolchain-notices/`. No optional Cargo player,
+audio backend, GPL reference engine, C64 ROM or game tune is compiled or bundled
+by these instrument targets. The original crate's other files are retained
+for provenance and are outside the build closure.
 
 The experimental [MAME SCSP adaptation](vendor/mame-scsp/README.md) and its
 pristine SCSP/DSP sources retain ElSemi and R. Belmont's BSD-3-Clause notices.

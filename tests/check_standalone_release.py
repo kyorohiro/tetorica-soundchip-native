@@ -2,6 +2,7 @@
 """Audit release archives, then build the extracted SDK without another checkout.
 
 Uses only Python's standard library, CMake and the installed C++ toolchain.
+SID8580 verification additionally uses the installed Rust compiler and target standard library.
 No dependency download or network package manager is run by this test.
 """
 from __future__ import annotations
@@ -30,6 +31,9 @@ REQUIRED_CHIPS = frozenset("ym2612 ym2203 ym2610 ym2610b rf5c164 ym2608 gameboy 
 REQUIRED_ARTIFACTS = frozenset("ay8910 gameboy_apu huc6280 k051649 nesapu nuked_opn2 okim6258 pokey pwm32x rf5c164 segapcm segapsg spc y8950 ym2151 ym2203 ym2413 ym2608 ym2610b ym2612 ym3438 ym3526 ym3812 ymf262 ymf276 ymf278b ymf288 dx7 wonderswan".split())
 REQUIRED_JAVASCRIPT_REFERENCES = frozenset(("msm5205", "okim6295"))
 REQUIRED_APPLICATION_AUDIO = frozenset(("cdda", "msm5205"))
+INSTRUMENT_FORMATS = {"ps1_spu": "emscripten-es-module", "scsp": "emscripten-es-module",
+                      "sid": "standalone-wasm", "sid8580": "standalone-wasm"}
+SID_INSTRUMENTS = frozenset(("sid", "sid8580"))
 REQUIRED_NATIVE_FIXTURES = frozenset(("tetorica_ym2612_fixture", "tetorica_ym2151_fixture",
                                       "tetorica_segapsg_fixture", "tetorica_ym2413_fixture", "tetorica_ay8910_fixture",
                                       "tetorica_ym2203_fixture", "tetorica_ym2608_fixture", "tetorica_ym2610_fixture",
@@ -270,7 +274,7 @@ def audit_instruments(root, catalog, inventory, native):
         require(tuple(int(part) for part in version.split("-")[0].split(".")) < (0, 1, 6), "PS1 instrument inventory is missing")
         return
     expected = {item.get("id") for item in sources}
-    require("ps1_spu" in expected and expected <= {"ps1_spu", "scsp"}, "Standalone instrument inventory changed")
+    require("ps1_spu" in expected and expected <= INSTRUMENT_FORMATS.keys(), "Standalone instrument inventory changed")
     for label, records in (("source", sources), ("native", devices), ("catalog", entries)):
         ids = [item.get("id") for item in records]
         require(len(ids) == len(set(ids)) and set(ids) == expected, f"Standalone instrument {label} inventory changed")
@@ -279,7 +283,8 @@ def audit_instruments(root, catalog, inventory, native):
         identifier = record["id"]
         device = next(item for item in devices if item["id"] == identifier)
         entry = next(item for item in entries if item["id"] == identifier)
-        require(record.get("role") == "instrument" and record.get("chipIds") == [] and record.get("format") == "emscripten-es-module", f"{identifier} must remain a separate instrument API")
+        require(record.get("role") == "instrument" and record.get("chipIds") == [] and record.get("format") == INSTRUMENT_FORMATS[identifier], f"{identifier} must remain a separate instrument API")
+        artifact_outputs(record)
         for key in ("sourceFiles", "licenseFiles"):
             check_references(root, identifier, key, record.get(key))
             require(set(record[key]) <= hashes, f"{identifier} {key} lacks imported hash provenance")
@@ -289,7 +294,8 @@ def audit_instruments(root, catalog, inventory, native):
         check_references(root, identifier, "buildFiles", record.get("buildFiles"))
         require(device.get("target") == f"tetorica_native_{identifier}" and device.get("cmakeAlias") == f"tetorica::{identifier}" and device.get("publicHeader") == f"native/include/tetorica/{identifier}.h", f"{identifier} Native target/header mismatch")
         check_references(root, identifier, "publicHeader", [device.get("publicHeader")])
-        require(entry.get("native") == device and entry.get("wasm", {}).get("artifacts") == [{key: record[key] for key in ("id", "format", "buildScript")}], f"{identifier} instrument catalogs differ")
+        descriptor = {key: record[key] for key in ("id", "format", "buildScript", *(["outputs"] if "outputs" in record else []))}
+        require(entry.get("native") == device and entry.get("wasm", {}).get("artifacts") == [descriptor], f"{identifier} instrument catalogs differ")
 
 
 def audit_catalog(root):
@@ -378,6 +384,20 @@ def audit_local_sources(root):
             require(not network_shell.search(text), f"Network/package download in {name}")
 
 
+def artifact_outputs(recipe):
+    """Independent output-set check for an extracted release, never the checkout."""
+    identifier, format_name = recipe.get("id"), recipe.get("format")
+    if format_name == "standalone-wasm":
+        names = {"dx7": ["msfa.wasm"], "sid": ["sid_wasm.wasm"], "sid8580": ["sid8580_wasm.wasm"]}.get(identifier)
+        require(names is not None, f"Unsupported standalone WASM artifact: {identifier}")
+    else:
+        require(format_name in ("emscripten-es-module", "standalone-audio-wasm"), f"Unsupported WASM artifact format: {identifier}")
+        names = [f"{identifier}_wasm.js", f"{identifier}_wasm.wasm"]
+    require(not (identifier in SID_INSTRUMENTS or "outputs" in recipe) or recipe.get("outputs") == names,
+            f"Invalid explicit WASM outputs: {identifier}")
+    return names
+
+
 def audit_wasm(root, manifest, source_root, source_archive, inventory):
     source_release = manifest.get("sourceRelease")
     require(isinstance(source_release, dict), "WASM release has no companion source archive")
@@ -395,6 +415,7 @@ def audit_wasm(root, manifest, source_root, source_archive, inventory):
     expected_outputs = set()
     for record in info["artifacts"]:
         recipe = next(item for item in [*inventory["artifacts"], *inventory.get("applicationAudio", []), *inventory.get("instruments", [])] if item["id"] == record["id"])
+        require(record['id'] not in SID_INSTRUMENTS or record.get('format') == recipe['format'], f"{record['id']}: build format differs from recipe")
         expected_sources = set(recipe["sourceFiles"] + recipe.get("buildFiles", [recipe["buildScript"]]))
         require({item["path"] for item in record["sourceFiles"]} == expected_sources,
                 f"{record['id']}: build provenance omitted a source/build input")
@@ -404,8 +425,8 @@ def audit_wasm(root, manifest, source_root, source_archive, inventory):
                     f"{record['id']}: build input differs from companion source: {item['path']}")
         fingerprint = hashlib.sha256(json.dumps(record["sourceFiles"], ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
         require(fingerprint == record.get("sourceFingerprint"), f"{record['id']}: source fingerprint mismatch")
-        names = {"msfa.wasm"} if recipe["format"] == "standalone-wasm" else {record["id"] + "_wasm.js", record["id"] + "_wasm.wasm"}
-        require({item["path"] for item in record["outputs"]} == names, f"{record['id']}: missing WASM output")
+        names = set(artifact_outputs(recipe))
+        require(len(record["outputs"]) == len(names) and {item["path"] for item in record["outputs"]} == names, f"{record['id']}: missing WASM output")
         for item in record["outputs"]:
             path = root / "wasm" / relative_path(item["path"])
             require(path.is_file() and path.stat().st_size == item.get("size") and digest(path) == item.get("sha256"),
@@ -501,11 +522,32 @@ def audit_compile_commands(root, build, entries, *, windows=None):
             index += 1
 
 
-def audit_native_file_api(root, build, configuration="Release"):
+def declared_instruments(root):
+    catalog_path = Path(root) / "catalog/chips.json"
+    return {item.get("id") for item in read_json(catalog_path).get("instruments", [])} if catalog_path.is_file() else set()
+
+
+def native_examples(root, *, enable_sid8580=False):
+    examples = dict(REQUIRED_NATIVE_EXAMPLES)
+    declared = declared_instruments(root)
+    if 'sid' in declared:
+        examples['tetorica_sid_wav'] = 'SID 6581'
+    if 'sid8580' in declared and enable_sid8580:
+        examples['tetorica_sid8580_wav'] = 'SID 8580'
+    return examples
+
+
+def audit_native_file_api(root, build, configuration="Release", *, enable_sid8580=False):
     required = set(REQUIRED_NATIVE_EXECUTABLES)
-    catalog_path = root / "catalog/chips.json"
-    if catalog_path.is_file() and any(item.get("id") == "scsp" for item in read_json(catalog_path).get("instruments", [])):
+    declared = declared_instruments(root)
+    if "scsp" in declared:
         required.add("tetorica_scsp_fixture")
+    if "sid" in declared:
+        required.add("tetorica_sid_fixture")
+        required.add("tetorica_sid_c_fixture")
+    if "sid8580" in declared and enable_sid8580:
+        required.add("tetorica_sid8580_fixture")
+    required.update(native_examples(root, enable_sid8580=enable_sid8580))
     reply = build / ".cmake/api/v1/reply"
     indices = sorted(reply.glob("index-*.json"))
     require(indices, "Native CMake build has no File API source inventory")
@@ -578,7 +620,7 @@ def audit_genesis_wav(path):
     return audit_example_wav(path, "Genesis")
 
 
-def prepare_native_build(root, build, environment):
+def prepare_native_build(root, build, environment, *, enable_sid8580=False):
     root, build = root.resolve(), build.resolve()
     configuration = "Release"
     query = build / ".cmake/api/v1/query"
@@ -587,8 +629,9 @@ def prepare_native_build(root, build, environment):
     command(["cmake", "-S", root, "-B", build, f"-DCMAKE_BUILD_TYPE={configuration}",
              "-DBUILD_TESTING=ON", "-DTETORICA_NATIVE_BUILD_TESTS=ON", "-DTETORICA_NATIVE_BUILD_EXAMPLES=ON",
              "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "-DFETCHCONTENT_FULLY_DISCONNECTED=ON",
-             "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF", "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"], root, environment)
-    fixtures = audit_native_file_api(root, build, configuration)
+             "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF", "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF",
+             *([f"-DTETORICA_ENABLE_SID8580={'ON' if enable_sid8580 else 'OFF'}"] if 'sid8580' in declared_instruments(root) else [])], root, environment)
+    fixtures = audit_native_file_api(root, build, configuration, enable_sid8580=enable_sid8580)
     entries = read_json(build / "compile_commands.json") if (build / "compile_commands.json").is_file() else []
     audit_compile_commands(root, build, entries)
     return fixtures
@@ -597,12 +640,12 @@ def prepare_native_build(root, build, environment):
 def build_native(root, build, environment):
     root, build = root.resolve(), build.resolve()
     configuration = "Release"
-    fixtures = prepare_native_build(root, build, environment)
+    fixtures = prepare_native_build(root, build, environment, enable_sid8580="sid8580" in declared_instruments(root))
     command(["cmake", "--build", build, "--config", configuration, "--parallel", "2"], root, environment)
     for name, fixture in fixtures.items():
         require(fixture.is_file(), f"Native executable was not built ({name}): {fixture}")
     command(["ctest", "--test-dir", build, "-C", configuration, "--output-on-failure", "--no-tests=error"], root, environment)
-    for target, label in REQUIRED_NATIVE_EXAMPLES.items():
+    for target, label in native_examples(root, enable_sid8580='sid8580' in declared_instruments(root)).items():
         wav = build / f"{label.lower()} example output.wav"
         command([fixtures[target], wav], build, environment)
         print(f"{label} WAV: " + json.dumps(audit_example_wav(wav, label), sort_keys=True), flush=True)
@@ -655,6 +698,24 @@ def check_scsp_parity(root, fixture, wasm, environment):
              "--native-fixture", fixture], root, environment)
 
 
+def build_sid_fixture(root, build, environment, identifier):
+    require(identifier in SID_INSTRUMENTS and identifier in declared_instruments(root), "SID instrument is missing from source catalog")
+    fixtures = prepare_native_build(root, build, environment, enable_sid8580=identifier == "sid8580")
+    target = f"tetorica_{identifier}_fixture"
+    require(target in fixtures, f"{identifier}: Native fixture is missing from the source catalog/build")
+    fixture = fixtures[target]
+    command(["cmake", "--build", build, "--config", "Release", "--target", target, "--parallel", "2"], root, environment)
+    require(fixture.is_file(), f"{identifier}: Native parity fixture was not built: {fixture}")
+    command([fixture, "--self-test"], root, environment)
+    return fixtures
+
+
+def check_sid_parity(root, fixture, wasm, environment, identifier):
+    require(identifier in SID_INSTRUMENTS and fixture.is_file(), f"{identifier}: Native parity fixture was not built: {fixture}")
+    command(["node", root / f"tests/{identifier}_wasm_smoke.mjs", "--wasm-dir", wasm,
+             "--native-fixture", fixture], root, environment)
+
+
 def check_application_audio(root, wasm, selected, environment, parity=False):
     for identifier in sorted(set(selected) & REQUIRED_APPLICATION_AUDIO):
         command(["node", root / "tests/application_audio_wasm_smoke.mjs", wasm, identifier], root, environment)
@@ -669,12 +730,14 @@ def main():
     parser.add_argument("--wasm-zip", type=Path)
     parser.add_argument("--work-dir", type=Path)
     parser.add_argument("--audit-only", action="store_true")
-    parser.add_argument("--wasm-smoke", action="store_true", help="Run supported released Node ABI smokes (YM2612/WonderSwan/POKEY/CD-DA/MSM5205) even with --audit-only")
+    parser.add_argument("--wasm-smoke", action="store_true", help="Run supported released Node ABI smokes, including standalone instruments, even with --audit-only")
     parser.add_argument("--javascript-smoke", action="store_true", help="Run the two JavaScript reference smokes with Node.js 22+, even with --audit-only")
-    parser.add_argument("--build-wasm", metavar="ARTIFACT", help="Also rebuild one WASM artifact using installed Emscripten")
+    parser.add_argument("--build-wasm", metavar="ARTIFACT", help="Also rebuild one WASM artifact using installed Emscripten or Rust (SID8580)")
     parser.add_argument("--pokey-native-parity", action="store_true", help="Even with --audit-only, build the extracted POKEY fixture and compare supplied/rebuilt POKEY WASM")
     parser.add_argument("--ps1-native-parity", action="store_true", help="Build the extracted SPU fixture and compare supplied/rebuilt PS1 instrument WASM")
     parser.add_argument("--scsp-native-parity", action="store_true", help="Build the extracted SCSP fixture and compare supplied/rebuilt SCSP WASM")
+    parser.add_argument("--sid-native-parity", action="store_true", help="Build the extracted 6581 fixture and compare supplied/rebuilt standalone SID WASM")
+    parser.add_argument("--sid8580-native-parity", action="store_true", help="Build the extracted Rust 8580 fixture and compare supplied/rebuilt standalone SID8580 WASM")
     parser.add_argument("--application-audio-parity", action="store_true", help="Compare selected CD-DA/MSM5205 WASM with C/C++ cores from the extracted source; requires a local C/C++ compiler")
     args = parser.parse_args()
     work = (args.work_dir or Path(tempfile.mkdtemp(prefix="tetorica SDK standalone "))).resolve()
@@ -697,6 +760,12 @@ def main():
         require(any(item['id'] == 'scsp' for item in inventory.get('instruments', [])), "SCSP instrument is missing from source catalog")
         require((args.wasm_zip and "scsp" in wasm_manifest["artifacts"]) or args.build_wasm in ("scsp", "all"),
                 "--scsp-native-parity needs supplied or rebuilt SCSP WASM")
+    declared_sid = {item['id'] for item in inventory.get('instruments', [])} & SID_INSTRUMENTS
+    requested_sid = {identifier for identifier in SID_INSTRUMENTS if getattr(args, identifier + "_native_parity", False)}
+    for identifier in requested_sid:
+        require(identifier in declared_sid, f"{identifier}: SID instrument is missing from source catalog")
+        require((args.wasm_zip and identifier in wasm_manifest['artifacts']) or args.build_wasm in (identifier, 'all'),
+                f"--{identifier}-native-parity needs supplied or rebuilt {identifier.upper()} WASM")
     if args.application_audio_parity:
         supplied_audio = args.wasm_zip and set(wasm_manifest["artifacts"]) & REQUIRED_APPLICATION_AUDIO
         require(supplied_audio or args.build_wasm in REQUIRED_APPLICATION_AUDIO | {"all"},
@@ -716,23 +785,34 @@ def main():
         fixtures = build_ps1_fixture(root, work / "native-build", environment)
     scsp_fixture = fixtures.get("tetorica_scsp_fixture") if fixtures else None
     has_scsp = any(item['id'] == 'scsp' for item in inventory.get('instruments', []))
-    will_smoke = not args.audit_only or args.wasm_smoke or args.pokey_native_parity or args.application_audio_parity or getattr(args, "ps1_native_parity", False) or getattr(args, "scsp_native_parity", False)
+    will_smoke = not args.audit_only or args.wasm_smoke or args.pokey_native_parity or args.application_audio_parity or getattr(args, "ps1_native_parity", False) or getattr(args, "scsp_native_parity", False) or bool(requested_sid)
     needs_scsp = has_scsp and (getattr(args, "scsp_native_parity", False) or args.build_wasm in ('scsp', 'all') or
         (args.wasm_zip and 'scsp' in wasm_manifest['artifacts'] and will_smoke))
     if needs_scsp and (scsp_fixture is None or not scsp_fixture.is_file()):
         scsp_fixture = build_scsp_fixture(root, work / "scsp-native-build", environment)["tetorica_scsp_fixture"]
+    sid_fixtures = {}
+    for identifier in sorted(declared_sid):
+        needed = identifier in requested_sid or args.build_wasm in (identifier, 'all') or (args.wasm_zip and identifier in wasm_manifest['artifacts'] and will_smoke)
+        if needed:
+            target = f"tetorica_{identifier}_fixture"
+            fixture = fixtures.get(target) if fixtures else None
+            if fixture is None or not fixture.is_file():
+                fixture = build_sid_fixture(root, work / (identifier + '-native-build'), environment, identifier)[target]
+            sid_fixtures[identifier] = fixture
     if not args.audit_only or args.javascript_smoke:
         require(shutil.which("node"), "JavaScript reference smoke requires Node.js 22+")
         command(["node", root / "tests/javascript_reference_smoke.mjs", root / "reference/javascript"], root, environment)
-    if args.wasm_zip and (not args.audit_only or args.wasm_smoke or args.pokey_native_parity or args.application_audio_parity or getattr(args, "ps1_native_parity", False) or getattr(args, "scsp_native_parity", False)):
+    if args.wasm_zip and will_smoke:
         require(shutil.which("node"), "WASM ABI smoke requires Node.js")
         selected = set(wasm_manifest["artifacts"])
-        if "ym2612" in selected or not selected.intersection({"wonderswan", "pokey", "cdda", "msm5205", "ps1_spu", "scsp"}):
+        if "ym2612" in selected or not selected.intersection({"wonderswan", "pokey", "cdda", "msm5205", "ps1_spu", "scsp"} | SID_INSTRUMENTS):
             command(["node", root / "tests/wasm_smoke.mjs", wasm / "wasm"], root, environment)
         if "ps1_spu" in selected:
             command(["node", root / "tests/ps1_spu_wasm_smoke.mjs", wasm / "wasm", *([fixtures["tetorica_ps1_spu_fixture"]] if fixtures else [])], root, environment)
         if "scsp" in selected:
             check_scsp_parity(root, scsp_fixture, wasm / "wasm", environment)
+        for identifier in sorted(selected & SID_INSTRUMENTS):
+            check_sid_parity(root, sid_fixtures[identifier], wasm / 'wasm', environment, identifier)
         if "wonderswan" in selected:
             command(["node", root / "tests/wonderswan_wasm_smoke.mjs", wasm / "wasm"], root, environment)
         if "pokey" in selected:
@@ -741,7 +821,8 @@ def main():
                 check_pokey_parity(root, fixtures, wasm / "wasm", environment)
         check_application_audio(root, wasm / "wasm", selected, environment, args.application_audio_parity)
     if args.build_wasm:
-        require(shutil.which("emcc" if args.build_wasm in REQUIRED_APPLICATION_AUDIO else "em++"), "--build-wasm requires installed Emscripten")
+        compiler = 'rustc' if args.build_wasm == 'sid8580' else 'emcc' if args.build_wasm in REQUIRED_APPLICATION_AUDIO else 'em++'
+        require(shutil.which(compiler), f"--build-wasm requires installed {compiler}")
         command(["sh", root / "scripts/build-wasm.sh", args.build_wasm, work / "rebuilt-wasm"], root, environment)
         require(any((work / "rebuilt-wasm").rglob("*.wasm")), "WASM build produced no WASM artifact")
         if args.build_wasm in ("ym2612", "all"):
@@ -750,6 +831,9 @@ def main():
             command(["node", root / "tests/ps1_spu_wasm_smoke.mjs", work / "rebuilt-wasm", *([fixtures["tetorica_ps1_spu_fixture"]] if fixtures else [])], root, environment)
         if has_scsp and args.build_wasm in ("scsp", "all"):
             check_scsp_parity(root, scsp_fixture, work / "rebuilt-wasm", environment)
+        for identifier in sorted(declared_sid):
+            if args.build_wasm in (identifier, 'all'):
+                check_sid_parity(root, sid_fixtures[identifier], work / 'rebuilt-wasm', environment, identifier)
         if args.build_wasm in ("wonderswan", "all"):
             command(["node", root / "tests/wonderswan_wasm_smoke.mjs", work / "rebuilt-wasm"], root, environment)
         if args.build_wasm in ("pokey", "all"):

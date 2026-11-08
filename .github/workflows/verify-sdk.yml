@@ -8,6 +8,9 @@ on:
 permissions:
   contents: read
 
+env:
+  RUSTUP_TOOLCHAIN: '1.91.1'
+
 concurrency:
   group: sdk-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
@@ -41,6 +44,8 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '22'
+      - name: Prepare the installed Rust toolchain for the optional SID 8580 build
+        run: rustup toolchain install 1.91.1 --profile minimal
       - name: Check source inventories
         run: python scripts/check_sdk.py
       - name: Test release audit tools
@@ -78,7 +83,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        artifact: [ym2612, wonderswan, pokey, cdda, msm5205, ps1_spu, scsp]
+        artifact: [ym2612, wonderswan, pokey, cdda, msm5205, ps1_spu, scsp, sid, sid8580]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -94,6 +99,9 @@ jobs:
       - uses: emscripten-core/setup-emsdk@667eb33f24e84e7f362c16d8d7fff0629a73e15e # v15
         with:
           version: '6.0.6'
+      - name: Prepare Rust for the SID 8580 Native/WASM comparison
+        if: matrix.artifact == 'sid8580'
+        run: rustup toolchain install 1.91.1 --profile minimal --target wasm32-unknown-unknown
       - name: Compile WASM and record its inputs
         run: sh scripts/build-wasm.sh ${{ matrix.artifact }} build/ci-wasm
       - name: Package and verify the WASM release and matching sources
@@ -116,6 +124,10 @@ jobs:
               verification.append('--ps1-native-parity')
           if '${{ matrix.artifact }}' == 'scsp':
               verification.append('--scsp-native-parity')
+          if '${{ matrix.artifact }}' == 'sid':
+              verification.append('--sid-native-parity')
+          if '${{ matrix.artifact }}' == 'sid8580':
+              verification.append('--sid8580-native-parity')
           if '${{ matrix.artifact }}' == 'pokey':
               verification.append('--pokey-native-parity')
           if '${{ matrix.artifact }}' in ('cdda', 'msm5205'):

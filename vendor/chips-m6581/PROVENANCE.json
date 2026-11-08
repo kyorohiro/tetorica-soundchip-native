@@ -1,0 +1,9 @@
+{
+  "upstream": "https://github.com/floooh/chips",
+  "revision": "9e88298ce56319953ac7a43213a1120359f7a3a6",
+  "files": {
+    "vendor/chips-m6581/upstream/m6581.h": "a793225ee69b91e0ea8c91b221d06ee024e45e6c8179176980abfa95d5a54cdf",
+    "vendor/chips-m6581/m6581.h": "a13132ce5083e707611ac65e6e37c799a19ce18a8df4dcbb9e60292cb9520aa8",
+    "vendor/chips-m6581/LICENSE": "0c692ece632a8ec6d2a566c9234fdabda655644e6abc70027da9ff7c35e48634"
+  }
+}

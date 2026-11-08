@@ -9,6 +9,43 @@ endif()
 get_filename_component(TETORICA_SDK_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
 option(TETORICA_NATIVE_BUILD_TESTS "Build the standalone Native core tests" ON)
 option(TETORICA_NATIVE_BUILD_EXAMPLES "Build the standalone Native examples" ON)
+option(TETORICA_ENABLE_SID8580 "Build the opt-in SID 8580 Preview using the installed Rust toolchain" OFF)
+
+# CPU-free SID 6581. The same bounded host/core is used by the Web instrument;
+# a portable C ABI makes it usable without an audio device or application host.
+add_library(tetorica_native_sid STATIC
+  "${TETORICA_SDK_ROOT}/vendor/tetorica-sid/sid.cpp")
+add_library(tetorica::sid ALIAS tetorica_native_sid)
+target_compile_features(tetorica_native_sid PUBLIC cxx_std_17)
+target_include_directories(tetorica_native_sid PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include")
+if(MSVC)
+  target_compile_options(tetorica_native_sid PRIVATE /EHsc /fp:strict)
+else()
+  target_compile_options(tetorica_native_sid PRIVATE -ffp-contract=off)
+endif()
+if(TETORICA_NATIVE_BUILD_TESTS)
+  add_executable(tetorica_sid_fixture tests/sid_fixture.cpp)
+  target_link_libraries(tetorica_sid_fixture PRIVATE tetorica::sid)
+  add_test(NAME tetorica.sid.self_test COMMAND tetorica_sid_fixture --self-test)
+  add_executable(tetorica_sid_c_fixture tests/sid_c_fixture.c)
+  target_compile_features(tetorica_sid_c_fixture PRIVATE c_std_11)
+  set_target_properties(tetorica_sid_c_fixture PROPERTIES LINKER_LANGUAGE CXX)
+  target_link_libraries(tetorica_sid_c_fixture PRIVATE tetorica::sid)
+  add_test(NAME tetorica.sid.c_abi COMMAND tetorica_sid_c_fixture)
+endif()
+if(TETORICA_NATIVE_BUILD_EXAMPLES)
+  add_executable(tetorica_sid_wav examples/sid_wav.cpp)
+  target_link_libraries(tetorica_sid_wav PRIVATE tetorica::sid)
+endif()
+
+# 8580 remains optional so existing C/C++ consumers need no Rust installation.
+if(TETORICA_ENABLE_SID8580)
+  include("${CMAKE_CURRENT_LIST_DIR}/sid8580.cmake")
+  if(TETORICA_NATIVE_BUILD_TESTS)
+    target_compile_definitions(tetorica_sid_c_fixture PRIVATE TETORICA_TEST_SID8580=1)
+    target_link_libraries(tetorica_sid_c_fixture PRIVATE tetorica::sid8580)
+  endif()
+endif()
 
 # Application-owned PCM transports. Keep the original C ABI and C11 sources;
 # these modules own no device, machine, source allocation, or Tauri dependency.

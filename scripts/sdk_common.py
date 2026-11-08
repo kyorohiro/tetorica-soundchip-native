@@ -15,6 +15,28 @@ APPLICATION_AUDIO_IDS = frozenset(("cdda", "msm5205"))
 UPSTREAM_REFERENCE_IDS = frozenset((
     "libvgm-msm5205-upstream", "libvgm-okim6295-upstream", "mame-okim6295-upstream",
 ))
+INSTRUMENT_FORMATS = {"ps1_spu": "emscripten-es-module", "scsp": "emscripten-es-module",
+                      "sid": "standalone-wasm", "sid8580": "standalone-wasm"}
+
+
+def artifact_outputs(recipe):
+    """Exact executable filenames, including the historical DX7 exception."""
+    identifier, format_name = recipe.get("id"), recipe.get("format")
+    if format_name == "standalone-wasm":
+        names = {"dx7": ["msfa.wasm"], "sid": ["sid_wasm.wasm"], "sid8580": ["sid8580_wasm.wasm"]}.get(identifier)
+        if names is None:
+            raise ValueError(f"Unsupported standalone WASM artifact: {identifier}")
+    elif format_name in ("emscripten-es-module", "standalone-audio-wasm"):
+        names = [f"{identifier}_wasm.js", f"{identifier}_wasm.wasm"]
+    else:
+        raise ValueError(f"Unsupported WASM artifact format: {identifier}")
+    if (identifier in ("sid", "sid8580") or "outputs" in recipe) and recipe.get("outputs") != names:
+        raise ValueError(f"Invalid explicit WASM outputs: {identifier}")
+    return names
+
+
+def artifact_descriptor(recipe):
+    return {key: recipe[key] for key in ("id", "format", "buildScript", *(["outputs"] if "outputs" in recipe else []))}
 
 
 def read_json(path):
@@ -190,16 +212,17 @@ def check_collection(root=ROOT):
     catalog_instruments = catalog.get("instruments", [])
     if instruments or native_instruments or catalog_instruments or tuple(int(part) for part in metadata(root)["version"].split("-")[0].split(".")) >= (0, 1, 6):
         expected_ids = {entry.get("id") for entry in instruments}
-        if "ps1_spu" not in expected_ids or not expected_ids.issubset({"ps1_spu", "scsp"}):
-            raise ValueError("Standalone instrument inventory requires PS1 SPU and may include experimental SCSP")
+        if "ps1_spu" not in expected_ids or not expected_ids.issubset(INSTRUMENT_FORMATS):
+            raise ValueError("Standalone instrument inventory requires PS1 SPU and known separate instruments")
         for label, entries in (("source", instruments), ("native", native_instruments), ("catalog", catalog_instruments)):
             instrument_ids = [entry.get("id") for entry in entries]
             if len(instrument_ids) != len(set(instrument_ids)) or set(instrument_ids) != expected_ids:
                 raise ValueError(f"Standalone instrument {label} inventory must contain PS1 SPU and each declared instrument exactly once")
         for entry in instruments:
             identifier = entry["id"]
-            if entry.get("role") != "instrument" or entry.get("chipIds") != [] or entry.get("format") != "emscripten-es-module":
+            if entry.get("role") != "instrument" or entry.get("chipIds") != [] or entry.get("format") != INSTRUMENT_FORMATS[identifier]:
                 raise ValueError(f"{identifier} must remain a separate instrument API")
+            artifact_outputs(entry)
             if not entry.get("sourceFiles") or not entry.get("licenseFiles") or not set(entry["sourceFiles"] + entry["licenseFiles"]).issubset(recorded_sources):
                 raise ValueError(f"{identifier} source/license lacks hash provenance")
             device = next(item for item in native_instruments if item["id"] == identifier)
@@ -207,7 +230,7 @@ def check_collection(root=ROOT):
                 raise ValueError(f"Invalid {identifier} Native target/header")
             local_path(root, device["publicHeader"])
             catalog_device = next(item for item in catalog_instruments if item["id"] == identifier)
-            if catalog_device.get("native") != device or catalog_device.get("wasm", {}).get("artifacts") != [{key: entry[key] for key in ("id", "format", "buildScript")}]:
+            if catalog_device.get("native") != device or catalog_device.get("wasm", {}).get("artifacts") != [artifact_descriptor(entry)]:
                 raise ValueError(f"{identifier} catalogs differ; run scripts/refresh_catalog.py")
     javascript = inventory.get("javascriptReferences", [])
     javascript_ids = [entry["id"] for entry in javascript]
